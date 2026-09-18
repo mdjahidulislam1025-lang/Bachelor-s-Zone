@@ -9,9 +9,15 @@ import {
   AlertTriangle,
   Globe,
   RefreshCw,
+  ShieldCheck,
+  Lock,
+  LogOut,
+  Database,
+  ChevronDown,
 } from 'lucide-react';
 import { Member, InAppNotification } from '../types.js';
 import { Language, translations } from '../utils/translations.js';
+import { useAuth } from '../context/AuthContext.js';
 
 interface NavbarProps {
   messName: string;
@@ -26,6 +32,9 @@ interface NavbarProps {
   onRefresh: () => void;
   isLoading: boolean;
   onTabSelect: (tab: string) => void;
+  onOpenAdminLogin: () => void;
+  onOpenAdminProfile: () => void;
+  onOpenDataManagement: () => void;
 }
 
 export const Navbar: React.FC<NavbarProps> = ({
@@ -41,8 +50,13 @@ export const Navbar: React.FC<NavbarProps> = ({
   onRefresh,
   isLoading,
   onTabSelect,
+  onOpenAdminLogin,
+  onOpenAdminProfile,
+  onOpenDataManagement,
 }) => {
   const [showNotifs, setShowNotifs] = useState(false);
+  const [showAdminMenu, setShowAdminMenu] = useState(false);
+  const { isAdmin, adminProfile, logout } = useAuth();
   const t = translations[language];
   const unreadCount = notifications.filter(n => !n.read).length;
 
@@ -63,13 +77,13 @@ export const Navbar: React.FC<NavbarProps> = ({
                 Bangladesh
               </span>
             </div>
-            <p className="text-xs text-slate-500 truncate max-w-[200px] sm:max-w-xs">
+            <p className="text-xs text-slate-500 truncate max-w-[180px] sm:max-w-xs">
               {messAddress}
             </p>
           </div>
         </div>
 
-        {/* Right: Actions, AI, Language, Role Switcher */}
+        {/* Right: Actions, AI, Language, Admin Login / Profile */}
         <div className="flex items-center gap-2 sm:gap-3">
           {/* Refresh Button */}
           <button
@@ -103,7 +117,7 @@ export const Navbar: React.FC<NavbarProps> = ({
           {/* Language Switch */}
           <button
             onClick={onToggleLanguage}
-            className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg border border-slate-200 bg-slate-50 hover:bg-slate-100 text-xs font-semibold text-slate-700 transition-colors cursor-pointer"
+            className="hidden sm:flex items-center gap-1 px-2.5 py-1.5 rounded-lg border border-slate-200 bg-slate-50 hover:bg-slate-100 text-xs font-semibold text-slate-700 transition-colors cursor-pointer"
             title="Switch Language"
           >
             <Globe className="h-3.5 w-3.5 text-slate-500" />
@@ -165,6 +179,67 @@ export const Navbar: React.FC<NavbarProps> = ({
                   )}
                 </div>
               </div>
+            )}
+          </div>
+
+          {/* Admin Profile & Login Portal */}
+          <div className="relative">
+            {isAdmin ? (
+              <div className="relative">
+                <button
+                  onClick={() => setShowAdminMenu(!showAdminMenu)}
+                  className="flex items-center gap-1.5 px-2.5 py-1.5 bg-emerald-50 hover:bg-emerald-100 text-emerald-900 border border-emerald-200 rounded-xl text-xs font-bold transition-all shadow-2xs cursor-pointer"
+                  title="Admin Menu"
+                >
+                  <ShieldCheck className="h-4 w-4 text-emerald-600" />
+                  <span className="hidden sm:inline">এডমিন অ্যাকাউন্ট</span>
+                  <ChevronDown className="h-3.5 w-3.5 text-emerald-600" />
+                </button>
+
+                {showAdminMenu && (
+                  <div
+                    className="absolute right-0 mt-2 w-56 bg-white rounded-xl shadow-xl border border-slate-200 p-2 z-50 text-xs space-y-1 animate-in fade-in"
+                    onClick={() => setShowAdminMenu(false)}
+                  >
+                    <div className="px-3 py-2 border-b border-slate-100 bg-slate-50/70 rounded-lg">
+                      <p className="font-bold text-slate-900">{adminProfile?.name || 'Rahim Uddin'}</p>
+                      <p className="text-[10px] text-slate-500">{adminProfile?.phone || '01711234567'} • Admin</p>
+                    </div>
+                    <button
+                      onClick={onOpenAdminProfile}
+                      className="w-full flex items-center gap-2 px-3 py-2 text-slate-700 hover:bg-emerald-50 hover:text-emerald-800 rounded-lg font-medium transition-colors text-left"
+                    >
+                      <ShieldCheck className="h-4 w-4 text-emerald-600" />
+                      <span>এডমিন প্রোফাইল ও পাসওয়ার্ড</span>
+                    </button>
+                    <button
+                      onClick={onOpenDataManagement}
+                      className="w-full flex items-center gap-2 px-3 py-2 text-slate-700 hover:bg-emerald-50 hover:text-emerald-800 rounded-lg font-medium transition-colors text-left"
+                    >
+                      <Database className="h-4 w-4 text-indigo-600" />
+                      <span>ব্যাকআপ, রিস্টোর ও মেম্বার</span>
+                    </button>
+                    <div className="border-t border-slate-100 pt-1">
+                      <button
+                        onClick={logout}
+                        className="w-full flex items-center gap-2 px-3 py-2 text-rose-600 hover:bg-rose-50 rounded-lg font-medium transition-colors text-left"
+                      >
+                        <LogOut className="h-4 w-4 text-rose-500" />
+                        <span>লগআউট (Logout)</span>
+                      </button>
+                    </div>
+                  </div>
+                )}
+              </div>
+            ) : (
+              <button
+                onClick={onOpenAdminLogin}
+                className="flex items-center gap-1.5 px-3 py-1.5 bg-slate-900 hover:bg-slate-800 text-white rounded-xl text-xs font-bold shadow-xs hover:shadow-md transition-all cursor-pointer"
+                title="Admin Login"
+              >
+                <Lock className="h-3.5 w-3.5 text-emerald-400" />
+                <span>এডমিন লগইন</span>
+              </button>
             )}
           </div>
 

@@ -14,8 +14,9 @@ import {
 } from './server/db.js';
 import { getInitialMessData } from './server/demoData.js';
 import { answerMessQuery } from './server/ai.js';
-import { SmsLog, MemberRole } from './src/types.js';
+import { SmsLog, MemberRole, AdminProfile, AuthSession } from './src/types.js';
 import { checkMealLock, getDhakaTime } from './src/utils/cutoffUtils.js';
+import { simpleHashSync } from './src/utils/authUtils.js';
 
 interface RequestUserInfo {
   id: string;
@@ -25,8 +26,14 @@ interface RequestUserInfo {
   ipAddress: string;
 }
 
+const activeSessions = new Map<string, AuthSession>();
+const loginAttempts = new Map<string, { count: number; lastTime: number }>();
+
 function getRequestUser(req: express.Request): RequestUserInfo {
   const db = getDatabase();
+  const authHeader = (req.headers['authorization'] as string) || (req.headers['x-auth-token'] as string) || '';
+  const token = authHeader.startsWith('Bearer ') ? authHeader.substring(7).trim() : authHeader.trim();
+
   const headerUserId = (req.headers['x-user-id'] as string) || '';
   const bodyUserId =
     req.body?.actingUserId ||
@@ -44,7 +51,31 @@ function getRequestUser(req: express.Request): RequestUserInfo {
     req.socket.remoteAddress ||
     '127.0.0.1';
 
+  // 1. Session token validation
+  if (token && activeSessions.has(token)) {
+    const session = activeSessions.get(token)!;
+    return {
+      id: session.userId,
+      name: session.name,
+      role: session.role,
+      status: 'active',
+      ipAddress,
+    };
+  }
+
+  // 2. Direct Admin Profile check
   const targetId = headerUserId || bodyUserId;
+  if (targetId && db.adminProfile && (targetId === db.adminProfile.id || targetId === 'admin_m1')) {
+    return {
+      id: db.adminProfile.id,
+      name: db.adminProfile.name,
+      role: 'admin',
+      status: db.adminProfile.status || 'active',
+      ipAddress,
+    };
+  }
+
+  // 3. Member ID check
   let member = targetId ? db.members.find(m => m.id === targetId) : null;
   if (!member && actingUserStr) {
     member =
@@ -181,6 +212,10 @@ async function startServer() {
 
   app.use(express.json({ limit: '10mb' }));
 
+  app.get('/api/health', (req, res) => {
+    res.json({ status: 'ok' });
+  });
+
   // Initialize DB
   initDatabase();
 
@@ -195,6 +230,496 @@ async function startServer() {
           ...db,
           currentMonthCalculation: currentMonthCalc,
         },
+      });
+    } catch (err: any) {
+      res.status(500).json({ success: false, error: err.message });
+    }
+  });
+
+  // ================= AUTHENTICATION & ADMIN PROFILE ROUTES =================
+
+  // Admin / Member Login
+  app.post('/api/auth/login', (req, res) => {
+    try {
+      const db = getDatabase();
+      const { identifier, password } = req.body;
+
+      if (!identifier || !password) {
+        return res.status(400).json({ success: false, error: 'ফোন নম্বর অথবা ইমেইল এবং পাসওয়ার্ড আবশ্যক' });
+      }
+
+      const cleanId = identifier.toString().trim().toLowerCase();
+      const ip = (req.headers['x-forwarded-for'] as string)?.split(',')[0]?.trim() || req.socket.remoteAddress || '127.0.0.1';
+
+      // Rate limiting: 5 attempts per 5 minutes
+      const now = Date.now();
+      const attempt = loginAttempts.get(ip);
+      if (attempt && attempt.count >= 5 && now - attempt.lastTime < 5 * 60 * 1000) {
+        const remainingMinutes = Math.ceil((5 * 60 * 1000 - (now - attempt.lastTime)) / 60000);
+        return res.status(429).json({
+          success: false,
+          error: `অতিরিক্ত ভুল চেষ্টার কারণে লগইন সাময়িক স্থগিত। অনুগ্রহ করে ${remainingMinutes} মিনিট পর চেষ্টা করুন।`,
+        });
+      }
+
+      const inputHash = simpleHashSync(password);
+
+      // Check Admin Profile
+      const admin = db.adminProfile;
+      const isAdminMatch =
+        admin &&
+        (admin.phone.replace(/[^0-9]/g, '').endsWith(cleanId.replace(/[^0-9]/g, '')) ||
+          admin.email.toLowerCase() === cleanId ||
+          cleanId === 'admin' ||
+          cleanId === '01711234567');
+
+      if (isAdminMatch) {
+        // Verify password
+        const validPassword = admin.passwordHash ? admin.passwordHash === inputHash : password === 'admin123';
+        if (!validPassword) {
+          const currentCount = (attempt ? attempt.count : 0) + 1;
+          loginAttempts.set(ip, { count: currentCount, lastTime: now });
+          return res.status(401).json({ success: false, error: 'ভুল ফোন নম্বর/ইমেইল অথবা পাসওয়ার্ড (Invalid credentials)' });
+        }
+
+        // Login success
+        loginAttempts.delete(ip);
+        const token = 'tok_admin_' + Math.random().toString(36).substring(2) + Date.now().toString(36);
+        const session: AuthSession = {
+          token,
+          userId: admin.id,
+          role: 'admin',
+          name: admin.name,
+          phone: admin.phone,
+          email: admin.email,
+          avatarColor: 'bg-emerald-600',
+          loginTime: new Date().toISOString(),
+        };
+
+        activeSessions.set(token, session);
+        admin.lastLogin = new Date().toISOString();
+        saveDatabase(db);
+
+        logAudit(admin.name, 'এডমিন লগইন', 'settings', `${admin.name} এডমিন অ্যাকাউন্টে প্রবেশ করেছেন`);
+
+        return res.json({
+          success: true,
+          message: 'এডমিন লগইন সফল হয়েছে',
+          token,
+          user: session,
+          adminProfile: admin,
+        });
+      }
+
+      // Check Normal Members credentials
+      const matchingMember = db.members.find(
+        m =>
+          m.phone.replace(/[^0-9]/g, '').endsWith(cleanId.replace(/[^0-9]/g, '')) ||
+          (m.email && m.email.toLowerCase() === cleanId)
+      );
+
+      if (matchingMember) {
+        const creds = db.memberCredentials?.[matchingMember.id];
+        const memberValidPass = creds?.passwordHash
+          ? creds.passwordHash === inputHash
+          : password === 'member123' || (matchingMember.role === 'admin' && password === 'admin123');
+
+        if (!memberValidPass) {
+          const currentCount = (attempt ? attempt.count : 0) + 1;
+          loginAttempts.set(ip, { count: currentCount, lastTime: now });
+          return res.status(401).json({ success: false, error: 'ভুল ফোন নম্বর/ইমেইল অথবা পাসওয়ার্ড' });
+        }
+
+        loginAttempts.delete(ip);
+        const token = 'tok_mem_' + Math.random().toString(36).substring(2) + Date.now().toString(36);
+        const session: AuthSession = {
+          token,
+          userId: matchingMember.id,
+          role: matchingMember.role,
+          name: matchingMember.name,
+          phone: matchingMember.phone,
+          email: matchingMember.email,
+          avatarColor: matchingMember.avatarColor,
+          loginTime: new Date().toISOString(),
+        };
+
+        activeSessions.set(token, session);
+        logAudit(matchingMember.name, 'সদস্য লগইন', 'members', `${matchingMember.name} অ্যাপে প্রবেশ করেছেন`);
+
+        return res.json({
+          success: true,
+          message: 'লগইন সফল হয়েছে',
+          token,
+          user: session,
+        });
+      }
+
+      // Invalid user
+      const currentCount = (attempt ? attempt.count : 0) + 1;
+      loginAttempts.set(ip, { count: currentCount, lastTime: now });
+      return res.status(401).json({ success: false, error: 'ব্যবহারকারী খুঁজে পাওয়া যায়নি অথবা পাসওয়ার্ড ভুল' });
+    } catch (err: any) {
+      res.status(500).json({ success: false, error: err.message });
+    }
+  });
+
+  // First Admin Setup
+  app.post('/api/auth/first-setup', (req, res) => {
+    try {
+      const db = getDatabase();
+      const { name, phone, email, password, confirmPassword, messName } = req.body;
+
+      if (!name || !phone || !password) {
+        return res.status(400).json({ success: false, error: 'এডমিন নাম, ফোন নম্বর ও পাসওয়ার্ড আবশ্যক' });
+      }
+
+      if (password.length < 6) {
+        return res.status(400).json({ success: false, error: 'পাসওয়ার্ড ন্যূনতম ৬ অক্ষরের হতে হবে' });
+      }
+
+      if (confirmPassword && password !== confirmPassword) {
+        return res.status(400).json({ success: false, error: 'পাসওয়ার্ড দুটি মিলছে না' });
+      }
+
+      const passwordHash = simpleHashSync(password);
+      const now = new Date().toISOString();
+
+      const newAdmin: AdminProfile = {
+        id: 'admin_m1',
+        name: name.trim(),
+        phone: phone.trim(),
+        email: (email || 'admin@mess.com').trim(),
+        passwordHash,
+        messName: (messName || 'শান্তিনগর মেস').trim(),
+        role: 'admin',
+        status: 'active',
+        createdDate: now.slice(0, 10),
+        lastLogin: now,
+      };
+
+      db.adminProfile = newAdmin;
+      if (messName) {
+        db.settings.messName = messName.trim();
+      }
+
+      // Update or insert Rahim/admin member entry
+      const existingAdminMember = db.members.find(m => m.id === 'm1' || m.role === 'admin');
+      if (existingAdminMember) {
+        existingAdminMember.name = newAdmin.name;
+        existingAdminMember.phone = newAdmin.phone;
+        existingAdminMember.email = newAdmin.email;
+      }
+
+      saveDatabase(db);
+      logAudit(newAdmin.name, 'প্রাথমিক এডমিন অ্যাকাউন্ট তৈরি', 'settings', 'মেস ম্যানেজারের মূল এডমিন অ্যাকাউন্ট সফলভাবে কনফিগার করা হয়েছে');
+
+      const token = 'tok_admin_' + Math.random().toString(36).substring(2) + Date.now().toString(36);
+      const session: AuthSession = {
+        token,
+        userId: newAdmin.id,
+        role: 'admin',
+        name: newAdmin.name,
+        phone: newAdmin.phone,
+        email: newAdmin.email,
+        avatarColor: 'bg-emerald-600',
+        loginTime: now,
+      };
+      activeSessions.set(token, session);
+
+      return res.json({
+        success: true,
+        message: 'Admin Account Created Successfully',
+        token,
+        user: session,
+        adminProfile: newAdmin,
+      });
+    } catch (err: any) {
+      res.status(500).json({ success: false, error: err.message });
+    }
+  });
+
+  // Get Current Auth Profile
+  app.get('/api/auth/me', (req, res) => {
+    try {
+      const user = getRequestUser(req);
+      const db = getDatabase();
+      res.json({
+        success: true,
+        user,
+        adminProfile: user.role === 'admin' ? db.adminProfile : undefined,
+      });
+    } catch (err: any) {
+      res.status(500).json({ success: false, error: err.message });
+    }
+  });
+
+  // Admin Update Profile
+  app.post('/api/auth/update-profile', (req, res) => {
+    try {
+      const user = checkAdminAuth(req, res);
+      if (!user) return;
+
+      const db = getDatabase();
+      const { name, photo, phone, email, messName } = req.body;
+
+      if (!name || !phone) {
+        return res.status(400).json({ success: false, error: 'নাম ও ফোন নম্বর আবশ্যক' });
+      }
+
+      if (!db.adminProfile) {
+        db.adminProfile = {
+          id: 'admin_m1',
+          name,
+          phone,
+          email: email || '',
+          messName: messName || db.settings.messName,
+          role: 'admin',
+          status: 'active',
+          createdDate: '2026-01-01',
+        };
+      }
+
+      const prev = { ...db.adminProfile };
+      db.adminProfile.name = name.trim();
+      db.adminProfile.phone = phone.trim();
+      if (email !== undefined) db.adminProfile.email = email.trim();
+      if (photo !== undefined) db.adminProfile.photo = photo;
+      if (messName) {
+        db.adminProfile.messName = messName.trim();
+        db.settings.messName = messName.trim();
+      }
+
+      // Sync member record m1
+      const m1 = db.members.find(m => m.id === 'm1');
+      if (m1) {
+        m1.name = db.adminProfile.name;
+        m1.phone = db.adminProfile.phone;
+        m1.email = db.adminProfile.email;
+      }
+
+      saveDatabase(db);
+      logAudit(user.name, 'এডমিন প্রোফাইল হালনাগাদ', 'settings', `এডমিন প্রোফাইল আপডেট করা হয়েছে। নাম: ${db.adminProfile.name}`, JSON.stringify(prev), JSON.stringify(db.adminProfile));
+
+      res.json({
+        success: true,
+        message: 'এডমিন প্রোফাইল সফলভাবে হালনাগাদ করা হয়েছে',
+        adminProfile: db.adminProfile,
+      });
+    } catch (err: any) {
+      res.status(500).json({ success: false, error: err.message });
+    }
+  });
+
+  // Change Password
+  app.post('/api/auth/change-password', (req, res) => {
+    try {
+      const user = getRequestUser(req);
+      const db = getDatabase();
+      const { currentPassword, newPassword, confirmPassword } = req.body;
+
+      if (!currentPassword || !newPassword) {
+        return res.status(400).json({ success: false, error: 'বর্তমান এবং নতুন পাসওয়ার্ড আবশ্যক' });
+      }
+
+      if (newPassword.length < 6) {
+        return res.status(400).json({ success: false, error: 'নতুন পাসওয়ার্ড ন্যূনতম ৬ অক্ষরের হতে হবে' });
+      }
+
+      if (confirmPassword && newPassword !== confirmPassword) {
+        return res.status(400).json({ success: false, error: 'নতুন পাসওয়ার্ড দুটি মিলছে না' });
+      }
+
+      const currentHash = simpleHashSync(currentPassword);
+      const newHash = simpleHashSync(newPassword);
+
+      if (user.role === 'admin' || user.id === 'admin_m1') {
+        const admin = db.adminProfile;
+        const valid = admin?.passwordHash ? admin.passwordHash === currentHash : currentPassword === 'admin123';
+        if (!valid) {
+          return res.status(400).json({ success: false, error: 'বর্তমান পাসওয়ার্ডটি সঠিক নয়' });
+        }
+        if (admin) admin.passwordHash = newHash;
+        saveDatabase(db);
+        logAudit(user.name, 'পাসওয়ার্ড পরিবর্তন', 'settings', 'এডমিন পাসওয়ার্ড সফলভাবে পরিবর্তিত হয়েছে');
+        return res.json({ success: true, message: 'পাসওয়ার্ড সফলভাবে পরিবর্তন করা হয়েছে' });
+      } else {
+        const creds = db.memberCredentials?.[user.id];
+        const valid = creds?.passwordHash ? creds.passwordHash === currentHash : currentPassword === 'member123';
+        if (!valid) {
+          return res.status(400).json({ success: false, error: 'বর্তমান পাসওয়ার্ডটি সঠিক নয়' });
+        }
+        if (!db.memberCredentials) db.memberCredentials = {};
+        db.memberCredentials[user.id] = {
+          memberId: user.id,
+          phone: user.name,
+          passwordHash: newHash,
+          isActive: true,
+        };
+        saveDatabase(db);
+        logAudit(user.name, 'পাসওয়ার্ড পরিবর্তন', 'members', `${user.name} পাসওয়ার্ড পরিবর্তন করেছেন`);
+        return res.json({ success: true, message: 'পাসওয়ার্ড সফলভাবে পরিবর্তন করা হয়েছে' });
+      }
+    } catch (err: any) {
+      res.status(500).json({ success: false, error: err.message });
+    }
+  });
+
+  // Forgot Password
+  app.post('/api/auth/forgot-password', (req, res) => {
+    try {
+      const { identifier } = req.body;
+      if (!identifier) {
+        return res.status(400).json({ success: false, error: 'ফোন নম্বর অথবা ইমেইল আবশ্যক' });
+      }
+      // Never reveal whether a specific user exists (Security requirement)
+      res.json({
+        success: true,
+        message: 'যদি এই ফোন বা ইমেইল নিবন্ধিত থাকে, তবে পাসওয়ার্ড রিসেট ও ওটিপি নির্দেশনাবলী পাঠানো হয়েছে।',
+      });
+    } catch (err: any) {
+      res.status(500).json({ success: false, error: err.message });
+    }
+  });
+
+  // Logout
+  app.post('/api/auth/logout', (req, res) => {
+    try {
+      const authHeader = (req.headers['authorization'] as string) || (req.headers['x-auth-token'] as string) || '';
+      const token = authHeader.startsWith('Bearer ') ? authHeader.substring(7).trim() : authHeader.trim();
+      if (token && activeSessions.has(token)) {
+        activeSessions.delete(token);
+      }
+      res.json({ success: true, message: 'সফলভাবে লগআউট সম্পন্ন হয়েছে' });
+    } catch (err: any) {
+      res.status(500).json({ success: false, error: err.message });
+    }
+  });
+
+  // Admin Add Member with Credentials & Invitation
+  app.post('/api/members/with-credentials', (req, res) => {
+    try {
+      const user = checkAdminAuth(req, res);
+      if (!user) return;
+
+      const db = getDatabase();
+      const { member, createLogin, initialPassword, initialBalance, sendInvitationSms } = req.body;
+
+      if (!member || !member.name || !member.phone) {
+        return res.status(400).json({ success: false, error: 'সদস্যের নাম ও ফোন নম্বর আবশ্যক' });
+      }
+
+      const newId = member.id || `m_${Date.now()}`;
+      const colors = ['bg-emerald-600', 'bg-blue-600', 'bg-indigo-600', 'bg-amber-600', 'bg-purple-600', 'bg-teal-600', 'bg-rose-600'];
+      const randomColor = colors[Math.floor(Math.random() * colors.length)];
+
+      const newMember = {
+        ...member,
+        id: newId,
+        avatarColor: member.avatarColor || randomColor,
+        status: member.status || 'active',
+        role: member.role || 'member',
+        joiningDate: member.joiningDate || new Date().toISOString().slice(0, 10),
+      };
+
+      db.members.push(newMember);
+
+      // Create credentials if requested
+      if (createLogin) {
+        if (!db.memberCredentials) db.memberCredentials = {};
+        const pass = initialPassword || 'member123';
+        db.memberCredentials[newId] = {
+          memberId: newId,
+          phone: newMember.phone,
+          passwordHash: simpleHashSync(pass),
+          isActive: true,
+        };
+      }
+
+      // Record initial balance if applicable as a verified payment
+      if (initialBalance && Number(initialBalance) > 0) {
+        db.payments.push({
+          id: `pay_init_${Date.now()}`,
+          memberId: newId,
+          memberName: newMember.name,
+          date: newMember.joiningDate,
+          amount: Number(initialBalance),
+          paymentMethod: 'cash',
+          receivedBy: user.name,
+          notes: 'যোগদানকালীন প্রারম্ভিক জমা (Initial Deposit)',
+          status: 'verified',
+          createdAt: new Date().toISOString(),
+        });
+      }
+
+      // Send Invitation notification / SMS
+      if (sendInvitationSms && db.settings.smsGateway?.apiKeyConfigured) {
+        const msg = `আসসালামু আলাইকুম ${newMember.name}। শান্তিনগর মেস ম্যানেজারে আপনার অ্যাকাউন্ট তৈরি হয়েছে। আপনার খাবার মিল ও হিসাব দেখতে অ্যাপে প্রবেশ করুন। - Mess Admin`;
+        db.smsLogs.push({
+          id: `sms_inv_${Date.now()}`,
+          timestamp: new Date().toISOString(),
+          recipientId: newId,
+          recipientName: newMember.name,
+          phone: newMember.phone,
+          type: 'custom',
+          message: msg,
+          status: 'sent',
+          provider: (db.settings.smsGateway as any).provider || db.settings.smsGateway.providerName || 'Alpha SMS',
+          refId: `REF-${Math.floor(100000 + Math.random() * 900000)}`,
+        });
+      }
+
+      saveDatabase(db);
+      logAudit(user.name, 'নতুন সদস্য যুক্তকরণ', 'members', `এডমিন কর্তৃক নতুন সদস্য ${newMember.name} (${newMember.phone}) যুক্ত করা হয়েছে`);
+
+      res.json({
+        success: true,
+        message: 'নতুন সদস্য সফলভাবে সংরক্ষিত হয়েছে',
+        member: newMember,
+      });
+    } catch (err: any) {
+      res.status(500).json({ success: false, error: err.message });
+    }
+  });
+
+  // Admin Data Backup Export
+  app.get('/api/backup/export', (req, res) => {
+    try {
+      const user = checkAdminAuth(req, res);
+      if (!user) return;
+
+      const db = getDatabase();
+      logAudit(user.name, 'ব্যাকআপ ডাউনলোড', 'settings', 'মেস ডাটাবেজের পূর্ণাঙ্গ ব্যাকআপ এক্সপোর্ট করা হয়েছে');
+
+      res.setHeader('Content-Type', 'application/json');
+      res.setHeader('Content-Disposition', `attachment; filename=mess-backup-${new Date().toISOString().slice(0, 10)}.json`);
+      res.json({
+        backupDate: new Date().toISOString(),
+        exportedBy: user.name,
+        version: '2.0',
+        data: db,
+      });
+    } catch (err: any) {
+      res.status(500).json({ success: false, error: err.message });
+    }
+  });
+
+  // Admin Data Backup Restore
+  app.post('/api/backup/restore', (req, res) => {
+    try {
+      const user = checkAdminAuth(req, res);
+      if (!user) return;
+
+      const { backupData } = req.body;
+      if (!backupData || !backupData.members || !Array.isArray(backupData.members)) {
+        return res.status(400).json({ success: false, error: 'অবৈধ ব্যাকআপ ফাইল ফরম্যাট। অনুগ্রহ করে বৈধ JSON ব্যাকআপ প্রদান করুন।' });
+      }
+
+      saveDatabase(backupData);
+      logAudit(user.name, 'ব্যাকআপ রিস্টোর', 'settings', 'মেস ডাটাবেজে পূর্বে সংরক্ষিত ব্যাকআপ রিস্টোর করা হয়েছে');
+
+      res.json({
+        success: true,
+        message: 'ব্যাকআপ সফলভাবে রিস্টোর হয়েছে। সিস্টেম রিলোড হচ্ছে...',
       });
     } catch (err: any) {
       res.status(500).json({ success: false, error: err.message });

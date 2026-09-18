@@ -33,6 +33,12 @@ export function initDatabase(): MessDatabaseState {
         if (!inMemoryState!.settings) inMemoryState!.settings = initial.settings;
         inMemoryState!.settings.mealCutoffSettings = initial.settings.mealCutoffSettings;
       }
+      if (!inMemoryState!.adminProfile) {
+        inMemoryState!.adminProfile = initial.adminProfile;
+      }
+      if (!inMemoryState!.memberCredentials) {
+        inMemoryState!.memberCredentials = initial.memberCredentials;
+      }
     } else {
       inMemoryState = getInitialMessData();
       fs.writeFileSync(DATA_FILE, JSON.stringify(inMemoryState, null, 2), 'utf-8');

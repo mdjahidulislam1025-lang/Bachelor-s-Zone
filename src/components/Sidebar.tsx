@@ -11,14 +11,19 @@ import {
   Users,
   BarChart3,
   Settings,
+  ShieldCheck,
+  Lock,
 } from 'lucide-react';
 import { Language, translations } from '../utils/translations.js';
+import { useAuth } from '../context/AuthContext.js';
 
 interface SidebarProps {
   activeTab: string;
   onSelectTab: (tab: string) => void;
   language: Language;
   userRole: string;
+  onOpenAdminLogin?: () => void;
+  onOpenAdminProfile?: () => void;
 }
 
 export const Sidebar: React.FC<SidebarProps> = ({
@@ -26,8 +31,11 @@ export const Sidebar: React.FC<SidebarProps> = ({
   onSelectTab,
   language,
   userRole,
+  onOpenAdminLogin,
+  onOpenAdminProfile,
 }) => {
   const t = translations[language];
+  const { isAdmin, adminProfile } = useAuth();
 
   const navItems = [
     { id: 'dashboard', label: t.dashboard, icon: LayoutDashboard },
@@ -66,8 +74,31 @@ export const Sidebar: React.FC<SidebarProps> = ({
         })}
       </div>
 
-      {/* Role badge card at bottom */}
-      <div className="mt-auto pt-4 border-t border-slate-200">
+      {/* Admin Action Button & Role badge card at bottom */}
+      <div className="mt-auto pt-4 border-t border-slate-200 space-y-2">
+        {isAdmin ? (
+          <button
+            onClick={onOpenAdminProfile}
+            className="w-full flex items-center justify-between p-2.5 bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 rounded-xl text-xs font-semibold text-emerald-900 transition-colors cursor-pointer"
+          >
+            <div className="flex items-center gap-2">
+              <ShieldCheck className="w-4 h-4 text-emerald-600 shrink-0" />
+              <div className="text-left truncate">
+                <div className="truncate">{adminProfile?.name || 'এডমিন প্রোফাইল'}</div>
+                <div className="text-[10px] text-emerald-600 font-normal">প্রোফাইল ও পাসওয়ার্ড পরিবর্তন</div>
+              </div>
+            </div>
+          </button>
+        ) : (
+          <button
+            onClick={onOpenAdminLogin}
+            className="w-full flex items-center justify-center gap-2 p-2.5 bg-slate-900 hover:bg-slate-800 text-white rounded-xl text-xs font-semibold shadow-xs transition-colors cursor-pointer"
+          >
+            <Lock className="w-4 h-4 text-emerald-400" />
+            <span>এডমিন লগইন (Admin Login)</span>
+          </button>
+        )}
+
         <div className="p-3 bg-slate-50 rounded-xl border border-slate-200/80">
           <div className="flex items-center justify-between text-[11px] font-bold text-slate-700">
             <span>বর্তমান রোল</span>

@@ -23,6 +23,10 @@ import { SmsAndSettingsView } from './components/SmsAndSettingsView.js';
 import { AiAssistantModal } from './components/AiAssistantModal.js';
 import { StatementVoucherModal } from './components/StatementVoucherModal.js';
 import { SendSmsModal } from './components/SendSmsModal.js';
+import { AdminLoginModal } from './components/AdminLoginModal.js';
+import { AdminProfileModal } from './components/AdminProfileModal.js';
+import { AdminDataManagementModal } from './components/AdminDataManagementModal.js';
+import { useAuth } from './context/AuthContext.js';
 import {
   MessDatabaseState,
   Member,
@@ -60,6 +64,41 @@ export function App() {
   // Active logged-in user simulation (defaults to Rahim Uddin - Manager/Admin)
   const [currentMemberId, setCurrentMemberId] = useState<string>('m1');
 
+  // Auth context
+  const { session, isAdmin, adminProfile } = useAuth();
+  const [showAdminLoginModal, setShowAdminLoginModal] = useState(false);
+  const [showAdminProfileModal, setShowAdminProfileModal] = useState(false);
+  const [showDataManagementModal, setShowDataManagementModal] = useState(false);
+
+  // Synchronize currentMemberId with session if logged in
+  useEffect(() => {
+    if (session?.userId) {
+      setCurrentMemberId(session.userId);
+    }
+  }, [session]);
+
+  const getAuthHeaders = (extraHeaders: Record<string, string> = {}) => {
+    const headers: Record<string, string> = {
+      'Content-Type': 'application/json',
+      'x-user-id': currentMemberId,
+      ...extraHeaders,
+    };
+    if (session?.token) {
+      headers['Authorization'] = `Bearer ${session.token}`;
+    }
+    return headers;
+  };
+
+  const getDeleteHeaders = () => {
+    const headers: Record<string, string> = {
+      'x-user-id': currentMemberId,
+    };
+    if (session?.token) {
+      headers['Authorization'] = `Bearer ${session.token}`;
+    }
+    return headers;
+  };
+
   // Global feedback toast notifications
   const [toasts, setToasts] = useState<ToastItem[]>([]);
 
@@ -93,7 +132,9 @@ export function App() {
   const fetchData = async () => {
     try {
       setIsLoading(true);
-      const res = await fetch('/api/mess-data');
+      const res = await fetch('/api/mess-data', {
+        headers: getAuthHeaders(),
+      });
       const data = await res.json();
       if (data.success) {
         setDbState(data.data);
@@ -172,7 +213,7 @@ export function App() {
     try {
       const res = await fetch('/api/meals/batch', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: getAuthHeaders(),
         body: JSON.stringify({ date, records, notes, actingUser: actingUserLabel }),
       });
       await handleApiResponse(res, `${date} তারিখের মিল সফলভাবে সংরক্ষিত হয়েছে`);
@@ -187,6 +228,7 @@ export function App() {
     try {
       const res = await fetch(`/api/meals/${date}?actingUser=${encodeURIComponent(actingUserLabel)}`, {
         method: 'DELETE',
+        headers: getDeleteHeaders(),
       });
       await handleApiResponse(res, `${date} তারিখের মিল রেকর্ড মুছে ফেলা হয়েছে`);
     } catch (err) {
@@ -206,10 +248,7 @@ export function App() {
     try {
       const res = await fetch('/api/meals/toggle-status', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'x-user-id': currentMemberId,
-        },
+        headers: getAuthHeaders(),
         body: JSON.stringify({
           memberId,
           date,
@@ -237,10 +276,7 @@ export function App() {
     try {
       const res = await fetch('/api/meals/batch-member-plan', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'x-user-id': currentMemberId,
-        },
+        headers: getAuthHeaders(),
         body: JSON.stringify({
           memberId,
           plans,
@@ -259,10 +295,7 @@ export function App() {
     try {
       const res = await fetch('/api/settings/meal-cutoff', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'x-user-id': currentMemberId,
-        },
+        headers: getAuthHeaders(),
         body: JSON.stringify({
           mealCutoffSettings: settings,
           actingUser: actingUserLabel,
@@ -280,10 +313,7 @@ export function App() {
     try {
       const res = await fetch('/api/meals/send-cutoff-reminders', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'x-user-id': currentMemberId,
-        },
+        headers: getAuthHeaders(),
         body: JSON.stringify({
           date,
           actingUser: actingUserLabel,
@@ -301,7 +331,7 @@ export function App() {
     try {
       const res = await fetch('/api/menus', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: getAuthHeaders(),
         body: JSON.stringify({ menu, actingUser: actingUserLabel }),
       });
       await handleApiResponse(res, 'খাবার মেনু সফলভাবে হালনাগাদ হয়েছে');
@@ -315,7 +345,7 @@ export function App() {
     try {
       const res = await fetch('/api/cooking-duty', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: getAuthHeaders(),
         body: JSON.stringify({ duty, actingUser: actingUserLabel }),
       });
       await handleApiResponse(res, 'রান্নার দায়িত্ব সফলভাবে সংরক্ষিত হয়েছে');
@@ -328,6 +358,7 @@ export function App() {
     try {
       const res = await fetch(`/api/cooking-duty/${id}?actingUser=${encodeURIComponent(actingUserLabel)}`, {
         method: 'DELETE',
+        headers: getDeleteHeaders(),
       });
       await handleApiResponse(res, 'রান্নার দায়িত্ব শিডিউল মুছে ফেলা হয়েছে');
     } catch (err) {
@@ -340,7 +371,7 @@ export function App() {
     try {
       const res = await fetch('/api/bazar', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: getAuthHeaders(),
         body: JSON.stringify({ bazar, actingUser: actingUserLabel }),
       });
       await handleApiResponse(res, 'বাজার খরচ সফলভাবে সংরক্ষিত হয়েছে');
@@ -353,6 +384,7 @@ export function App() {
     try {
       const res = await fetch(`/api/bazar/${id}?actingUser=${encodeURIComponent(actingUserLabel)}`, {
         method: 'DELETE',
+        headers: getDeleteHeaders(),
       });
       await handleApiResponse(res, 'বাজার রেকর্ড মুছে ফেলা হয়েছে');
     } catch (err) {
@@ -365,7 +397,7 @@ export function App() {
     try {
       const res = await fetch('/api/bazar-duty', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: getAuthHeaders(),
         body: JSON.stringify({ duty, actingUser: actingUserLabel }),
       });
       await handleApiResponse(res, 'বাজার দায়িত্ব নির্ধারিত হয়েছে');
@@ -378,6 +410,7 @@ export function App() {
     try {
       const res = await fetch(`/api/bazar-duty/${id}?actingUser=${encodeURIComponent(actingUserLabel)}`, {
         method: 'DELETE',
+        headers: getDeleteHeaders(),
       });
       await handleApiResponse(res, 'বাজার দায়িত্ব শিডিউল মুছে ফেলা হয়েছে');
     } catch (err) {
@@ -390,7 +423,7 @@ export function App() {
     try {
       const res = await fetch('/api/market-list', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: getAuthHeaders(),
         body: JSON.stringify({ item, actingUser: actingUserLabel }),
       });
       await handleApiResponse(res, 'বাজার তালিকার আইটেম সংরক্ষিত হয়েছে');
@@ -403,6 +436,7 @@ export function App() {
     try {
       const res = await fetch(`/api/market-list/${id}?actingUser=${encodeURIComponent(actingUserLabel)}`, {
         method: 'DELETE',
+        headers: getDeleteHeaders(),
       });
       await handleApiResponse(res, 'আইটেম মুছে ফেলা হয়েছে');
     } catch (err) {
@@ -415,7 +449,7 @@ export function App() {
     try {
       const res = await fetch('/api/expenses', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: getAuthHeaders(),
         body: JSON.stringify({ expense, actingUser: actingUserLabel }),
       });
       await handleApiResponse(res, 'খরচের হিসাব সংরক্ষিত হয়েছে');
@@ -428,6 +462,7 @@ export function App() {
     try {
       const res = await fetch(`/api/expenses/${id}?actingUser=${encodeURIComponent(actingUserLabel)}`, {
         method: 'DELETE',
+        headers: getDeleteHeaders(),
       });
       await handleApiResponse(res, 'খরচের রেকর্ড মুছে ফেলা হয়েছে');
     } catch (err) {
@@ -440,7 +475,7 @@ export function App() {
     try {
       const res = await fetch('/api/payments', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: getAuthHeaders(),
         body: JSON.stringify({ payment, actingUser: actingUserLabel }),
       });
       await handleApiResponse(res, 'জমা রেকর্ড সফলভাবে সংরক্ষিত হয়েছে');
@@ -453,6 +488,7 @@ export function App() {
     try {
       const res = await fetch(`/api/payments/${id}?actingUser=${encodeURIComponent(actingUserLabel)}`, {
         method: 'DELETE',
+        headers: getDeleteHeaders(),
       });
       await handleApiResponse(res, 'জমার রেকর্ড মুছে ফেলা হয়েছে');
     } catch (err) {
@@ -466,7 +502,7 @@ export function App() {
     try {
       const res = await fetch('/api/month/close', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: getAuthHeaders(),
         body: JSON.stringify({
           month,
           actingUser: actingUserLabel,
@@ -486,7 +522,7 @@ export function App() {
     try {
       const res = await fetch('/api/month/reopen', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: getAuthHeaders(),
         body: JSON.stringify({ month, actingUser: actingUserLabel }),
       });
       await handleApiResponse(res, `${month} মাসের হিসাব সফলভাবে পুনঃউন্মুক্ত (Reopened) করা হয়েছে`);
@@ -502,7 +538,7 @@ export function App() {
     try {
       const res = await fetch('/api/month/recalculate', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: getAuthHeaders(),
         body: JSON.stringify({ month, actingUser: actingUserLabel }),
       });
       await handleApiResponse(res, `${month} মাসের হিসাব ও মিল রেট পুনর্গণনা সম্পন্ন হয়েছে`);
@@ -518,7 +554,7 @@ export function App() {
     try {
       const res = await fetch('/api/members', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: getAuthHeaders(),
         body: JSON.stringify({ member, actingUser: actingUserLabel }),
       });
       await handleApiResponse(res, 'সদস্যের তথ্য সফলভাবে সংরক্ষিত হয়েছে');
@@ -531,6 +567,7 @@ export function App() {
     try {
       const res = await fetch(`/api/members/${id}?actingUser=${encodeURIComponent(actingUserLabel)}`, {
         method: 'DELETE',
+        headers: getDeleteHeaders(),
       });
       await handleApiResponse(res, 'সদস্য মেস তালিকা থেকে সফলভাবে অপসারিত হয়েছে');
     } catch (err) {
@@ -543,7 +580,7 @@ export function App() {
     try {
       const res = await fetch('/api/settings', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: getAuthHeaders(),
         body: JSON.stringify({ settings, actingUser: actingUserLabel }),
       });
       await handleApiResponse(res, 'মেস সেটিংস ও ক্যাশিয়ার অনুমতি হালনাগাদ করা হয়েছে');
@@ -563,7 +600,7 @@ export function App() {
       const recipient = dbState.members.find(m => m.id === recipientId);
       const res = await fetch('/api/sms/send', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: getAuthHeaders(),
         body: JSON.stringify({
           recipientId,
           recipientName: recipient?.name || 'Member',
@@ -640,6 +677,9 @@ export function App() {
         onRefresh={fetchData}
         isLoading={isLoading}
         onTabSelect={setActiveTab}
+        onOpenAdminLogin={() => setShowAdminLoginModal(true)}
+        onOpenAdminProfile={() => setShowAdminProfileModal(true)}
+        onOpenDataManagement={() => setShowDataManagementModal(true)}
       />
 
       {/* Main Layout Body */}
@@ -650,6 +690,8 @@ export function App() {
           onSelectTab={setActiveTab}
           language={language}
           userRole={currentMember.role}
+          onOpenAdminLogin={() => setShowAdminLoginModal(true)}
+          onOpenAdminProfile={() => setShowAdminProfileModal(true)}
         />
 
         {/* Dynamic Main View Area */}
@@ -884,6 +926,36 @@ export function App() {
         initialRecipientId={smsModalState.recipientId}
         initialType={smsModalState.type}
         initialMessage={smsModalState.message}
+      />
+
+      {/* Admin Login Modal */}
+      <AdminLoginModal
+        isOpen={showAdminLoginModal}
+        onClose={() => setShowAdminLoginModal(false)}
+        onLoginSuccess={async () => {
+          await fetchData();
+          showToast('এডমিন অ্যাকাউন্টে সফলভাবে লগইন হয়েছে', 'success');
+        }}
+      />
+
+      {/* Admin Profile Modal */}
+      <AdminProfileModal
+        isOpen={showAdminProfileModal}
+        onClose={() => setShowAdminProfileModal(false)}
+      />
+
+      {/* Admin Data Management (Backup, Restore & Member Credentials) Modal */}
+      <AdminDataManagementModal
+        isOpen={showDataManagementModal}
+        onClose={() => setShowDataManagementModal(false)}
+        onDataRestored={async () => {
+          await fetchData();
+          showToast('মেস ডাটাবেজ ব্যাকআপ সফলভাবে রিস্টোর হয়েছে', 'success');
+        }}
+        onMemberAdded={async () => {
+          await fetchData();
+          showToast('নতুন সদস্য ও লগইন তথ্য যুক্ত হয়েছে', 'success');
+        }}
       />
     </div>
   );

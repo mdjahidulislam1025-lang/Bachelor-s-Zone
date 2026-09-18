@@ -327,8 +327,43 @@ export interface MessSettings {
   mealCutoffSettings: MealCutoffSettings;
 }
 
+export interface AdminProfile {
+  id: string;
+  name: string;
+  photo?: string;
+  phone: string;
+  email: string;
+  passwordHash?: string;
+  messName: string;
+  role: 'admin';
+  status: 'active' | 'inactive';
+  createdDate: string;
+  lastLogin?: string;
+}
+
+export interface AuthSession {
+  token: string;
+  userId: string;
+  role: UserRole;
+  name: string;
+  phone: string;
+  email?: string;
+  avatarColor?: string;
+  loginTime: string;
+}
+
+export interface MemberCredentials {
+  memberId: string;
+  phone: string;
+  passwordHash?: string;
+  isActive: boolean;
+  mustChangePassword?: boolean;
+}
+
 export interface MessDatabaseState {
   members: Member[];
+  adminProfile?: AdminProfile;
+  memberCredentials?: Record<string, MemberCredentials>;
   dailyMeals: DailyMealEntry[];
   memberMealSelections?: MemberMealSelection[];
   mealChangeLogs?: MealChangeLog[];
