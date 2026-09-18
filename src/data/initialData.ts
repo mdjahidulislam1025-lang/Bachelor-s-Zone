@@ -22,7 +22,7 @@ export function getInitialMessData(): MessDatabaseState {
       role: 'admin' as const,
       status: 'active' as const,
       joiningDate: '2026-01-01',
-      notes: 'মেস ম্যানেজার / পরিচালক',
+      notes: 'মেস পরিচালক / এডমিন',
       avatarColor: 'bg-emerald-600',
     },
     {
@@ -427,7 +427,7 @@ export function getInitialMessData(): MessDatabaseState {
       userName: 'Rahim Uddin (Admin)',
       action: 'এডমিন লগইন',
       module: 'settings' as const,
-      details: 'এডমিন সফলভাবে মেস ম্যানেজারে প্রবেশ করেছেন',
+      details: 'এডমিন সফলভাবে Bachelor Zone সিস্টেমে প্রবেশ করেছেন',
     }
   ];
 
@@ -484,7 +484,7 @@ export function getInitialMessData(): MessDatabaseState {
     },
     smsTemplates: {
       cookingReminder: 'আজ আপনার রান্নার দায়িত্ব। মেসের নির্ধারিত সময় অনুযায়ী রান্নার প্রস্তুতি নিন। মেনু: {menu}',
-      bazarReminder: 'আগামীকাল আপনার মেসের বাজার করার দায়িত্ব। প্রয়োজনীয় বাজার তালিকা Mess Manager অ্যাপে দেখে নিন।',
+      bazarReminder: 'আগামীকাল আপনার মেসের বাজার করার দায়িত্ব। প্রয়োজনীয় বাজার তালিকা Bachelor Zone অ্যাপে দেখে নিন।',
       monthEndStatement: '{month} মাসের মেস হিসাব প্রস্তুত হয়েছে। মোট মিল: {meals}, মোট খরচ: ৳{totalCost}, জমা: ৳{paid}, {balanceStatus}: ৳{balance}। বিস্তারিত হিসাব অ্যাপে দেখুন।',
       paymentDueNotice: 'আপনার মেস বকেয়া ৳{dueAmount} টাকা জরুরি ভিত্তিতে ক্যাশিয়ারের কাছে পরিশোধ করার অনুরোধ করা হচ্ছে।',
     },

@@ -16,6 +16,7 @@ import {
 } from 'lucide-react';
 import { Language, translations } from '../utils/translations.js';
 import { useAuth } from '../context/AuthContext.js';
+import { BachelorZoneLogo } from './BachelorZoneLogo.js';
 
 interface SidebarProps {
   activeTab: string;
@@ -53,6 +54,16 @@ export const Sidebar: React.FC<SidebarProps> = ({
 
   return (
     <aside className="hidden lg:flex flex-col w-64 border-r border-slate-200 bg-white min-h-[calc(100vh-61px)] p-3">
+      {/* Brand Badge */}
+      <div className="mb-3 px-2 py-2.5 rounded-xl bg-gradient-to-br from-emerald-50 via-teal-50/60 to-slate-50 border border-emerald-100/80">
+        <BachelorZoneLogo size="sm" subtitle="Mess Management System" />
+        <p className="text-[10px] text-emerald-800/80 mt-1.5 font-medium leading-tight px-0.5">
+          {language === 'bn'
+            ? 'মেসের মিল, বাজার, রান্না ও হিসাব'
+            : 'Your Mess, Meals & হিসাব in one place'}
+        </p>
+      </div>
+
       <div className="space-y-1">
         {navItems.map(item => {
           const Icon = item.icon;

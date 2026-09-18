@@ -18,6 +18,7 @@ import {
 import { Member, InAppNotification } from '../types.js';
 import { Language, translations } from '../utils/translations.js';
 import { useAuth } from '../context/AuthContext.js';
+import { BachelorZoneLogo } from './BachelorZoneLogo.js';
 
 interface NavbarProps {
   messName: string;
@@ -65,21 +66,17 @@ export const Navbar: React.FC<NavbarProps> = ({
       <div className="max-w-7xl mx-auto flex items-center justify-between gap-3">
         {/* Left: Brand / Mess Info */}
         <div className="flex items-center gap-3">
-          <div className="h-10 w-10 rounded-xl bg-emerald-600 flex items-center justify-center text-white shadow-sm shadow-emerald-500/20">
-            <Utensils className="h-5 w-5" />
+          <div className="hidden sm:block">
+            <BachelorZoneLogo
+              size="md"
+              subtitle={messName ? `${messName} • ${messAddress || 'বাংলাদেশ'}` : 'Mess Management System'}
+            />
           </div>
-          <div>
-            <div className="flex items-center gap-2">
-              <h1 className="text-base font-bold text-slate-900 tracking-tight leading-tight">
-                {messName || t.appName}
-              </h1>
-              <span className="hidden sm:inline-flex px-2 py-0.5 text-xs font-semibold rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200">
-                Bangladesh
-              </span>
-            </div>
-            <p className="text-xs text-slate-500 truncate max-w-[180px] sm:max-w-xs">
-              {messAddress}
-            </p>
+          <div className="sm:hidden">
+            <BachelorZoneLogo
+              size="sm"
+              subtitle="Mess Management"
+            />
           </div>
         </div>
 

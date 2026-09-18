@@ -411,7 +411,7 @@ async function startServer() {
       }
 
       saveDatabase(db);
-      logAudit(newAdmin.name, 'প্রাথমিক এডমিন অ্যাকাউন্ট তৈরি', 'settings', 'মেস ম্যানেজারের মূল এডমিন অ্যাকাউন্ট সফলভাবে কনফিগার করা হয়েছে');
+      logAudit(newAdmin.name, 'প্রাথমিক এডমিন অ্যাকাউন্ট তৈরি', 'settings', 'Bachelor Zone এর মূল এডমিন অ্যাকাউন্ট সফলভাবে কনফিগার করা হয়েছে');
 
       const token = 'tok_admin_' + Math.random().toString(36).substring(2) + Date.now().toString(36);
       const session: AuthSession = {
@@ -653,7 +653,7 @@ async function startServer() {
 
       // Send Invitation notification / SMS
       if (sendInvitationSms && db.settings.smsGateway?.apiKeyConfigured) {
-        const msg = `আসসালামু আলাইকুম ${newMember.name}। শান্তিনগর মেস ম্যানেজারে আপনার অ্যাকাউন্ট তৈরি হয়েছে। আপনার খাবার মিল ও হিসাব দেখতে অ্যাপে প্রবেশ করুন। - Mess Admin`;
+        const msg = `আসসালামু আলাইকুম ${newMember.name}। শান্তিনগর Bachelor Zone এ আপনার অ্যাকাউন্ট তৈরি হয়েছে। আপনার খাবার মিল ও হিসাব দেখতে অ্যাপে প্রবেশ করুন। - Bachelor Zone Admin`;
         db.smsLogs.push({
           id: `sms_inv_${Date.now()}`,
           timestamp: new Date().toISOString(),
@@ -1398,7 +1398,7 @@ async function startServer() {
             recipientName: m.name,
             phone: m.phone,
             type: 'reminder',
-            message: `${reminderTitle}: ${reminderMsg} - Mess Manager`,
+            message: `${reminderTitle}: ${reminderMsg} - Bachelor Zone`,
             status: 'sent',
             provider: db.settings.smsGateway.providerName,
             refId: `REM-${Date.now().toString().slice(-6)}`,
@@ -2249,7 +2249,7 @@ async function startServer() {
           if (member && member.phone) {
             const balanceText =
               stmt.netBalance > 0 ? `বকেয়া: ৳${stmt.netBalance}` : `উদ্বৃত্ত: ৳${Math.abs(stmt.netBalance)}`;
-            const msg = `${closedAccount.monthName} মেস হিসাব সম্পন্ন। মোট মিল: ${stmt.totalMeals}, মিল খরচ: ৳${stmt.mealCost}, শেয়ার: ৳${stmt.sharedCostsShare}, জমা: ৳${stmt.totalPaid}, ${balanceText}। - Mess Manager`;
+            const msg = `${closedAccount.monthName} মেস হিসাব সম্পন্ন। মোট মিল: ${stmt.totalMeals}, মিল খরচ: ৳${stmt.mealCost}, শেয়ার: ৳${stmt.sharedCostsShare}, জমা: ৳${stmt.totalPaid}, ${balanceText}। - Bachelor Zone`;
             db.smsLogs.unshift({
               id: `sms-${Date.now()}-${stmt.memberId}`,
               timestamp: new Date().toISOString(),
@@ -2484,7 +2484,7 @@ async function startServer() {
   }
 
   app.listen(PORT, '0.0.0.0', () => {
-    console.log(`Mess Manager server running on http://0.0.0.0:${PORT}`);
+    console.log(`Bachelor Zone server running on http://0.0.0.0:${PORT}`);
   });
 }
 

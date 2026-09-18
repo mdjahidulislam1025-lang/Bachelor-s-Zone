@@ -1,6 +1,7 @@
 import React from 'react';
-import { Printer, X, CheckCircle, AlertCircle, Building2, Utensils } from 'lucide-react';
+import { Printer, X, CheckCircle, AlertCircle, Building2, Utensils, Home } from 'lucide-react';
 import { MemberMonthlyStatement } from '../types.js';
+import { BachelorZoneLogo } from './BachelorZoneLogo.js';
 
 interface StatementVoucherModalProps {
   isOpen: boolean;
@@ -56,10 +57,17 @@ export const StatementVoucherModal: React.FC<StatementVoucherModalProps> = ({
         <div className="space-y-5 text-slate-800">
           {/* Header */}
           <div className="text-center pb-4 border-b-2 border-slate-900">
-            <h2 className="text-2xl font-black tracking-tight text-slate-900">{messName}</h2>
-            <p className="text-xs text-slate-600 font-medium">{messAddress}</p>
+            <div className="flex items-center justify-center gap-2 mb-1">
+              <BachelorZoneLogo size="md" subtitle="" />
+            </div>
+            <div className="text-sm sm:text-base font-black text-slate-900 tracking-tight">
+              Monthly Mess Account — {monthName}
+            </div>
+            <p className="text-xs text-slate-600 font-medium mt-0.5">
+              {messName} • {messAddress}
+            </p>
             <div className="inline-block mt-2 px-4 py-1 bg-slate-100 rounded-full text-xs font-extrabold text-slate-800 uppercase tracking-wide">
-              {monthName} — ব্যক্তিগত হিসাব বিবরণী
+              ব্যক্তিগত হিসাব বিবরণী ও ভাউচার
             </div>
           </div>
 
@@ -201,7 +209,7 @@ export const StatementVoucherModal: React.FC<StatementVoucherModalProps> = ({
           </div>
 
           <div className="text-[10px] text-slate-400 text-center pt-3 border-t border-slate-100">
-            মেস ম্যানেজার ডিজিটাল সফটওয়্যার সিস্টেম দ্বারা স্বয়ংক্রিয়ভাবে প্রস্তুতকৃত • Shantinagar, Dhaka
+            Bachelor Zone ডিজিটাল সফটওয়্যার সিস্টেম দ্বারা স্বয়ংক্রিয়ভাবে প্রস্তুতকৃত • {messName} • {messAddress}
           </div>
         </div>
       </div>

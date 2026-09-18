@@ -1,7 +1,8 @@
 export const translations = {
   bn: {
-    appName: 'মেস ম্যানেজার',
-    appSub: 'ব্যাচেলর ও স্টুডেন্ট মেস ম্যানেজমেন্ট সিস্টেম',
+    appName: 'Bachelor Zone',
+    appSub: 'মেস ম্যানেজমেন্ট সিস্টেম',
+    appTagline: 'মেসের মিল, বাজার, রান্না ও হিসাব — সব এক জায়গায়।',
     dashboard: 'ড্যাশবোর্ড',
     meals: 'মিল হিসাব',
     cooking: 'রান্না ও মেনু',
@@ -71,8 +72,9 @@ export const translations = {
     confirmChange: 'মিল পরিবর্তনের নিশ্চয়তা',
   },
   en: {
-    appName: 'Mess Manager',
-    appSub: 'Student & Bachelor Mess Management System',
+    appName: 'Bachelor Zone',
+    appSub: 'Mess Management System',
+    appTagline: 'Your Mess, Your Meals, Your হিসাব — All in One Place.',
     dashboard: 'Dashboard',
     meals: 'Meals / Mills',
     cooking: 'Cooking & Menu',

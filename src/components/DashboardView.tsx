@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import {
   Users,
   UtensilsCrossed,
@@ -15,6 +15,14 @@ import {
   Clock,
   ArrowRight,
   Calculator,
+  ShieldCheck,
+  BarChart3,
+  Settings,
+  Bell,
+  Sparkles,
+  ToggleLeft,
+  ToggleRight,
+  BookOpen,
 } from 'lucide-react';
 import {
   Member,
@@ -28,6 +36,8 @@ import {
   MonthlyAccount,
 } from '../types.js';
 import { Language, translations } from '../utils/translations.js';
+import { useAuth } from '../context/AuthContext.js';
+import { BachelorZoneLogo } from './BachelorZoneLogo.js';
 
 interface DashboardViewProps {
   members: Member[];
@@ -74,6 +84,12 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
   const todayStr = '2026-09-17';
   const tomorrowStr = '2026-09-18';
 
+  const { isAdmin } = useAuth();
+  const [dashboardMode, setDashboardMode] = useState<'admin' | 'member'>(
+    isAdmin || currentMember.role === 'admin' ? 'admin' : 'member'
+  );
+  const [showNotifications, setShowNotifications] = useState(false);
+
   // Today's specific data
   const todayMeals = dailyMeals.find(d => d.date === todayStr);
   const todayCook = cookingDuties.find(c => c.date === todayStr);
@@ -87,6 +103,194 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
 
   return (
     <div className="space-y-6">
+      {/* Top Application Dashboard Header & Quick Access Bar */}
+      <div className="bg-white rounded-2xl p-5 border border-slate-200 shadow-xs space-y-4">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-3 border-b border-slate-100">
+          <div>
+            <div className="flex items-center gap-2 mb-1">
+              <BachelorZoneLogo size="md" subtitle="" />
+              <span className={`text-[11px] font-bold px-2.5 py-0.5 rounded-full ${
+                dashboardMode === 'admin'
+                  ? 'bg-slate-900 text-emerald-400 border border-slate-800'
+                  : 'bg-emerald-100 text-emerald-800 border border-emerald-200'
+              }`}>
+                {dashboardMode === 'admin' ? 'Admin Dashboard' : 'Member Dashboard'}
+              </span>
+            </div>
+            {dashboardMode === 'admin' ? (
+              <div>
+                <h1 className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight">Bachelor Zone</h1>
+                <p className="text-xs text-slate-500 font-semibold">Mess Management Dashboard</p>
+                <p className="text-[11px] text-emerald-700 mt-0.5">মেসের সকল সদস্য, মিল, বাজার ও হিসাব পরিচালনার কেন্দ্রীয় এডমিন প্যানেল</p>
+              </div>
+            ) : (
+              <div>
+                <h1 className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight">Welcome to Bachelor Zone</h1>
+                <p className="text-xs text-slate-600 font-medium">“মেসের মিল, বাজার, রান্না ও হিসাব — সব এক জায়গায়।”</p>
+                <p className="text-[11px] text-slate-400">“Your Mess, Your Meals, Your হিসাব — All in One Place.”</p>
+              </div>
+            )}
+          </div>
+
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => setDashboardMode(dashboardMode === 'admin' ? 'member' : 'admin')}
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-slate-200 text-xs font-semibold text-slate-700 hover:bg-slate-50 transition-colors cursor-pointer"
+              title="Toggle View Mode"
+            >
+              {dashboardMode === 'admin' ? (
+                <>
+                  <ToggleRight className="h-4 w-4 text-emerald-600" />
+                  <span>সদস্য ভিউ দেখুন</span>
+                </>
+              ) : (
+                <>
+                  <ToggleLeft className="h-4 w-4 text-slate-500" />
+                  <span>এডমিন ভিউ দেখুন</span>
+                </>
+              )}
+            </button>
+            <button
+              onClick={() => setShowNotifications(!showNotifications)}
+              className="relative p-2 rounded-xl border border-slate-200 text-slate-600 hover:bg-slate-50 cursor-pointer"
+              title="Notifications"
+            >
+              <Bell className="h-4 w-4" />
+              <span className="absolute top-1 right-1 w-2 h-2 bg-emerald-500 rounded-full ring-2 ring-white animate-pulse" />
+            </button>
+          </div>
+        </div>
+
+        {/* Notifications Popup Banner if toggled */}
+        {showNotifications && (
+          <div className="p-3 bg-emerald-50/90 border border-emerald-200 rounded-xl text-xs text-emerald-900 space-y-1.5 animate-fadeIn">
+            <div className="font-bold flex items-center justify-between">
+              <span className="flex items-center gap-1.5"><Bell className="h-3.5 w-3.5 text-emerald-600" /> সাম্প্রতিক মেস নোটিফিকেশন</span>
+              <button onClick={() => setShowNotifications(false)} className="text-emerald-700 hover:text-emerald-950 font-bold cursor-pointer">×</button>
+            </div>
+            <ul className="space-y-1 text-[11px] text-emerald-800">
+              <li>• আজ শান্তিনগর মেসে রান্নার দায়িত্ব: <strong>{todayCook?.memberName || 'রহিম উদ্দিন'}</strong></li>
+              <li>• আজকের বাজার বাজেট: <strong>৳{todayBazarDuty?.expectedBudget || 1500}</strong> (বাজারকারী: {todayBazarDuty?.memberName || 'ফয়সাল'})</li>
+              <li>• সেপ্টেম্বর মাসের খসড়া মিল রেট: <strong>৳{currentMonthCalc.mealRate.toFixed(2)}</strong></li>
+            </ul>
+          </div>
+        )}
+
+        {/* ADMIN MANAGEMENT BAR */}
+        {dashboardMode === 'admin' && (
+          <div>
+            <div className="flex items-center justify-between mb-2">
+              <span className="text-xs font-bold text-slate-700 flex items-center gap-1.5">
+                <ShieldCheck className="h-3.5 w-3.5 text-emerald-600" />
+                <span>Admin Quick Management (এডমিন পরিচালনা কন্ট্রোল)</span>
+              </span>
+              <span className="text-[11px] text-slate-400">১২টি ম্যানেজমেন্ট মডিউল</span>
+            </div>
+            <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-6 gap-2">
+              <button onClick={() => onSelectTab('members')} className="flex items-center gap-2 p-2.5 rounded-xl border border-slate-200 hover:border-emerald-500 hover:bg-emerald-50/50 text-slate-700 text-xs font-semibold transition-all cursor-pointer">
+                <Users className="h-4 w-4 text-emerald-600 shrink-0" />
+                <span className="truncate">Members</span>
+              </button>
+              <button onClick={() => onSelectTab('meals')} className="flex items-center gap-2 p-2.5 rounded-xl border border-slate-200 hover:border-emerald-500 hover:bg-emerald-50/50 text-slate-700 text-xs font-semibold transition-all cursor-pointer">
+                <UtensilsCrossed className="h-4 w-4 text-emerald-600 shrink-0" />
+                <span className="truncate">Meals</span>
+              </button>
+              <button onClick={() => onSelectTab('my-meals')} className="flex items-center gap-2 p-2.5 rounded-xl border border-slate-200 hover:border-emerald-500 hover:bg-emerald-50/50 text-slate-700 text-xs font-semibold transition-all cursor-pointer">
+                <Clock className="h-4 w-4 text-emerald-600 shrink-0" />
+                <span className="truncate">Meal ON/OFF</span>
+              </button>
+              <button onClick={() => onSelectTab('cooking')} className="flex items-center gap-2 p-2.5 rounded-xl border border-slate-200 hover:border-emerald-500 hover:bg-emerald-50/50 text-slate-700 text-xs font-semibold transition-all cursor-pointer">
+                <BookOpen className="h-4 w-4 text-emerald-600 shrink-0" />
+                <span className="truncate">Menu</span>
+              </button>
+              <button onClick={() => onSelectTab('cooking')} className="flex items-center gap-2 p-2.5 rounded-xl border border-slate-200 hover:border-emerald-500 hover:bg-emerald-50/50 text-slate-700 text-xs font-semibold transition-all cursor-pointer">
+                <ChefHat className="h-4 w-4 text-emerald-600 shrink-0" />
+                <span className="truncate">Cooking Schedule</span>
+              </button>
+              <button onClick={() => onSelectTab('bazar')} className="flex items-center gap-2 p-2.5 rounded-xl border border-slate-200 hover:border-emerald-500 hover:bg-emerald-50/50 text-slate-700 text-xs font-semibold transition-all cursor-pointer">
+                <ShoppingBag className="h-4 w-4 text-emerald-600 shrink-0" />
+                <span className="truncate">Bazar</span>
+              </button>
+              <button onClick={() => onSelectTab('expenses')} className="flex items-center gap-2 p-2.5 rounded-xl border border-slate-200 hover:border-emerald-500 hover:bg-emerald-50/50 text-slate-700 text-xs font-semibold transition-all cursor-pointer">
+                <Receipt className="h-4 w-4 text-emerald-600 shrink-0" />
+                <span className="truncate">Expenses</span>
+              </button>
+              <button onClick={() => onSelectTab('payments')} className="flex items-center gap-2 p-2.5 rounded-xl border border-slate-200 hover:border-emerald-500 hover:bg-emerald-50/50 text-slate-700 text-xs font-semibold transition-all cursor-pointer">
+                <Wallet className="h-4 w-4 text-emerald-600 shrink-0" />
+                <span className="truncate">Payments</span>
+              </button>
+              <button onClick={() => onSelectTab('monthly')} className="flex items-center gap-2 p-2.5 rounded-xl border border-slate-200 hover:border-emerald-500 hover:bg-emerald-50/50 text-slate-700 text-xs font-semibold transition-all cursor-pointer">
+                <Calculator className="h-4 w-4 text-emerald-600 shrink-0" />
+                <span className="truncate">Monthly হিসাব</span>
+              </button>
+              <button onClick={onOpenSendSms} className="flex items-center gap-2 p-2.5 rounded-xl border border-slate-200 hover:border-emerald-500 hover:bg-emerald-50/50 text-slate-700 text-xs font-semibold transition-all cursor-pointer">
+                <Send className="h-4 w-4 text-emerald-600 shrink-0" />
+                <span className="truncate">SMS</span>
+              </button>
+              <button onClick={() => onSelectTab('reports')} className="flex items-center gap-2 p-2.5 rounded-xl border border-slate-200 hover:border-emerald-500 hover:bg-emerald-50/50 text-slate-700 text-xs font-semibold transition-all cursor-pointer">
+                <BarChart3 className="h-4 w-4 text-emerald-600 shrink-0" />
+                <span className="truncate">Reports</span>
+              </button>
+              <button onClick={() => onSelectTab('settings')} className="flex items-center gap-2 p-2.5 rounded-xl border border-slate-200 hover:border-emerald-500 hover:bg-emerald-50/50 text-slate-700 text-xs font-semibold transition-all cursor-pointer">
+                <Settings className="h-4 w-4 text-emerald-600 shrink-0" />
+                <span className="truncate">Settings</span>
+              </button>
+            </div>
+          </div>
+        )}
+
+        {/* MEMBER DASHBOARD ACCESS BAR */}
+        {dashboardMode === 'member' && (
+          <div>
+            <div className="flex items-center justify-between mb-2">
+              <span className="text-xs font-bold text-slate-700 flex items-center gap-1.5">
+                <Sparkles className="h-3.5 w-3.5 text-emerald-600" />
+                <span>Member Quick Access (সদস্যের প্রয়োজনীয় সুবিধাসমূহ)</span>
+              </span>
+              <span className="text-[11px] text-emerald-700 font-semibold">{currentMember.name} (রুম {currentMember.roomNo})</span>
+            </div>
+            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-2">
+              <button onClick={() => onSelectTab('my-meals')} className="flex items-center gap-2 p-2.5 rounded-xl bg-emerald-50/70 border border-emerald-200 hover:bg-emerald-100/70 text-emerald-900 text-xs font-bold transition-all cursor-pointer">
+                <UtensilsCrossed className="h-4 w-4 text-emerald-600 shrink-0" />
+                <span className="truncate">My Meals</span>
+              </button>
+              <button onClick={() => onSelectTab('my-meals')} className="flex items-center gap-2 p-2.5 rounded-xl bg-slate-50 border border-slate-200 hover:bg-slate-100 text-slate-800 text-xs font-semibold transition-all cursor-pointer">
+                <Clock className="h-4 w-4 text-emerald-600 shrink-0" />
+                <span className="truncate">Meal ON/OFF</span>
+              </button>
+              <button onClick={() => onSelectTab('cooking')} className="flex items-center gap-2 p-2.5 rounded-xl bg-slate-50 border border-slate-200 hover:bg-slate-100 text-slate-800 text-xs font-semibold transition-all cursor-pointer">
+                <BookOpen className="h-4 w-4 text-emerald-600 shrink-0" />
+                <span className="truncate">Today's Menu</span>
+              </button>
+              <button onClick={() => onSelectTab('cooking')} className="flex items-center gap-2 p-2.5 rounded-xl bg-slate-50 border border-slate-200 hover:bg-slate-100 text-slate-800 text-xs font-semibold transition-all cursor-pointer">
+                <ChefHat className="h-4 w-4 text-emerald-600 shrink-0" />
+                <span className="truncate">Cooking Schedule</span>
+              </button>
+              <button onClick={() => onSelectTab('bazar')} className="flex items-center gap-2 p-2.5 rounded-xl bg-slate-50 border border-slate-200 hover:bg-slate-100 text-slate-800 text-xs font-semibold transition-all cursor-pointer">
+                <ShoppingBag className="h-4 w-4 text-emerald-600 shrink-0" />
+                <span className="truncate">Bazar Schedule</span>
+              </button>
+              <button onClick={() => onSelectTab('expenses')} className="flex items-center gap-2 p-2.5 rounded-xl bg-slate-50 border border-slate-200 hover:bg-slate-100 text-slate-800 text-xs font-semibold transition-all cursor-pointer">
+                <Receipt className="h-4 w-4 text-emerald-600 shrink-0" />
+                <span className="truncate">Mess Expenses</span>
+              </button>
+              <button onClick={() => onSelectTab('monthly')} className="flex items-center gap-2 p-2.5 rounded-xl bg-emerald-50/70 border border-emerald-200 hover:bg-emerald-100/70 text-emerald-900 text-xs font-bold transition-all cursor-pointer">
+                <Calculator className="h-4 w-4 text-emerald-600 shrink-0" />
+                <span className="truncate">Monthly হিসাব</span>
+              </button>
+              <button onClick={() => onSelectTab('monthly')} className="flex items-center gap-2 p-2.5 rounded-xl bg-slate-50 border border-slate-200 hover:bg-slate-100 text-slate-800 text-xs font-semibold transition-all cursor-pointer">
+                <Wallet className="h-4 w-4 text-emerald-600 shrink-0" />
+                <span className="truncate">My Account</span>
+              </button>
+              <button onClick={() => setShowNotifications(true)} className="flex items-center gap-2 p-2.5 rounded-xl bg-slate-50 border border-slate-200 hover:bg-slate-100 text-slate-800 text-xs font-semibold transition-all cursor-pointer col-span-2 sm:col-span-1">
+                <Bell className="h-4 w-4 text-amber-500 shrink-0" />
+                <span className="truncate">Notifications</span>
+              </button>
+            </div>
+          </div>
+        )}
+      </div>
+
       {/* Top Banner: Today's Overview & Personal Status */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
         {/* Today's Mess Quick Summary Card */}

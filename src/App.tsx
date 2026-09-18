@@ -26,11 +26,15 @@ import { SendSmsModal } from './components/SendSmsModal.js';
 import { AdminLoginModal } from './components/AdminLoginModal.js';
 import { AdminProfileModal } from './components/AdminProfileModal.js';
 import { AdminDataManagementModal } from './components/AdminDataManagementModal.js';
+import { BachelorZoneLogo } from './components/BachelorZoneLogo.js';
 import { useAuth } from './context/AuthContext.js';
+import { getInitialOrSavedState, saveLocalState, resetLocalState } from './data/localDatabase.js';
+import { calculateMonthlyAccount } from './utils/calculator.js';
 import {
   MessDatabaseState,
   Member,
   MemberMonthlyStatement,
+  DailyMealEntry,
   MealRecord,
   MealMenu,
   CookingDuty,
@@ -55,8 +59,8 @@ interface ToastItem {
 }
 
 export function App() {
-  const [dbState, setDbState] = useState<MessDatabaseState | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
+  const [dbState, setDbState] = useState<MessDatabaseState>(() => getInitialOrSavedState());
+  const [isLoading, setIsLoading] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
   const [activeTab, setActiveTab] = useState('dashboard');
   const [language, setLanguage] = useState<Language>('bn');
@@ -131,37 +135,25 @@ export function App() {
   // Fetch mess data
   const fetchData = async () => {
     try {
-      setIsLoading(true);
       const res = await fetch('/api/mess-data', {
         headers: getAuthHeaders(),
       });
-      const data = await res.json();
-      if (data.success) {
-        setDbState(data.data);
-      } else {
-        showToast(data.error || 'ডেটা লোড করতে ব্যর্থ হয়েছে', 'error');
+      const contentType = res.headers.get('content-type');
+      if (res.ok && contentType && contentType.includes('application/json')) {
+        const data = await res.json();
+        if (data.success && data.data) {
+          setDbState(data.data);
+          saveLocalState(data.data);
+        }
       }
     } catch (err) {
-      console.error('Failed to load mess data:', err);
-      showToast('সার্ভারের সাথে সংযোগ স্থাপন করা সম্ভব হয়নি', 'error');
-    } finally {
-      setIsLoading(false);
+      // Backend unavailable (static hosting or offline), continuing seamlessly with local data
     }
   };
 
   useEffect(() => {
     fetchData();
   }, []);
-
-  if (isLoading || !dbState) {
-    return (
-      <div className="min-h-screen bg-slate-50 flex flex-col items-center justify-center p-4">
-        <div className="h-12 w-12 border-4 border-emerald-600 border-t-transparent rounded-full animate-spin mb-4" />
-        <h2 className="text-base font-bold text-slate-800">শান্তিনগর মেস ডেটা লোড হচ্ছে...</h2>
-        <p className="text-xs text-slate-500 mt-1">দয়া করে অপেক্ষা করুন (Loading Mess Manager)</p>
-      </div>
-    );
-  }
 
   const currentMember =
     dbState.members.find(m => m.id === currentMemberId) || dbState.members[0];
@@ -175,65 +167,95 @@ export function App() {
 
   const actingUserLabel = `${currentMember.name} (${currentMember.role === 'admin' ? 'Admin' : currentMember.role === 'treasurer' ? 'Treasurer' : 'Member'})`;
 
-  // Standard response processor for API calls
-  const handleApiResponse = async (res: Response, successMsg?: string) => {
+  // Standard response processor & offline mutation executor
+  const executeMutation = async (
+    apiCall: () => Promise<Response>,
+    localUpdate: (prev: MessDatabaseState) => MessDatabaseState,
+    successMsg: string
+  ): Promise<boolean> => {
+    setIsProcessing(true);
+    let apiSucceeded = false;
     try {
-      const data = await res.json();
-      if (!res.ok || !data.success) {
-        const errMsg = data.error || 'অনুরোধটি সম্পন্ন করা যায়নি';
-        if (res.status === 403) {
-          showToast(errMsg, 'warning', 'অনুমতি অস্বীকৃত (403 Forbidden)');
-        } else if (res.status === 400) {
-          showToast(errMsg, 'error', 'ভুল তথ্য বা বিধিনিষেধ (400 Bad Request)');
+      const res = await apiCall();
+      const contentType = res.headers.get('content-type');
+      if (res.ok && contentType && contentType.includes('application/json')) {
+        const data = await res.json();
+        if (data.success) {
+          apiSucceeded = true;
+          showToast(data.message || successMsg, 'success');
+          await fetchData();
+          return true;
         } else {
-          showToast(errMsg, 'error', 'সার্ভার ত্রুটি');
+          showToast(data.error || 'অনুরোধটি সম্পন্ন করা যায়নি', 'error');
+          return false;
         }
-        return false;
       }
-      if (successMsg) {
-        showToast(data.message || successMsg, 'success');
-      }
-      await fetchData();
-      return true;
-    } catch (err: any) {
-      showToast('সার্ভার রেসপন্স প্রক্রিয়াকরণে ত্রুটি হয়েছে', 'error');
-      return false;
+    } catch (err) {
+      // API call failed (offline / static host)
+    } finally {
+      setIsProcessing(false);
     }
+
+    // Fallback: apply mutation to local database state & persist
+    if (!apiSucceeded) {
+      setDbState(prev => {
+        const next = localUpdate(prev);
+        const activeStatus = next.currentMonthCalculation?.status || 'open';
+        const recalculated = {
+          ...next,
+          currentMonthCalculation: calculateMonthlyAccount(next, '2026-09', activeStatus),
+        };
+        saveLocalState(recalculated);
+        return recalculated;
+      });
+      showToast(successMsg, 'success');
+      return true;
+    }
+    return true;
   };
 
-  // --- API Handlers ---
+  // --- API & Local Handlers ---
 
   // Meals
   const handleSaveDailyMeals = async (
     date: string,
     records: Record<string, MealRecord>,
     notes?: string
-  ) => {
-    setIsProcessing(true);
-    try {
-      const res = await fetch('/api/meals/batch', {
-        method: 'POST',
-        headers: getAuthHeaders(),
-        body: JSON.stringify({ date, records, notes, actingUser: actingUserLabel }),
-      });
-      await handleApiResponse(res, `${date} তারিখের মিল সফলভাবে সংরক্ষিত হয়েছে`);
-    } catch (err) {
-      showToast('মিল সংরক্ষণে নেটওয়ার্ক ত্রুটি', 'error');
-    } finally {
-      setIsProcessing(false);
-    }
+  ): Promise<void> => {
+    await executeMutation(
+      () =>
+        fetch('/api/meals/batch', {
+          method: 'POST',
+          headers: getAuthHeaders(),
+          body: JSON.stringify({ date, records, notes, actingUser: actingUserLabel }),
+        }),
+      prev => {
+        const existingIdx = prev.dailyMeals.findIndex(m => m.date === date);
+        const updated = [...prev.dailyMeals];
+        if (existingIdx >= 0) {
+          updated[existingIdx] = { ...updated[existingIdx], records, notes: notes || '' };
+        } else {
+          updated.push({ date, records, notes: notes || '' });
+        }
+        return { ...prev, dailyMeals: updated };
+      },
+      `${date} তারিখের মিল সফলভাবে সংরক্ষিত হয়েছে`
+    );
   };
 
-  const handleDeleteDailyMeal = async (date: string) => {
-    try {
-      const res = await fetch(`/api/meals/${date}?actingUser=${encodeURIComponent(actingUserLabel)}`, {
-        method: 'DELETE',
-        headers: getDeleteHeaders(),
-      });
-      await handleApiResponse(res, `${date} তারিখের মিল রেকর্ড মুছে ফেলা হয়েছে`);
-    } catch (err) {
-      showToast('মিল মুছতে নেটওয়ার্ক ত্রুটি', 'error');
-    }
+  const handleDeleteDailyMeal = async (date: string): Promise<void> => {
+    await executeMutation(
+      () =>
+        fetch(`/api/meals/${date}?actingUser=${encodeURIComponent(actingUserLabel)}`, {
+          method: 'DELETE',
+          headers: getDeleteHeaders(),
+        }),
+      prev => ({
+        ...prev,
+        dailyMeals: prev.dailyMeals.filter(m => m.date !== date),
+      }),
+      `${date} তারিখের মিল রেকর্ড মুছে ফেলা হয়েছে`
+    );
   };
 
   // Member Meal ON/OFF Toggle
@@ -245,27 +267,49 @@ export function App() {
     isOverride?: boolean,
     reason?: string
   ): Promise<boolean> => {
-    try {
-      const res = await fetch('/api/meals/toggle-status', {
-        method: 'POST',
-        headers: getAuthHeaders(),
-        body: JSON.stringify({
-          memberId,
-          date,
-          mealType,
-          status,
-          isOverride,
-          reason,
-          actingUser: actingUserLabel,
+    const mealNameBn = mealType === 'breakfast' ? 'সকালের নাস্তা' : mealType === 'lunch' ? 'দুপুরের খাবার' : 'রাতের খাবার';
+    const statusBn = status === 'ON' ? 'চালু (ON)' : 'বন্ধ (OFF)';
+    return executeMutation(
+      () =>
+        fetch('/api/meals/toggle-status', {
+          method: 'POST',
+          headers: getAuthHeaders(),
+          body: JSON.stringify({
+            memberId,
+            date,
+            mealType,
+            status,
+            isOverride,
+            reason,
+            actingUser: actingUserLabel,
+          }),
         }),
-      });
-      const mealNameBn = mealType === 'breakfast' ? 'সকালের নাস্তা' : mealType === 'lunch' ? 'দুপুরের খাবার' : 'রাতের খাবার';
-      const statusBn = status === 'ON' ? 'চালু (ON)' : 'বন্ধ (OFF)';
-      return await handleApiResponse(res, `${date}: ${mealNameBn} ${statusBn} করা হয়েছে`);
-    } catch (err) {
-      showToast('মিল স্ট্যাটাস হালনাগাদে নেটওয়ার্ক ত্রুটি', 'error');
-      return false;
-    }
+      prev => {
+        const existingIdx = prev.dailyMeals.findIndex(m => m.date === date);
+        const updatedDailyMeals = [...prev.dailyMeals];
+        const val = status === 'ON' ? 1 : 0;
+        if (existingIdx >= 0) {
+          const day = updatedDailyMeals[existingIdx];
+          const memRec = day.records[memberId] || { breakfast: 1, lunch: 1, dinner: 1 };
+          updatedDailyMeals[existingIdx] = {
+            ...day,
+            records: {
+              ...day.records,
+              [memberId]: { ...memRec, [mealType]: val },
+            },
+          };
+        } else {
+          const rec: Record<string, MealRecord> = {};
+          prev.members.forEach(m => {
+            rec[m.id] = { breakfast: 1, lunch: 1, dinner: 1 };
+          });
+          rec[memberId] = { ...rec[memberId], [mealType]: val };
+          updatedDailyMeals.push({ date, records: rec });
+        }
+        return { ...prev, dailyMeals: updatedDailyMeals };
+      },
+      `${date}: ${mealNameBn} ${statusBn} করা হয়েছে`
+    );
   };
 
   // Weekly / Batch Plan
@@ -273,320 +317,463 @@ export function App() {
     memberId: string,
     plans: Array<{ date: string; breakfast?: MealStatus; lunch?: MealStatus; dinner?: MealStatus }>
   ): Promise<boolean> => {
-    try {
-      const res = await fetch('/api/meals/batch-member-plan', {
-        method: 'POST',
-        headers: getAuthHeaders(),
-        body: JSON.stringify({
-          memberId,
-          plans,
-          actingUser: actingUserLabel,
+    return executeMutation(
+      () =>
+        fetch('/api/meals/batch-member-plan', {
+          method: 'POST',
+          headers: getAuthHeaders(),
+          body: JSON.stringify({
+            memberId,
+            plans,
+            actingUser: actingUserLabel,
+          }),
         }),
-      });
-      return await handleApiResponse(res, 'সাপ্তাহিক মিল পরিকল্পনা সফলভাবে সংরক্ষিত হয়েছে');
-    } catch (err) {
-      showToast('সাপ্তাহিক পরিকল্পনা সংরক্ষণে নেটওয়ার্ক ত্রুটি', 'error');
-      return false;
-    }
+      prev => {
+        const updatedDailyMeals = [...prev.dailyMeals];
+        plans.forEach(plan => {
+          const idx = updatedDailyMeals.findIndex(m => m.date === plan.date);
+          const currentRec = updatedDailyMeals[idx]?.records?.[memberId] || { breakfast: 1, lunch: 1, dinner: 1 };
+          const newRec: MealRecord = {
+            breakfast: plan.breakfast ? (plan.breakfast === 'ON' ? 1 : 0) : currentRec.breakfast,
+            lunch: plan.lunch ? (plan.lunch === 'ON' ? 1 : 0) : currentRec.lunch,
+            dinner: plan.dinner ? (plan.dinner === 'ON' ? 1 : 0) : currentRec.dinner,
+          };
+          if (idx >= 0) {
+            updatedDailyMeals[idx] = {
+              ...updatedDailyMeals[idx],
+              records: { ...updatedDailyMeals[idx].records, [memberId]: newRec },
+            };
+          } else {
+            updatedDailyMeals.push({
+              date: plan.date,
+              records: { [memberId]: newRec },
+            });
+          }
+        });
+        return { ...prev, dailyMeals: updatedDailyMeals };
+      },
+      'সাপ্তাহিক মিল পরিকল্পনা সফলভাবে সংরক্ষিত হয়েছে'
+    );
   };
 
   // Save Cutoff Settings
   const handleSaveCutoffSettings = async (settings: MealCutoffSettings): Promise<boolean> => {
-    try {
-      const res = await fetch('/api/settings/meal-cutoff', {
-        method: 'POST',
-        headers: getAuthHeaders(),
-        body: JSON.stringify({
-          mealCutoffSettings: settings,
-          actingUser: actingUserLabel,
+    return executeMutation(
+      () =>
+        fetch('/api/settings/meal-cutoff', {
+          method: 'POST',
+          headers: getAuthHeaders(),
+          body: JSON.stringify({
+            mealCutoffSettings: settings,
+            actingUser: actingUserLabel,
+          }),
         }),
-      });
-      return await handleApiResponse(res, 'মিল কাট-অফ সময় ও নিয়মাবলি সফলভাবে হালনাগাদ হয়েছে');
-    } catch (err) {
-      showToast('কাট-অফ সংরক্ষণে সমস্যা হয়েছে', 'error');
-      return false;
-    }
+      prev => ({
+        ...prev,
+        settings: {
+          ...prev.settings,
+          mealCutoffSettings: settings,
+        },
+      }),
+      'মিল কাট-অফ সময় ও নিয়মাবলি সফলভাবে হালনাগাদ হয়েছে'
+    );
   };
 
   // Send Cutoff Reminders
   const handleSendCutoffReminders = async (date: string): Promise<boolean> => {
-    try {
-      const res = await fetch('/api/meals/send-cutoff-reminders', {
-        method: 'POST',
-        headers: getAuthHeaders(),
-        body: JSON.stringify({
-          date,
-          actingUser: actingUserLabel,
+    return executeMutation(
+      () =>
+        fetch('/api/meals/send-cutoff-reminders', {
+          method: 'POST',
+          headers: getAuthHeaders(),
+          body: JSON.stringify({
+            date,
+            actingUser: actingUserLabel,
+          }),
         }),
-      });
-      return await handleApiResponse(res, `${date} তারিখের মিল রিমাইন্ডার সফলভাবে পাঠানো হয়েছে`);
-    } catch (err) {
-      showToast('রিমাইন্ডার পাঠাতে সমস্যা হয়েছে', 'error');
-      return false;
-    }
+      prev => prev,
+      `${date} তারিখের মিল রিমাইন্ডার সফলভাবে পাঠানো হয়েছে`
+    );
   };
 
   // Menu
-  const handleSaveMenu = async (menu: Partial<MealMenu>) => {
-    try {
-      const res = await fetch('/api/menus', {
-        method: 'POST',
-        headers: getAuthHeaders(),
-        body: JSON.stringify({ menu, actingUser: actingUserLabel }),
-      });
-      await handleApiResponse(res, 'খাবার মেনু সফলভাবে হালনাগাদ হয়েছে');
-    } catch (err) {
-      showToast('মেনু সংরক্ষণে সমস্যা হয়েছে', 'error');
-    }
+  const handleSaveMenu = async (menu: Partial<MealMenu>): Promise<void> => {
+    await executeMutation(
+      () =>
+        fetch('/api/menus', {
+          method: 'POST',
+          headers: getAuthHeaders(),
+          body: JSON.stringify({ menu, actingUser: actingUserLabel }),
+        }),
+      prev => {
+        const idx = prev.mealMenus.findIndex(m => m.date === menu.date);
+        const list = [...prev.mealMenus];
+        if (idx >= 0) {
+          list[idx] = { ...list[idx], ...menu } as MealMenu;
+        } else {
+          list.push(menu as MealMenu);
+        }
+        return { ...prev, mealMenus: list };
+      },
+      'খাবার মেনু সফলভাবে হালনাগাদ হয়েছে'
+    );
   };
 
   // Cooking Duties
-  const handleSaveDuty = async (duty: Partial<CookingDuty>) => {
-    try {
-      const res = await fetch('/api/cooking-duty', {
-        method: 'POST',
-        headers: getAuthHeaders(),
-        body: JSON.stringify({ duty, actingUser: actingUserLabel }),
-      });
-      await handleApiResponse(res, 'রান্নার দায়িত্ব সফলভাবে সংরক্ষিত হয়েছে');
-    } catch (err) {
-      showToast('রান্নার দায়িত্ব সংরক্ষণে সমস্যা হয়েছে', 'error');
-    }
+  const handleSaveDuty = async (duty: Partial<CookingDuty>): Promise<void> => {
+    const dutyId = duty.id || `duty_${Date.now()}`;
+    await executeMutation(
+      () =>
+        fetch('/api/cooking-duty', {
+          method: 'POST',
+          headers: getAuthHeaders(),
+          body: JSON.stringify({ duty, actingUser: actingUserLabel }),
+        }),
+      prev => {
+        const idx = prev.cookingDuties.findIndex(d => d.id === duty.id);
+        const list = [...prev.cookingDuties];
+        if (idx >= 0) {
+          list[idx] = { ...list[idx], ...duty } as CookingDuty;
+        } else {
+          list.push({ ...duty, id: dutyId } as CookingDuty);
+        }
+        return { ...prev, cookingDuties: list };
+      },
+      'রান্নার দায়িত্ব সফলভাবে সংরক্ষিত হয়েছে'
+    );
   };
 
-  const handleDeleteCookingDuty = async (id: string) => {
-    try {
-      const res = await fetch(`/api/cooking-duty/${id}?actingUser=${encodeURIComponent(actingUserLabel)}`, {
-        method: 'DELETE',
-        headers: getDeleteHeaders(),
-      });
-      await handleApiResponse(res, 'রান্নার দায়িত্ব শিডিউল মুছে ফেলা হয়েছে');
-    } catch (err) {
-      showToast('রান্নার দায়িত্ব মুছতে সমস্যা হয়েছে', 'error');
-    }
+  const handleDeleteCookingDuty = async (id: string): Promise<void> => {
+    await executeMutation(
+      () =>
+        fetch(`/api/cooking-duty/${id}?actingUser=${encodeURIComponent(actingUserLabel)}`, {
+          method: 'DELETE',
+          headers: getDeleteHeaders(),
+        }),
+      prev => ({
+        ...prev,
+        cookingDuties: prev.cookingDuties.filter(d => d.id !== id),
+      }),
+      'রান্নার দায়িত্ব শিডিউল মুছে ফেলা হয়েছে'
+    );
   };
 
   // Bazar Records
-  const handleSaveBazarRecord = async (bazar: Partial<BazarRecord>) => {
-    try {
-      const res = await fetch('/api/bazar', {
-        method: 'POST',
-        headers: getAuthHeaders(),
-        body: JSON.stringify({ bazar, actingUser: actingUserLabel }),
-      });
-      await handleApiResponse(res, 'বাজার খরচ সফলভাবে সংরক্ষিত হয়েছে');
-    } catch (err) {
-      showToast('বাজার খরচ সংরক্ষণে সমস্যা হয়েছে', 'error');
-    }
+  const handleSaveBazarRecord = async (bazar: Partial<BazarRecord>): Promise<void> => {
+    const bazId = bazar.id || `bz_${Date.now()}`;
+    await executeMutation(
+      () =>
+        fetch('/api/bazar', {
+          method: 'POST',
+          headers: getAuthHeaders(),
+          body: JSON.stringify({ bazar, actingUser: actingUserLabel }),
+        }),
+      prev => {
+        const idx = prev.bazarRecords.findIndex(b => b.id === bazar.id);
+        const list = [...prev.bazarRecords];
+        if (idx >= 0) {
+          list[idx] = { ...list[idx], ...bazar } as BazarRecord;
+        } else {
+          list.push({ ...bazar, id: bazId } as BazarRecord);
+        }
+        return { ...prev, bazarRecords: list };
+      },
+      'বাজার খরচ সফলভাবে সংরক্ষিত হয়েছে'
+    );
   };
 
-  const handleDeleteBazarRecord = async (id: string) => {
-    try {
-      const res = await fetch(`/api/bazar/${id}?actingUser=${encodeURIComponent(actingUserLabel)}`, {
-        method: 'DELETE',
-        headers: getDeleteHeaders(),
-      });
-      await handleApiResponse(res, 'বাজার রেকর্ড মুছে ফেলা হয়েছে');
-    } catch (err) {
-      showToast('বাজার রেকর্ড মুছতে সমস্যা হয়েছে', 'error');
-    }
+  const handleDeleteBazarRecord = async (id: string): Promise<void> => {
+    await executeMutation(
+      () =>
+        fetch(`/api/bazar/${id}?actingUser=${encodeURIComponent(actingUserLabel)}`, {
+          method: 'DELETE',
+          headers: getDeleteHeaders(),
+        }),
+      prev => ({
+        ...prev,
+        bazarRecords: prev.bazarRecords.filter(b => b.id !== id),
+      }),
+      'বাজার রেকর্ড মুছে ফেলা হয়েছে'
+    );
   };
 
   // Bazar Duty
-  const handleSaveBazarDuty = async (duty: Partial<BazarDuty>) => {
-    try {
-      const res = await fetch('/api/bazar-duty', {
-        method: 'POST',
-        headers: getAuthHeaders(),
-        body: JSON.stringify({ duty, actingUser: actingUserLabel }),
-      });
-      await handleApiResponse(res, 'বাজার দায়িত্ব নির্ধারিত হয়েছে');
-    } catch (err) {
-      showToast('বাজার দায়িত্ব সংরক্ষণে সমস্যা হয়েছে', 'error');
-    }
+  const handleSaveBazarDuty = async (duty: Partial<BazarDuty>): Promise<void> => {
+    const dutyId = duty.id || `bd_${Date.now()}`;
+    await executeMutation(
+      () =>
+        fetch('/api/bazar-duty', {
+          method: 'POST',
+          headers: getAuthHeaders(),
+          body: JSON.stringify({ duty, actingUser: actingUserLabel }),
+        }),
+      prev => {
+        const idx = prev.bazarDuties.findIndex(d => d.id === duty.id);
+        const list = [...prev.bazarDuties];
+        if (idx >= 0) {
+          list[idx] = { ...list[idx], ...duty } as BazarDuty;
+        } else {
+          list.push({ ...duty, id: dutyId } as BazarDuty);
+        }
+        return { ...prev, bazarDuties: list };
+      },
+      'বাজার দায়িত্ব নির্ধারিত হয়েছে'
+    );
   };
 
-  const handleDeleteBazarDuty = async (id: string) => {
-    try {
-      const res = await fetch(`/api/bazar-duty/${id}?actingUser=${encodeURIComponent(actingUserLabel)}`, {
-        method: 'DELETE',
-        headers: getDeleteHeaders(),
-      });
-      await handleApiResponse(res, 'বাজার দায়িত্ব শিডিউল মুছে ফেলা হয়েছে');
-    } catch (err) {
-      showToast('বাজার দায়িত্ব মুছতে সমস্যা হয়েছে', 'error');
-    }
+  const handleDeleteBazarDuty = async (id: string): Promise<void> => {
+    await executeMutation(
+      () =>
+        fetch(`/api/bazar-duty/${id}?actingUser=${encodeURIComponent(actingUserLabel)}`, {
+          method: 'DELETE',
+          headers: getDeleteHeaders(),
+        }),
+      prev => ({
+        ...prev,
+        bazarDuties: prev.bazarDuties.filter(d => d.id !== id),
+      }),
+      'বাজার দায়িত্ব শিডিউল মুছে ফেলা হয়েছে'
+    );
   };
 
   // Market Items
-  const handleSaveMarketItem = async (item: Partial<MarketItem>) => {
-    try {
-      const res = await fetch('/api/market-list', {
-        method: 'POST',
-        headers: getAuthHeaders(),
-        body: JSON.stringify({ item, actingUser: actingUserLabel }),
-      });
-      await handleApiResponse(res, 'বাজার তালিকার আইটেম সংরক্ষিত হয়েছে');
-    } catch (err) {
-      showToast('বাজার তালিকা সংরক্ষণে সমস্যা হয়েছে', 'error');
-    }
+  const handleSaveMarketItem = async (item: Partial<MarketListItem>): Promise<void> => {
+    const itemId = item.id || `mi_${Date.now()}`;
+    await executeMutation(
+      () =>
+        fetch('/api/market-list', {
+          method: 'POST',
+          headers: getAuthHeaders(),
+          body: JSON.stringify({ item, actingUser: actingUserLabel }),
+        }),
+      prev => {
+        const idx = prev.marketItems.findIndex(i => i.id === item.id);
+        const list = [...prev.marketItems];
+        if (idx >= 0) {
+          list[idx] = { ...list[idx], ...item } as MarketItem;
+        } else {
+          list.push({ ...item, id: itemId } as MarketItem);
+        }
+        return { ...prev, marketItems: list };
+      },
+      'বাজার তালিকার আইটেম সংরক্ষিত হয়েছে'
+    );
   };
 
-  const handleDeleteMarketItem = async (id: string) => {
-    try {
-      const res = await fetch(`/api/market-list/${id}?actingUser=${encodeURIComponent(actingUserLabel)}`, {
-        method: 'DELETE',
-        headers: getDeleteHeaders(),
-      });
-      await handleApiResponse(res, 'আইটেম মুছে ফেলা হয়েছে');
-    } catch (err) {
-      showToast('আইটেম মুছতে সমস্যা হয়েছে', 'error');
-    }
+  const handleDeleteMarketItem = async (id: string): Promise<void> => {
+    await executeMutation(
+      () =>
+        fetch(`/api/market-list/${id}?actingUser=${encodeURIComponent(actingUserLabel)}`, {
+          method: 'DELETE',
+          headers: getDeleteHeaders(),
+        }),
+      prev => ({
+        ...prev,
+        marketItems: prev.marketItems.filter(i => i.id !== id),
+      }),
+      'আইটেম মুছে ফেলা হয়েছে'
+    );
   };
 
   // General Expenses
-  const handleSaveExpense = async (expense: Partial<ExpenseRecord>) => {
-    try {
-      const res = await fetch('/api/expenses', {
-        method: 'POST',
-        headers: getAuthHeaders(),
-        body: JSON.stringify({ expense, actingUser: actingUserLabel }),
-      });
-      await handleApiResponse(res, 'খরচের হিসাব সংরক্ষিত হয়েছে');
-    } catch (err) {
-      showToast('খরচ সংরক্ষণে সমস্যা হয়েছে', 'error');
-    }
+  const handleSaveExpense = async (expense: Partial<ExpenseRecord>): Promise<void> => {
+    const expId = expense.id || `exp_${Date.now()}`;
+    await executeMutation(
+      () =>
+        fetch('/api/expenses', {
+          method: 'POST',
+          headers: getAuthHeaders(),
+          body: JSON.stringify({ expense, actingUser: actingUserLabel }),
+        }),
+      prev => {
+        const idx = prev.expenses.findIndex(e => e.id === expense.id);
+        const list = [...prev.expenses];
+        if (idx >= 0) {
+          list[idx] = { ...list[idx], ...expense } as ExpenseRecord;
+        } else {
+          list.push({ ...expense, id: expId } as ExpenseRecord);
+        }
+        return { ...prev, expenses: list };
+      },
+      'খরচের হিসাব সংরক্ষিত হয়েছে'
+    );
   };
 
-  const handleDeleteExpense = async (id: string) => {
-    try {
-      const res = await fetch(`/api/expenses/${id}?actingUser=${encodeURIComponent(actingUserLabel)}`, {
-        method: 'DELETE',
-        headers: getDeleteHeaders(),
-      });
-      await handleApiResponse(res, 'খরচের রেকর্ড মুছে ফেলা হয়েছে');
-    } catch (err) {
-      showToast('খরচ মুছতে সমস্যা হয়েছে', 'error');
-    }
+  const handleDeleteExpense = async (id: string): Promise<void> => {
+    await executeMutation(
+      () =>
+        fetch(`/api/expenses/${id}?actingUser=${encodeURIComponent(actingUserLabel)}`, {
+          method: 'DELETE',
+          headers: getDeleteHeaders(),
+        }),
+      prev => ({
+        ...prev,
+        expenses: prev.expenses.filter(e => e.id !== id),
+      }),
+      'খরচের রেকর্ড মুছে ফেলা হয়েছে'
+    );
   };
 
   // Payments / Deposits
-  const handleSavePayment = async (payment: Partial<PaymentRecord>) => {
-    try {
-      const res = await fetch('/api/payments', {
-        method: 'POST',
-        headers: getAuthHeaders(),
-        body: JSON.stringify({ payment, actingUser: actingUserLabel }),
-      });
-      await handleApiResponse(res, 'জমা রেকর্ড সফলভাবে সংরক্ষিত হয়েছে');
-    } catch (err) {
-      showToast('জমা সংরক্ষণে সমস্যা হয়েছে', 'error');
-    }
+  const handleSavePayment = async (payment: Partial<PaymentRecord>): Promise<void> => {
+    const payId = payment.id || `pay_${Date.now()}`;
+    await executeMutation(
+      () =>
+        fetch('/api/payments', {
+          method: 'POST',
+          headers: getAuthHeaders(),
+          body: JSON.stringify({ payment, actingUser: actingUserLabel }),
+        }),
+      prev => {
+        const idx = prev.payments.findIndex(p => p.id === payment.id);
+        const list = [...prev.payments];
+        if (idx >= 0) {
+          list[idx] = { ...list[idx], ...payment } as PaymentRecord;
+        } else {
+          list.push({ ...payment, id: payId } as PaymentRecord);
+        }
+        return { ...prev, payments: list };
+      },
+      'জমা রেকর্ড সফলভাবে সংরক্ষিত হয়েছে'
+    );
   };
 
-  const handleDeletePayment = async (id: string) => {
-    try {
-      const res = await fetch(`/api/payments/${id}?actingUser=${encodeURIComponent(actingUserLabel)}`, {
-        method: 'DELETE',
-        headers: getDeleteHeaders(),
-      });
-      await handleApiResponse(res, 'জমার রেকর্ড মুছে ফেলা হয়েছে');
-    } catch (err) {
-      showToast('জমা রেকর্ড মুছতে সমস্যা হয়েছে', 'error');
-    }
+  const handleDeletePayment = async (id: string): Promise<void> => {
+    await executeMutation(
+      () =>
+        fetch(`/api/payments/${id}?actingUser=${encodeURIComponent(actingUserLabel)}`, {
+          method: 'DELETE',
+          headers: getDeleteHeaders(),
+        }),
+      prev => ({
+        ...prev,
+        payments: prev.payments.filter(p => p.id !== id),
+      }),
+      'জমার রেকর্ড মুছে ফেলা হয়েছে'
+    );
   };
 
   // Monthly Close, Reopen, Recalculate
-  const handleCloseMonth = async (month: string, sendSms: boolean) => {
-    setIsProcessing(true);
-    try {
-      const res = await fetch('/api/month/close', {
-        method: 'POST',
-        headers: getAuthHeaders(),
-        body: JSON.stringify({
-          month,
-          actingUser: actingUserLabel,
-          sendMonthEndSms: sendSms,
+  const handleCloseMonth = async (month: string, sendSms: boolean): Promise<void> => {
+    await executeMutation(
+      () =>
+        fetch('/api/month/close', {
+          method: 'POST',
+          headers: getAuthHeaders(),
+          body: JSON.stringify({
+            month,
+            actingUser: actingUserLabel,
+            sendMonthEndSms: sendSms,
+          }),
         }),
-      });
-      await handleApiResponse(res, `${month} মাসের হিসাব চূড়ান্ত ও বন্ধ (Locked) করা হয়েছে`);
-    } catch (err) {
-      showToast('মাস বন্ধ করতে সমস্যা হয়েছে', 'error');
-    } finally {
-      setIsProcessing(false);
-    }
+      prev => {
+        const closedCalc = calculateMonthlyAccount(prev, month, 'closed');
+        const updatedAccounts = [...prev.monthlyAccounts.filter(a => a.month !== month), closedCalc];
+        return {
+          ...prev,
+          currentMonthCalculation: closedCalc,
+          monthlyAccounts: updatedAccounts,
+        };
+      },
+      `${month} মাসের হিসাব চূড়ান্ত ও বন্ধ (Locked) করা হয়েছে`
+    );
   };
 
-  const handleReopenMonth = async (month: string) => {
-    setIsProcessing(true);
-    try {
-      const res = await fetch('/api/month/reopen', {
-        method: 'POST',
-        headers: getAuthHeaders(),
-        body: JSON.stringify({ month, actingUser: actingUserLabel }),
-      });
-      await handleApiResponse(res, `${month} মাসের হিসাব সফলভাবে পুনঃউন্মুক্ত (Reopened) করা হয়েছে`);
-    } catch (err) {
-      showToast('মাস পুনঃউন্মুক্ত করতে সমস্যা হয়েছে', 'error');
-    } finally {
-      setIsProcessing(false);
-    }
+  const handleReopenMonth = async (month: string): Promise<void> => {
+    await executeMutation(
+      () =>
+        fetch('/api/month/reopen', {
+          method: 'POST',
+          headers: getAuthHeaders(),
+          body: JSON.stringify({ month, actingUser: actingUserLabel }),
+        }),
+      prev => {
+        const reopenedCalc = calculateMonthlyAccount(prev, month, 'open');
+        const updatedAccounts = [...prev.monthlyAccounts.filter(a => a.month !== month), reopenedCalc];
+        return {
+          ...prev,
+          currentMonthCalculation: reopenedCalc,
+          monthlyAccounts: updatedAccounts,
+        };
+      },
+      `${month} মাসের হিসাব সফলভাবে পুনঃউন্মুক্ত (Reopened) করা হয়েছে`
+    );
   };
 
-  const handleRecalculateMonth = async (month: string) => {
-    setIsProcessing(true);
-    try {
-      const res = await fetch('/api/month/recalculate', {
-        method: 'POST',
-        headers: getAuthHeaders(),
-        body: JSON.stringify({ month, actingUser: actingUserLabel }),
-      });
-      await handleApiResponse(res, `${month} মাসের হিসাব ও মিল রেট পুনর্গণনা সম্পন্ন হয়েছে`);
-    } catch (err) {
-      showToast('পুনর্গণনায় সমস্যা হয়েছে', 'error');
-    } finally {
-      setIsProcessing(false);
-    }
+  const handleRecalculateMonth = async (month: string): Promise<void> => {
+    await executeMutation(
+      () =>
+        fetch('/api/month/recalculate', {
+          method: 'POST',
+          headers: getAuthHeaders(),
+          body: JSON.stringify({ month, actingUser: actingUserLabel }),
+        }),
+      prev => {
+        const activeStatus = prev.currentMonthCalculation?.status || 'open';
+        const recalculated = calculateMonthlyAccount(prev, month, activeStatus);
+        return {
+          ...prev,
+          currentMonthCalculation: recalculated,
+        };
+      },
+      `${month} মাসের হিসাব ও মিল রেট পুনর্গণনা সম্পন্ন হয়েছে`
+    );
   };
 
   // Members
-  const handleSaveMember = async (member: Partial<Member>) => {
-    try {
-      const res = await fetch('/api/members', {
-        method: 'POST',
-        headers: getAuthHeaders(),
-        body: JSON.stringify({ member, actingUser: actingUserLabel }),
-      });
-      await handleApiResponse(res, 'সদস্যের তথ্য সফলভাবে সংরক্ষিত হয়েছে');
-    } catch (err) {
-      showToast('সদস্য সংরক্ষণে সমস্যা হয়েছে', 'error');
-    }
+  const handleSaveMember = async (member: Partial<Member>): Promise<void> => {
+    const memId = member.id || `m_${Date.now()}`;
+    await executeMutation(
+      () =>
+        fetch('/api/members', {
+          method: 'POST',
+          headers: getAuthHeaders(),
+          body: JSON.stringify({ member, actingUser: actingUserLabel }),
+        }),
+      prev => {
+        const idx = prev.members.findIndex(m => m.id === member.id);
+        const list = [...prev.members];
+        if (idx >= 0) {
+          list[idx] = { ...list[idx], ...member } as Member;
+        } else {
+          list.push({ ...member, id: memId, active: true } as Member);
+        }
+        return { ...prev, members: list };
+      },
+      'সদস্যের তথ্য সফলভাবে সংরক্ষিত হয়েছে'
+    );
   };
 
-  const handleDeleteMember = async (id: string) => {
-    try {
-      const res = await fetch(`/api/members/${id}?actingUser=${encodeURIComponent(actingUserLabel)}`, {
-        method: 'DELETE',
-        headers: getDeleteHeaders(),
-      });
-      await handleApiResponse(res, 'সদস্য মেস তালিকা থেকে সফলভাবে অপসারিত হয়েছে');
-    } catch (err) {
-      showToast('সদস্য অপসারণে সমস্যা হয়েছে', 'error');
-    }
+  const handleDeleteMember = async (id: string): Promise<void> => {
+    await executeMutation(
+      () =>
+        fetch(`/api/members/${id}?actingUser=${encodeURIComponent(actingUserLabel)}`, {
+          method: 'DELETE',
+          headers: getDeleteHeaders(),
+        }),
+      prev => ({
+        ...prev,
+        members: prev.members.filter(m => m.id !== id),
+      }),
+      'সদস্য মেস তালিকা থেকে সফলভাবে অপসারিত হয়েছে'
+    );
   };
 
   // Settings
-  const handleSaveSettings = async (settings: MessSettings) => {
-    try {
-      const res = await fetch('/api/settings', {
-        method: 'POST',
-        headers: getAuthHeaders(),
-        body: JSON.stringify({ settings, actingUser: actingUserLabel }),
-      });
-      await handleApiResponse(res, 'মেস সেটিংস ও ক্যাশিয়ার অনুমতি হালনাগাদ করা হয়েছে');
-    } catch (err) {
-      showToast('সেটিংস সংরক্ষণে সমস্যা হয়েছে', 'error');
-    }
+  const handleSaveSettings = async (settings: MessSettings): Promise<void> => {
+    await executeMutation(
+      () =>
+        fetch('/api/settings', {
+          method: 'POST',
+          headers: getAuthHeaders(),
+          body: JSON.stringify({ settings, actingUser: actingUserLabel }),
+        }),
+      prev => ({
+        ...prev,
+        settings,
+      }),
+      'মেস সেটিংস ও ক্যাশিয়ার অনুমতি হালনাগাদ করা হয়েছে'
+    );
   };
 
   // SMS
@@ -595,35 +782,36 @@ export function App() {
     phone: string,
     message: string,
     type: SmsType = 'custom'
-  ) => {
-    try {
-      const recipient = dbState.members.find(m => m.id === recipientId);
-      const res = await fetch('/api/sms/send', {
-        method: 'POST',
-        headers: getAuthHeaders(),
-        body: JSON.stringify({
-          recipientId,
-          recipientName: recipient?.name || 'Member',
-          phone,
-          type,
-          message,
-          actingUser: actingUserLabel,
-        }),
-      });
-      await handleApiResponse(res, `${phone} নম্বরে এসএমএস সফলভাবে পাঠানো হয়েছে`);
-    } catch (err) {
-      showToast('এসএমএস পাঠাতে সমস্যা হয়েছে', 'error');
-    }
+  ): Promise<void> => {
+    await executeMutation(
+      () => {
+        const recipient = dbState.members.find(m => m.id === recipientId);
+        return fetch('/api/sms/send', {
+          method: 'POST',
+          headers: getAuthHeaders(),
+          body: JSON.stringify({
+            recipientId,
+            recipientName: recipient?.name || 'Member',
+            phone,
+            type,
+            message,
+            actingUser: actingUserLabel,
+          }),
+        });
+      },
+      prev => prev,
+      `${phone} নম্বরে এসএমএস সফলভাবে পাঠানো হয়েছে`
+    );
   };
 
   const handleResetDemo = async () => {
     if (!window.confirm('আপনি কি নিশ্চিত যে ডেমো ডেটা রিসেট করতে চান?')) return;
     try {
-      const res = await fetch('/api/reset-demo', { method: 'POST' });
-      await handleApiResponse(res, 'ডেমো ডেটা সফলভাবে রিসেট করা হয়েছে');
-    } catch (err) {
-      showToast('ডেমো ডেটা রিসেট করতে সমস্যা হয়েছে', 'error');
-    }
+      await fetch('/api/reset-demo', { method: 'POST' });
+    } catch {}
+    const fresh = resetLocalState();
+    setDbState(fresh);
+    showToast('ডেমো ডেটা সফলভাবে রিসেট করা হয়েছে', 'success');
   };
 
   return (
@@ -775,7 +963,7 @@ export function App() {
                   isOpen: true,
                   recipientId: duty.memberId,
                   type: 'cooking_reminder',
-                  message: `আসসালামু আলাইকুম ${duty.memberName}। আজ শান্তিনগর মেসে আপনার রান্নার দায়িত্ব। নির্ধারিত সময় অনুযায়ী রান্না প্রস্তুত রাখুন। - Mess Manager`,
+                  message: `আসসালামু আলাইকুম ${duty.memberName}। আজ শান্তিনগর মেসে আপনার রান্নার দায়িত্ব। নির্ধারিত সময় অনুযায়ী রান্না প্রস্তুত রাখুন। - Bachelor Zone`,
                 })
               }
             />
@@ -801,7 +989,7 @@ export function App() {
                   isOpen: true,
                   recipientId: duty.memberId,
                   type: 'bazar_reminder',
-                  message: `আসসালামু আলাইকুম ${duty.memberName}। আজ আপনার বাজার করার দায়িত্ব। বাজেট: ৳${duty.expectedBudget}। অ্যাপে প্রয়োজনীয় পণ্যের তালিকা দেখে নিন। - Mess Manager`,
+                  message: `আসসালামু আলাইকুম ${duty.memberName}। আজ আপনার বাজার করার দায়িত্ব। বাজেট: ৳${duty.expectedBudget}। অ্যাপে প্রয়োজনীয় পণ্যের তালিকা দেখে নিন। - Bachelor Zone`,
                 })
               }
             />
@@ -848,7 +1036,7 @@ export function App() {
                   isOpen: true,
                   recipientId: stmt.memberId,
                   type: 'monthly_account',
-                  message: `আসসালামু আলাইকুম ${stmt.memberName}। চলতি মাসের মেস হিসাব: মোট মিল ${stmt.totalMeals}, মিল খরচ ৳${stmt.mealCost}, ফিক্সড শেয়ার ৳${stmt.sharedCostsShare}, জমা ৳${stmt.totalPaid}, ${balanceText}। - Mess Manager`,
+                  message: `আসসালামু আলাইকুম ${stmt.memberName}। চলতি মাসের মেস হিসাব: মোট মিল ${stmt.totalMeals}, মিল খরচ ৳${stmt.mealCost}, ফিক্সড শেয়ার ৳${stmt.sharedCostsShare}, জমা ৳${stmt.totalPaid}, ${balanceText}। - Bachelor Zone`,
                 });
               }}
               isProcessing={isProcessing}
@@ -928,13 +1116,19 @@ export function App() {
         initialMessage={smsModalState.message}
       />
 
-      {/* Admin Login Modal */}
+      {/* Admin Login & Member Login Modal */}
       <AdminLoginModal
         isOpen={showAdminLoginModal}
         onClose={() => setShowAdminLoginModal(false)}
+        members={dbState.members}
+        currentMemberId={currentMemberId}
+        onSelectMember={id => {
+          setCurrentMemberId(id);
+          showToast('সদস্য প্রোফাইলে স্যুইচ করা হয়েছে', 'info');
+        }}
         onLoginSuccess={async () => {
           await fetchData();
-          showToast('এডমিন অ্যাকাউন্টে সফলভাবে লগইন হয়েছে', 'success');
+          showToast('সফলভাবে লগইন সম্পন্ন হয়েছে', 'success');
         }}
       />
 

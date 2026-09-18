@@ -20,6 +20,7 @@ import {
 } from '../types.js';
 import { Language, translations } from '../utils/translations.js';
 import { downloadCsv } from '../utils/exportUtils.js';
+import { BachelorZoneLogo } from './BachelorZoneLogo.js';
 
 interface ReportsViewProps {
   currentMonthCalc: MonthlyAccount;
@@ -71,7 +72,7 @@ export const ReportsView: React.FC<ReportsViewProps> = ({
       amt,
       totalAllExpenses > 0 ? ((amt / totalAllExpenses) * 100).toFixed(1) + '%' : '0%',
     ]);
-    downloadCsv(`Mess_Expense_Report_${currentMonthCalc.month}.csv`, [headers, ...rows]);
+    downloadCsv(`Bachelor_Zone_Expense_Report_${currentMonthCalc.month}.csv`, [headers, ...rows]);
   };
 
   const handlePrint = () => {
@@ -80,15 +81,21 @@ export const ReportsView: React.FC<ReportsViewProps> = ({
 
   return (
     <div className="space-y-6">
+      {/* Printable Report Header */}
+      <div className="hidden print:block text-center pb-4 border-b-2 border-slate-900 mb-6">
+        <h1 className="text-2xl font-black text-slate-900 tracking-tight">Bachelor Zone</h1>
+        <h2 className="text-sm font-bold text-slate-700 mt-1">Monthly Mess Account — {currentMonthCalc.monthName}</h2>
+        <p className="text-xs text-slate-500">শান্তিনগর মেস • ঢাকা | মেস আর্থিক ও মিল বিশ্লেষণ রিপোর্ট</p>
+      </div>
+
       {/* Top Banner */}
       <div className="bg-gradient-to-r from-slate-900 to-indigo-950 text-white rounded-2xl p-5 shadow-xs flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <div className="flex items-center gap-2 text-indigo-300 text-xs font-semibold">
-            <BarChart3 className="h-4 w-4" />
-            <span>মেস আর্থিক ও মিল বিশ্লেষণ রিপোর্ট (Analytics & Visual Reports)</span>
+          <div className="flex items-center gap-2 mb-2">
+            <BachelorZoneLogo size="sm" theme="white" subtitle="Monthly Mess Account Reports" />
           </div>
-          <h2 className="text-xl sm:text-2xl font-extrabold mt-1">
-            সেপ্টেম্বর ২০২৬ আর্থিক সারসংক্ষেপ
+          <h2 className="text-xl sm:text-2xl font-extrabold text-white">
+            {currentMonthCalc.monthName} আর্থিক সারসংক্ষেপ
           </h2>
           <p className="text-xs text-slate-300 mt-1">
             মিল ভলিউম, বাজার প্রবণতা এবং ব্যালান্স শিট অ্যানালিটিক্স

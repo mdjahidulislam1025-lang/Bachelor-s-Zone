@@ -48,16 +48,16 @@ export const SendSmsModal: React.FC<SendSmsModalProps> = ({
     const name = m ? m.name : 'ভাই';
     switch (type) {
       case 'cooking_reminder':
-        setMessage(`আসসালামু আলাইকুম ${name}। আজ শান্তিনগর মেসে আপনার রান্নার দায়িত্ব। নির্ধারিত সময় অনুযায়ী রান্না সম্পন্ন করার প্রস্তুতি নিন। - Mess Manager`);
+        setMessage(`Bachelor Zone: আসসালামু আলাইকুম ${name}। আজ আপনার রান্নার দায়িত্ব।`);
         break;
       case 'bazar_reminder':
-        setMessage(`আসসালামু আলাইকুম ${name}। আজ আপনার বাজার করার পালা। সকালের তাজা বাজার ও মেসের প্রয়োজনীয় পণ্যের তালিকা দেখে বাজারে যান। - Mess Manager`);
+        setMessage(`Bachelor Zone: আসসালামু আলাইকুম ${name}। আজ আপনার বাজার করার দায়িত্ব।`);
         break;
       case 'payment_reminder':
-        setMessage(`আসসালামু আলাইকুম ${name}। আপনার মেস বিল বাবদ কিছু বকেয়া রয়েছে। অনুগ্রহ করে হিসাবরক্ষকের কাছে জমা পরিশোধ করুন। - Mess Manager`);
+        setMessage(`Bachelor Zone: আসসালামু আলাইকুম ${name}। আপনার মেস বিল বাবদ কিছু বকেয়া রয়েছে। অনুগ্রহ করে হিসাব পরিশোধ করুন।`);
         break;
       case 'monthly_account':
-        setMessage(`আসসালামু আলাইকুম ${name}। চলতি সেপ্টেম্বর মাসের মেস হিসাব প্রস্তুত হয়েছে। মেস ম্যানেজার অ্যাপে আপনার স্টেটমেন্ট ও ব্যালান্স দেখে নিন। - Mess Manager`);
+        setMessage(`Bachelor Zone: আসসালামু আলাইকুম ${name}। চলতি সেপ্টেম্বর মাসের হিসাব প্রস্তুত হয়েছে। বিস্তারিত হিসাব অ্যাপে দেখুন।`);
         break;
       default:
         setMessage('');

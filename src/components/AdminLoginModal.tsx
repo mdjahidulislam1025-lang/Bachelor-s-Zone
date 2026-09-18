@@ -15,22 +15,46 @@ import {
   KeyRound,
   UserPlus,
   HelpCircle,
+  Users,
+  ArrowRight,
+  Sparkles,
 } from 'lucide-react';
+import { Member } from '../types.js';
+import { BachelorZoneLogo } from './BachelorZoneLogo.js';
 
 interface AdminLoginModalProps {
   isOpen: boolean;
   onClose: () => void;
   onLoginSuccess?: () => void;
+  members?: Member[];
+  currentMemberId?: string;
+  onSelectMember?: (memberId: string) => void;
+  initialRole?: 'admin' | 'member';
 }
 
-export const AdminLoginModal: React.FC<AdminLoginModalProps> = ({ isOpen, onClose, onLoginSuccess }) => {
+export const AdminLoginModal: React.FC<AdminLoginModalProps> = ({
+  isOpen,
+  onClose,
+  onLoginSuccess,
+  members = [],
+  currentMemberId,
+  onSelectMember,
+  initialRole = 'admin',
+}) => {
   const { login, firstTimeSetup, forgotPassword, adminProfile, currentUserName, isAdmin, logout } = useAuth();
 
+  const [activeRole, setActiveRole] = useState<'admin' | 'member'>(initialRole);
   const [mode, setMode] = useState<'login' | 'setup' | 'forgot'>('login');
   const [identifier, setIdentifier] = useState('01711234567');
   const [password, setPassword] = useState('admin123');
   const [showPassword, setShowPassword] = useState(false);
   const [rememberMe, setRememberMe] = useState(true);
+
+  // Member login states
+  const [selectedMemberLoginId, setSelectedMemberLoginId] = useState<string>(
+    currentMemberId || (members[0]?.id || '')
+  );
+  const [memberPhoneInput, setMemberPhoneInput] = useState('');
 
   // Setup form states
   const [setupName, setSetupName] = useState(adminProfile?.name || 'Rahim Uddin');
@@ -46,6 +70,34 @@ export const AdminLoginModal: React.FC<AdminLoginModalProps> = ({ isOpen, onClos
   const [successMsg, setSuccessMsg] = useState<string | null>(null);
 
   if (!isOpen) return null;
+
+  const handleMemberLogin = (e: React.FormEvent) => {
+    e.preventDefault();
+    setErrorMsg(null);
+    setSuccessMsg(null);
+
+    let targetMember: Member | undefined;
+    if (memberPhoneInput.trim()) {
+      targetMember = members.find(
+        m => m.phone === memberPhoneInput.trim() || m.roomNo === memberPhoneInput.trim()
+      );
+      if (!targetMember) {
+        setErrorMsg('প্রদত্ত মোবাইল নম্বর বা রুম নম্বরের কোনো সদস্য পাওয়া যায়নি');
+        return;
+      }
+    } else {
+      targetMember = members.find(m => m.id === selectedMemberLoginId);
+    }
+
+    if (targetMember && onSelectMember) {
+      onSelectMember(targetMember.id);
+      setSuccessMsg(`${targetMember.name} (রুম ${targetMember.roomNo}) সদস্য পোর্টালে লগইন সম্পন্ন হয়েছে!`);
+      setTimeout(() => {
+        if (onLoginSuccess) onLoginSuccess();
+        onClose();
+      }, 700);
+    }
+  };
 
   const handleLoginSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -132,96 +184,203 @@ export const AdminLoginModal: React.FC<AdminLoginModalProps> = ({ isOpen, onClos
         className="relative w-full max-w-md bg-white dark:bg-slate-900 rounded-2xl shadow-2xl border border-slate-200 dark:border-slate-800 overflow-hidden my-6 transition-all"
         onClick={e => e.stopPropagation()}
       >
-        {/* Modal Header */}
-        <div className="bg-linear-to-r from-emerald-600 via-teal-700 to-slate-900 px-6 py-5 text-white flex items-center justify-between">
-          <div className="flex items-center space-x-3">
-            <div className="w-10 h-10 rounded-xl bg-white/10 flex items-center justify-center backdrop-blur-sm border border-white/20">
-              <ShieldCheck className="w-6 h-6 text-emerald-200" />
-            </div>
-            <div>
-              <h2 className="text-lg font-bold tracking-tight">Mess Manager Admin</h2>
-              <p className="text-xs text-emerald-100">নিরাপদ এডমিন ও পরিচালনা লগইন</p>
-            </div>
-          </div>
+        {/* Modal Header with Bachelor Zone branding */}
+        <div className="bg-gradient-to-r from-emerald-700 via-teal-800 to-slate-900 px-6 py-5 text-white flex items-center justify-between">
+          <BachelorZoneLogo size="md" theme="white" subtitle="Mess Management System" />
           <button
             onClick={onClose}
-            className="p-1.5 rounded-lg text-white/80 hover:text-white hover:bg-white/10 transition-colors"
+            className="p-1.5 rounded-lg text-white/80 hover:text-white hover:bg-white/10 transition-colors cursor-pointer"
             title="Close"
           >
             <X className="w-5 h-5" />
           </button>
         </div>
 
-        {/* Navigation Mode Pill */}
-        <div className="flex border-b border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/50 p-1.5 text-xs font-medium">
+        {/* Primary Role Selector: Admin Login vs Member Login (strictly separated) */}
+        <div className="grid grid-cols-2 p-2 bg-slate-100 dark:bg-slate-800/70 border-b border-slate-200 dark:border-slate-800 gap-1.5 text-xs font-bold">
           <button
             type="button"
             onClick={() => {
-              setMode('login');
+              setActiveRole('admin');
               setErrorMsg(null);
               setSuccessMsg(null);
             }}
-            className={`flex-1 py-2 rounded-lg text-center transition-all ${
-              mode === 'login'
-                ? 'bg-white dark:bg-slate-900 text-emerald-700 dark:text-emerald-400 shadow-xs font-semibold'
-                : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200'
+            className={`py-2.5 px-3 rounded-xl flex items-center justify-center gap-2 transition-all cursor-pointer ${
+              activeRole === 'admin'
+                ? 'bg-slate-900 text-white shadow-xs'
+                : 'text-slate-600 hover:text-slate-900 hover:bg-slate-200/60 dark:text-slate-300'
             }`}
           >
-            এডমিন লগইন
+            <ShieldCheck className="w-4 h-4 text-emerald-400" />
+            <span>Admin Login</span>
           </button>
           <button
             type="button"
             onClick={() => {
-              setMode('setup');
+              setActiveRole('member');
               setErrorMsg(null);
               setSuccessMsg(null);
             }}
-            className={`flex-1 py-2 rounded-lg text-center transition-all ${
-              mode === 'setup'
-                ? 'bg-white dark:bg-slate-900 text-emerald-700 dark:text-emerald-400 shadow-xs font-semibold'
-                : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200'
+            className={`py-2.5 px-3 rounded-xl flex items-center justify-center gap-2 transition-all cursor-pointer ${
+              activeRole === 'member'
+                ? 'bg-emerald-600 text-white shadow-xs'
+                : 'text-slate-600 hover:text-slate-900 hover:bg-slate-200/60 dark:text-slate-300'
             }`}
           >
-            নতুন এডমিন সেটআপ
-          </button>
-          <button
-            type="button"
-            onClick={() => {
-              setMode('forgot');
-              setErrorMsg(null);
-              setSuccessMsg(null);
-            }}
-            className={`flex-1 py-2 rounded-lg text-center transition-all ${
-              mode === 'forgot'
-                ? 'bg-white dark:bg-slate-900 text-emerald-700 dark:text-emerald-400 shadow-xs font-semibold'
-                : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200'
-            }`}
-          >
-            পাসওয়ার্ড উদ্ধার
+            <Users className="w-4 h-4 text-emerald-100" />
+            <span>Member Login</span>
           </button>
         </div>
 
-        {/* Current status bar if already logged in */}
-        {isAdmin && (
-          <div className="mx-6 mt-4 p-3 bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-200 dark:border-emerald-800/50 rounded-xl flex items-center justify-between text-xs text-emerald-800 dark:text-emerald-300">
-            <div className="flex items-center space-x-2">
-              <UserCheck className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
-              <span>বর্তমানে <strong>{currentUserName}</strong> হিসেবে লগইন আছেন</span>
+        {/* ADMIN LOGIN SECTION */}
+        {activeRole === 'admin' && (
+          <>
+            {/* Navigation Mode Pill for Admin */}
+            <div className="flex border-b border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/50 p-1.5 text-xs font-medium">
+              <button
+                type="button"
+                onClick={() => {
+                  setMode('login');
+                  setErrorMsg(null);
+                  setSuccessMsg(null);
+                }}
+                className={`flex-1 py-2 rounded-lg text-center transition-all cursor-pointer ${
+                  mode === 'login'
+                    ? 'bg-white dark:bg-slate-900 text-emerald-700 dark:text-emerald-400 shadow-xs font-semibold'
+                    : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200'
+                }`}
+              >
+                এডমিন লগইন
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  setMode('setup');
+                  setErrorMsg(null);
+                  setSuccessMsg(null);
+                }}
+                className={`flex-1 py-2 rounded-lg text-center transition-all cursor-pointer ${
+                  mode === 'setup'
+                    ? 'bg-white dark:bg-slate-900 text-emerald-700 dark:text-emerald-400 shadow-xs font-semibold'
+                    : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200'
+                }`}
+              >
+                নতুন এডমিন সেটআপ
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  setMode('forgot');
+                  setErrorMsg(null);
+                  setSuccessMsg(null);
+                }}
+                className={`flex-1 py-2 rounded-lg text-center transition-all cursor-pointer ${
+                  mode === 'forgot'
+                    ? 'bg-white dark:bg-slate-900 text-emerald-700 dark:text-emerald-400 shadow-xs font-semibold'
+                    : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200'
+                }`}
+              >
+                পাসওয়ার্ড উদ্ধার
+              </button>
             </div>
+
+            {/* Current status bar if already logged in as Admin */}
+            {isAdmin && (
+              <div className="mx-6 mt-4 p-3 bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-200 dark:border-emerald-800/50 rounded-xl flex items-center justify-between text-xs text-emerald-800 dark:text-emerald-300">
+                <div className="flex items-center space-x-2">
+                  <UserCheck className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
+                  <span>বর্তমানে <strong>{currentUserName}</strong> হিসেবে এডমিন লগইন আছেন</span>
+                </div>
+                <button
+                  onClick={() => {
+                    logout();
+                    setSuccessMsg('এডমিন সেশন লগআউট করা হয়েছে');
+                  }}
+                  className="text-xs px-2 py-1 bg-white dark:bg-slate-800 text-rose-600 border border-rose-200 dark:border-rose-800 rounded font-medium hover:bg-rose-50 cursor-pointer"
+                >
+                  লগআউট
+                </button>
+              </div>
+            )}
+          </>
+        )}
+
+        {/* MEMBER LOGIN SECTION */}
+        {activeRole === 'member' && (
+          <form onSubmit={handleMemberLogin} className="p-6 pt-4 space-y-4">
+            <div className="p-3 bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-200 dark:border-emerald-800/50 rounded-xl text-xs text-emerald-900 dark:text-emerald-200">
+              <div className="font-bold flex items-center gap-1.5 mb-1">
+                <Sparkles className="w-3.5 h-3.5 text-emerald-600" />
+                <span>Bachelor Zone মেস সদস্য লগইন</span>
+              </div>
+              <p className="text-[11px] text-emerald-700 dark:text-emerald-300">
+                আপনার মেস একাউন্টে প্রবেশ করে মিল অন/অফ, আজকের মেনু, বাজার ও রান্নার দায়িত্ব এবং মাসিক ব্যক্তিগত হিসাব দেখুন।
+              </p>
+            </div>
+
+            <div>
+              <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
+                মেস সদস্য নির্বাচন করুন
+              </label>
+              <div className="space-y-1.5 max-h-48 overflow-y-auto pr-1">
+                {members.map(mem => (
+                  <button
+                    key={mem.id}
+                    type="button"
+                    onClick={() => {
+                      setSelectedMemberLoginId(mem.id);
+                      setMemberPhoneInput('');
+                    }}
+                    className={`w-full p-2.5 rounded-xl border text-left flex items-center justify-between text-xs transition-all cursor-pointer ${
+                      selectedMemberLoginId === mem.id && !memberPhoneInput
+                        ? 'border-emerald-500 bg-emerald-50/70 dark:bg-emerald-950/40 text-emerald-950 font-bold'
+                        : 'border-slate-200 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800/60'
+                    }`}
+                  >
+                    <div className="flex items-center gap-2.5">
+                      <div className={`w-7 h-7 rounded-full text-white text-xs font-bold flex items-center justify-center ${mem.avatarColor}`}>
+                        {mem.nickname?.slice(0, 1) || mem.name.slice(0, 1)}
+                      </div>
+                      <div>
+                        <div className="text-slate-900 dark:text-white font-semibold">{mem.name}</div>
+                        <div className="text-[10px] text-slate-500 font-normal">রুম {mem.roomNo || 'N/A'} • {mem.phone}</div>
+                      </div>
+                    </div>
+                    {selectedMemberLoginId === mem.id && !memberPhoneInput && (
+                      <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-600 text-white">
+                        নির্বাচিত
+                      </span>
+                    )}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            <div>
+              <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
+                অথবা মোবাইল নম্বর / রুম নং লিখুন
+              </label>
+              <input
+                type="text"
+                value={memberPhoneInput}
+                onChange={e => setMemberPhoneInput(e.target.value)}
+                placeholder="যেমন: 01811234567 বা রুম 101"
+                className="w-full px-3 py-2 text-sm bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl dark:text-white outline-none focus:border-emerald-500"
+              />
+            </div>
+
             <button
-              onClick={() => {
-                logout();
-                setSuccessMsg('লগআউট করা হয়েছে');
-              }}
-              className="text-xs px-2 py-1 bg-white dark:bg-slate-800 text-rose-600 border border-rose-200 dark:border-rose-800 rounded font-medium hover:bg-rose-50"
+              type="submit"
+              className="w-full py-2.5 px-4 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-sm font-semibold shadow-md flex items-center justify-center space-x-2 transition-all cursor-pointer"
             >
-              লগআউট
+              <span>সদস্য হিসেবে প্রবেশ করুন</span>
+              <ArrowRight className="w-4 h-4" />
             </button>
-          </div>
+          </form>
         )}
 
         {/* Alerts */}
-        <div className="px-6 pt-4">
+        <div className="px-6 pt-2">
           {errorMsg && (
             <div className="p-3 bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-800 rounded-xl flex items-start space-x-2.5 text-xs text-rose-700 dark:text-rose-300 mb-3 animate-fadeIn">
               <AlertCircle className="w-4 h-4 text-rose-500 shrink-0 mt-0.5" />
@@ -236,8 +395,11 @@ export const AdminLoginModal: React.FC<AdminLoginModalProps> = ({ isOpen, onClos
           )}
         </div>
 
-        {/* Form Mode 1: LOGIN */}
-        {mode === 'login' && (
+        {/* ADMIN AUTH FORMS */}
+        {activeRole === 'admin' && (
+          <>
+            {/* Form Mode 1: LOGIN */}
+            {mode === 'login' && (
           <form onSubmit={handleLoginSubmit} className="p-6 pt-2 space-y-4">
             <div>
               <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
@@ -499,6 +661,8 @@ export const AdminLoginModal: React.FC<AdminLoginModalProps> = ({ isOpen, onClos
             </div>
           </form>
         )}
+        </>
+      )}
 
         {/* Security Footer Badge */}
         <div className="px-6 py-3 bg-slate-50 dark:bg-slate-800/50 border-t border-slate-200 dark:border-slate-800 text-[11px] text-slate-500 dark:text-slate-400 flex items-center justify-between">
