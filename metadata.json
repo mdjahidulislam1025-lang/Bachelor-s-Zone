@@ -1,0 +1,6 @@
+{
+  "name": "Mess Manager",
+  "description": "Complete, modern and transparent student and bachelor mess management application for Bangladesh with meal tracking, cooking & bazar schedules, expense calculation, SMS alerts, and accounts.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
