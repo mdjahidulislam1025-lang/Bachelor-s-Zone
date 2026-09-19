@@ -64,7 +64,7 @@ export const StatementVoucherModal: React.FC<StatementVoucherModalProps> = ({
               Monthly Mess Account — {monthName}
             </div>
             <p className="text-xs text-slate-600 font-medium mt-0.5">
-              {messName} • {messAddress}
+              {messName || 'Bachelor Zone'}{messAddress ? ` • ${messAddress}` : ''}
             </p>
             <div className="inline-block mt-2 px-4 py-1 bg-slate-100 rounded-full text-xs font-extrabold text-slate-800 uppercase tracking-wide">
               ব্যক্তিগত হিসাব বিবরণী ও ভাউচার
@@ -209,7 +209,7 @@ export const StatementVoucherModal: React.FC<StatementVoucherModalProps> = ({
           </div>
 
           <div className="text-[10px] text-slate-400 text-center pt-3 border-t border-slate-100">
-            Bachelor Zone ডিজিটাল সফটওয়্যার সিস্টেম দ্বারা স্বয়ংক্রিয়ভাবে প্রস্তুতকৃত • {messName} • {messAddress}
+            Bachelor Zone ডিজিটাল মেস সিস্টেম দ্বারা স্বয়ংক্রিয়ভাবে প্রস্তুতকৃত{messAddress ? ` • ${messAddress}` : ''}
           </div>
         </div>
       </div>

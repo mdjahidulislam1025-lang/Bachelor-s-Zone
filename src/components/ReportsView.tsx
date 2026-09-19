@@ -85,7 +85,7 @@ export const ReportsView: React.FC<ReportsViewProps> = ({
       <div className="hidden print:block text-center pb-4 border-b-2 border-slate-900 mb-6">
         <h1 className="text-2xl font-black text-slate-900 tracking-tight">Bachelor Zone</h1>
         <h2 className="text-sm font-bold text-slate-700 mt-1">Monthly Mess Account — {currentMonthCalc.monthName}</h2>
-        <p className="text-xs text-slate-500">শান্তিনগর মেস • ঢাকা | মেস আর্থিক ও মিল বিশ্লেষণ রিপোর্ট</p>
+        <p className="text-xs text-slate-500">Bachelor Zone • মেস আর্থিক ও মিল বিশ্লেষণ রিপোর্ট</p>
       </div>
 
       {/* Top Banner */}

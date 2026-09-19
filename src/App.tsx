@@ -33,6 +33,8 @@ import { calculateMonthlyAccount } from './utils/calculator.js';
 import {
   MessDatabaseState,
   Member,
+  MemberRole,
+  UserRole,
   MemberMonthlyStatement,
   DailyMealEntry,
   MealRecord,
@@ -41,6 +43,7 @@ import {
   BazarDuty,
   BazarRecord,
   MarketItem,
+  MarketListItem,
   ExpenseRecord,
   PaymentRecord,
   MessSettings,
@@ -232,10 +235,30 @@ export function App() {
       prev => {
         const existingIdx = prev.dailyMeals.findIndex(m => m.date === date);
         const updated = [...prev.dailyMeals];
+        let totalBreakfast = 0;
+        let totalLunch = 0;
+        let totalDinner = 0;
+        Object.values(records).forEach(r => {
+          totalBreakfast += r.breakfast || 0;
+          totalLunch += r.lunch || 0;
+          totalDinner += r.dinner || 0;
+        });
+        const entry: DailyMealEntry = {
+          id: existingIdx >= 0 ? updated[existingIdx].id : `dme_${date}`,
+          date,
+          totalBreakfast,
+          totalLunch,
+          totalDinner,
+          totalMeals: totalBreakfast + totalLunch + totalDinner,
+          records,
+          notes: notes || '',
+          updatedBy: actingUserLabel,
+          updatedAt: new Date().toISOString(),
+        };
         if (existingIdx >= 0) {
-          updated[existingIdx] = { ...updated[existingIdx], records, notes: notes || '' };
+          updated[existingIdx] = entry;
         } else {
-          updated.push({ date, records, notes: notes || '' });
+          updated.push(entry);
         }
         return { ...prev, dailyMeals: updated };
       },
@@ -290,21 +313,97 @@ export function App() {
         const val = status === 'ON' ? 1 : 0;
         if (existingIdx >= 0) {
           const day = updatedDailyMeals[existingIdx];
-          const memRec = day.records[memberId] || { breakfast: 1, lunch: 1, dinner: 1 };
+          const prevRec = day.records[memberId] || {
+            memberId,
+            breakfast: 1,
+            lunch: 1,
+            dinner: 1,
+            guestMeals: 0,
+            total: 3,
+          };
+          const newBreakfast = mealType === 'breakfast' ? val : prevRec.breakfast;
+          const newLunch = mealType === 'lunch' ? val : prevRec.lunch;
+          const newDinner = mealType === 'dinner' ? val : prevRec.dinner;
+          const newMemRec: MealRecord = {
+            memberId,
+            breakfast: newBreakfast,
+            lunch: newLunch,
+            dinner: newDinner,
+            guestMeals: prevRec.guestMeals || 0,
+            total: newBreakfast + newLunch + newDinner + (prevRec.guestMeals || 0),
+          };
+          const newRecords = {
+            ...day.records,
+            [memberId]: newMemRec,
+          };
+          let totalBreakfast = 0;
+          let totalLunch = 0;
+          let totalDinner = 0;
+          Object.values(newRecords).forEach(r => {
+            totalBreakfast += r.breakfast || 0;
+            totalLunch += r.lunch || 0;
+            totalDinner += r.dinner || 0;
+          });
           updatedDailyMeals[existingIdx] = {
             ...day,
-            records: {
-              ...day.records,
-              [memberId]: { ...memRec, [mealType]: val },
-            },
+            totalBreakfast,
+            totalLunch,
+            totalDinner,
+            totalMeals: totalBreakfast + totalLunch + totalDinner,
+            records: newRecords,
+            updatedBy: actingUserLabel,
+            updatedAt: new Date().toISOString(),
           };
         } else {
           const rec: Record<string, MealRecord> = {};
           prev.members.forEach(m => {
-            rec[m.id] = { breakfast: 1, lunch: 1, dinner: 1 };
+            rec[m.id] = {
+              memberId: m.id,
+              breakfast: 1,
+              lunch: 1,
+              dinner: 1,
+              guestMeals: 0,
+              total: 3,
+            };
           });
-          rec[memberId] = { ...rec[memberId], [mealType]: val };
-          updatedDailyMeals.push({ date, records: rec });
+          const prevRec = rec[memberId] || {
+            memberId,
+            breakfast: 1,
+            lunch: 1,
+            dinner: 1,
+            guestMeals: 0,
+            total: 3,
+          };
+          const newBreakfast = mealType === 'breakfast' ? val : prevRec.breakfast;
+          const newLunch = mealType === 'lunch' ? val : prevRec.lunch;
+          const newDinner = mealType === 'dinner' ? val : prevRec.dinner;
+          rec[memberId] = {
+            memberId,
+            breakfast: newBreakfast,
+            lunch: newLunch,
+            dinner: newDinner,
+            guestMeals: prevRec.guestMeals || 0,
+            total: newBreakfast + newLunch + newDinner + (prevRec.guestMeals || 0),
+          };
+          let totalBreakfast = 0;
+          let totalLunch = 0;
+          let totalDinner = 0;
+          Object.values(rec).forEach(r => {
+            totalBreakfast += r.breakfast || 0;
+            totalLunch += r.lunch || 0;
+            totalDinner += r.dinner || 0;
+          });
+          updatedDailyMeals.push({
+            id: `dme_${date}`,
+            date,
+            totalBreakfast,
+            totalLunch,
+            totalDinner,
+            totalMeals: totalBreakfast + totalLunch + totalDinner,
+            records: rec,
+            updatedBy: actingUserLabel,
+            updatedAt: new Date().toISOString(),
+          });
         }
         return { ...prev, dailyMeals: updatedDailyMeals };
       },
@@ -332,21 +431,61 @@ export function App() {
         const updatedDailyMeals = [...prev.dailyMeals];
         plans.forEach(plan => {
           const idx = updatedDailyMeals.findIndex(m => m.date === plan.date);
-          const currentRec = updatedDailyMeals[idx]?.records?.[memberId] || { breakfast: 1, lunch: 1, dinner: 1 };
+          const currentRec = updatedDailyMeals[idx]?.records?.[memberId] || {
+            memberId,
+            breakfast: 1,
+            lunch: 1,
+            dinner: 1,
+            guestMeals: 0,
+            total: 3,
+          };
+          const b = plan.breakfast ? (plan.breakfast === 'ON' ? 1 : 0) : currentRec.breakfast;
+          const l = plan.lunch ? (plan.lunch === 'ON' ? 1 : 0) : currentRec.lunch;
+          const d = plan.dinner ? (plan.dinner === 'ON' ? 1 : 0) : currentRec.dinner;
           const newRec: MealRecord = {
-            breakfast: plan.breakfast ? (plan.breakfast === 'ON' ? 1 : 0) : currentRec.breakfast,
-            lunch: plan.lunch ? (plan.lunch === 'ON' ? 1 : 0) : currentRec.lunch,
-            dinner: plan.dinner ? (plan.dinner === 'ON' ? 1 : 0) : currentRec.dinner,
+            memberId,
+            breakfast: b,
+            lunch: l,
+            dinner: d,
+            guestMeals: currentRec.guestMeals || 0,
+            total: b + l + d + (currentRec.guestMeals || 0),
           };
           if (idx >= 0) {
+            const day = updatedDailyMeals[idx];
+            const newRecords = { ...day.records, [memberId]: newRec };
+            let totalBreakfast = 0;
+            let totalLunch = 0;
+            let totalDinner = 0;
+            Object.values(newRecords).forEach(r => {
+              totalBreakfast += r.breakfast || 0;
+              totalLunch += r.lunch || 0;
+              totalDinner += r.dinner || 0;
+            });
             updatedDailyMeals[idx] = {
-              ...updatedDailyMeals[idx],
-              records: { ...updatedDailyMeals[idx].records, [memberId]: newRec },
+              ...day,
+              totalBreakfast,
+              totalLunch,
+              totalDinner,
+              totalMeals: totalBreakfast + totalLunch + totalDinner,
+              records: newRecords,
+              updatedBy: actingUserLabel,
+              updatedAt: new Date().toISOString(),
             };
           } else {
+            const rec: Record<string, MealRecord> = { [memberId]: newRec };
+            let totalBreakfast = b;
+            let totalLunch = l;
+            let totalDinner = d;
             updatedDailyMeals.push({
+              id: `dme_${plan.date}`,
               date: plan.date,
-              records: { [memberId]: newRec },
+              totalBreakfast,
+              totalLunch,
+              totalDinner,
+              totalMeals: totalBreakfast + totalLunch + totalDinner,
+              records: rec,
+              updatedBy: actingUserLabel,
+              updatedAt: new Date().toISOString(),
             });
           }
         });
@@ -547,14 +686,14 @@ export function App() {
           body: JSON.stringify({ item, actingUser: actingUserLabel }),
         }),
       prev => {
-        const idx = prev.marketItems.findIndex(i => i.id === item.id);
-        const list = [...prev.marketItems];
+        const idx = prev.marketList.findIndex(i => i.id === item.id);
+        const list = [...prev.marketList];
         if (idx >= 0) {
-          list[idx] = { ...list[idx], ...item } as MarketItem;
+          list[idx] = { ...list[idx], ...item } as MarketListItem;
         } else {
-          list.push({ ...item, id: itemId } as MarketItem);
+          list.push({ ...item, id: itemId } as MarketListItem);
         }
-        return { ...prev, marketItems: list };
+        return { ...prev, marketList: list };
       },
       'বাজার তালিকার আইটেম সংরক্ষিত হয়েছে'
     );
@@ -569,7 +708,7 @@ export function App() {
         }),
       prev => ({
         ...prev,
-        marketItems: prev.marketItems.filter(i => i.id !== id),
+        marketList: prev.marketList.filter(i => i.id !== id),
       }),
       'আইটেম মুছে ফেলা হয়েছে'
     );
@@ -736,7 +875,7 @@ export function App() {
         if (idx >= 0) {
           list[idx] = { ...list[idx], ...member } as Member;
         } else {
-          list.push({ ...member, id: memId, active: true } as Member);
+          list.push({ ...member, id: memId, status: member.status || 'active' } as Member);
         }
         return { ...prev, members: list };
       },
@@ -744,19 +883,56 @@ export function App() {
     );
   };
 
-  const handleDeleteMember = async (id: string): Promise<void> => {
+  const handleChangeMemberRole = async (memberId: string, newRole: MemberRole): Promise<void> => {
     await executeMutation(
       () =>
-        fetch(`/api/members/${id}?actingUser=${encodeURIComponent(actingUserLabel)}`, {
-          method: 'DELETE',
-          headers: getDeleteHeaders(),
+        fetch('/api/members/change-role', {
+          method: 'POST',
+          headers: getAuthHeaders(),
+          body: JSON.stringify({ memberId, newRole, actingUser: actingUserLabel }),
         }),
       prev => ({
         ...prev,
-        members: prev.members.filter(m => m.id !== id),
+        members: prev.members.map(m => (m.id === memberId ? { ...m, role: newRole } : m)),
       }),
-      'সদস্য মেস তালিকা থেকে সফলভাবে অপসারিত হয়েছে'
+      'সদস্যের রোল সফলভাবে পরিবর্তন করা হয়েছে'
     );
+  };
+
+  const handleRemoveMember = async (id: string): Promise<void> => {
+    await executeMutation(
+      () =>
+        fetch('/api/members/remove', {
+          method: 'POST',
+          headers: getAuthHeaders(),
+          body: JSON.stringify({ memberId: id, actingUser: actingUserLabel }),
+        }),
+      prev => ({
+        ...prev,
+        members: prev.members.map(m => (m.id === id ? { ...m, status: 'left' } : m)),
+      }),
+      'সদস্য অপসারিত হয়েছে এবং আর্থিক ইতিহাস অক্ষত সংরক্ষিত রয়েছে'
+    );
+  };
+
+  const handleReactivateMember = async (id: string): Promise<void> => {
+    await executeMutation(
+      () =>
+        fetch('/api/members/reactivate', {
+          method: 'POST',
+          headers: getAuthHeaders(),
+          body: JSON.stringify({ memberId: id, actingUser: actingUserLabel }),
+        }),
+      prev => ({
+        ...prev,
+        members: prev.members.map(m => (m.id === id ? { ...m, status: 'active' } : m)),
+      }),
+      'সদস্য সফলভাবে পুনরায় সক্রিয় করা হয়েছে'
+    );
+  };
+
+  const handleDeleteMember = async (id: string): Promise<void> => {
+    await handleRemoveMember(id);
   };
 
   // Settings
@@ -963,7 +1139,7 @@ export function App() {
                   isOpen: true,
                   recipientId: duty.memberId,
                   type: 'cooking_reminder',
-                  message: `আসসালামু আলাইকুম ${duty.memberName}। আজ শান্তিনগর মেসে আপনার রান্নার দায়িত্ব। নির্ধারিত সময় অনুযায়ী রান্না প্রস্তুত রাখুন। - Bachelor Zone`,
+                  message: `আসসালামু আলাইকুম ${duty.memberName}। আজ মেসে আপনার রান্নার দায়িত্ব। নির্ধারিত সময় অনুযায়ী রান্না প্রস্তুত রাখুন। - Bachelor Zone`,
                 })
               }
             />
@@ -1049,6 +1225,9 @@ export function App() {
               currentMember={currentMember}
               language={language}
               onSaveMember={handleSaveMember}
+              onChangeRole={handleChangeMemberRole}
+              onRemoveMember={handleRemoveMember}
+              onReactivateMember={handleReactivateMember}
               onDeleteMember={handleDeleteMember}
             />
           )}

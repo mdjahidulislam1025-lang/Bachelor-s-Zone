@@ -57,10 +57,10 @@ export const AdminLoginModal: React.FC<AdminLoginModalProps> = ({
   const [memberPhoneInput, setMemberPhoneInput] = useState('');
 
   // Setup form states
-  const [setupName, setSetupName] = useState(adminProfile?.name || 'Rahim Uddin');
+  const [setupName, setSetupName] = useState(adminProfile?.name || 'Jahidul Islam');
   const [setupPhone, setSetupPhone] = useState(adminProfile?.phone || '01711234567');
-  const [setupEmail, setSetupEmail] = useState(adminProfile?.email || 'rahim.mess@gmail.com');
-  const [setupMessName, setSetupMessName] = useState(adminProfile?.messName || 'শান্তিনগর মেস');
+  const [setupEmail, setSetupEmail] = useState(adminProfile?.email || 'mdjahidulislam1025@gmail.com');
+  const [setupMessName, setSetupMessName] = useState(adminProfile?.messName || 'Bachelor Zone');
   const [setupPassword, setSetupPassword] = useState('');
   const [setupConfirmPassword, setSetupConfirmPassword] = useState('');
 
@@ -527,7 +527,7 @@ export const AdminLoginModal: React.FC<AdminLoginModalProps> = ({
                 required
                 value={setupMessName}
                 onChange={e => setSetupMessName(e.target.value)}
-                placeholder="যেমন: শান্তিনগর মেস"
+                placeholder="যেমন: Bachelor Zone"
                 className="w-full px-3 py-2 text-sm bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl dark:text-white"
               />
             </div>
@@ -542,7 +542,7 @@ export const AdminLoginModal: React.FC<AdminLoginModalProps> = ({
                   required
                   value={setupName}
                   onChange={e => setSetupName(e.target.value)}
-                  placeholder="রহিম উদ্দিন"
+                  placeholder="Jahidul Islam"
                   className="w-full px-3 py-2 text-sm bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl dark:text-white"
                 />
               </div>

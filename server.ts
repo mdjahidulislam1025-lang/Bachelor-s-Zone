@@ -390,7 +390,7 @@ async function startServer() {
         phone: phone.trim(),
         email: (email || 'admin@mess.com').trim(),
         passwordHash,
-        messName: (messName || 'শান্তিনগর মেস').trim(),
+        messName: (messName || 'Bachelor Zone').trim(),
         role: 'admin',
         status: 'active',
         createdDate: now.slice(0, 10),
@@ -653,7 +653,7 @@ async function startServer() {
 
       // Send Invitation notification / SMS
       if (sendInvitationSms && db.settings.smsGateway?.apiKeyConfigured) {
-        const msg = `আসসালামু আলাইকুম ${newMember.name}। শান্তিনগর Bachelor Zone এ আপনার অ্যাকাউন্ট তৈরি হয়েছে। আপনার খাবার মিল ও হিসাব দেখতে অ্যাপে প্রবেশ করুন। - Bachelor Zone Admin`;
+        const msg = `আসসালামু আলাইকুম ${newMember.name}। Bachelor Zone এ আপনার অ্যাকাউন্ট তৈরি হয়েছে। আপনার খাবার মিল ও হিসাব দেখতে অ্যাপে প্রবেশ করুন। - Bachelor Zone Admin`;
         db.smsLogs.push({
           id: `sms_inv_${Date.now()}`,
           timestamp: new Date().toISOString(),
@@ -726,6 +726,21 @@ async function startServer() {
     }
   });
 
+  function isPermanentAdmin(member?: { id?: string; name?: string; phone?: string; email?: string } | null): boolean {
+    if (!member) return false;
+    const name = (member.name || '').toLowerCase();
+    const phone = (member.phone || '').replace(/[\s\-\+]/g, '');
+    const email = (member.email || '').toLowerCase();
+    return (
+      member.id === 'm1' ||
+      name.includes('jahidul') ||
+      name.includes('জাহিদুল') ||
+      phone === '8801711234567' ||
+      phone === '01711234567' ||
+      email === 'mdjahidulislam1025@gmail.com'
+    );
+  }
+
   // 2. Add or Edit Member (Admin only)
   app.post('/api/members', (req, res) => {
     try {
@@ -741,10 +756,37 @@ async function startServer() {
       const existingIndex = db.members.findIndex(m => m.id === member.id);
       if (existingIndex >= 0) {
         const prev = db.members[existingIndex];
+
+        // Critical Rule: Jahidul Islam is the PERMANENT PRIMARY ADMIN
+        if (isPermanentAdmin(prev) || isPermanentAdmin(member)) {
+          if (member.role && member.role !== 'admin') {
+            return res.status(403).json({
+              success: false,
+              error: 'নিরাপত্তা নিষেধাজ্ঞা: জাহিদুল ইসলাম (Jahidul Islam) Bachelor Zone এর স্থায়ী প্রধান এডমিন ও মেস প্রতিষ্ঠাতা। তার এডমিন পদ পরিবর্তন করা সম্পূর্ণ নিষিদ্ধ।',
+            });
+          }
+          if (member.status && member.status !== 'active') {
+            return res.status(403).json({
+              success: false,
+              error: 'নিরাপত্তা নিষেধাজ্ঞা: জাহিদুল ইসলাম (Jahidul Islam) মেসের স্থায়ী প্রধান এডমিন। তাকে কোনো অবস্থাতেই নিষ্ক্রিয় (Inactive) করা যাবে না।',
+            });
+          }
+          member.role = 'admin';
+          member.status = 'active';
+        }
+
+        // Only Jahidul Islam can change the role of another member
+        if (member.role && member.role !== prev.role && !isPermanentAdmin(user)) {
+          return res.status(403).json({
+            success: false,
+            error: 'অনুমোদন প্রত্যাখ্যাত: শুধুমাত্র মেসের স্থায়ী প্রধান এডমিন জাহিদুল ইসলাম (Jahidul Islam) সদস্যদের রোল পরিবর্তন করতে পারেন।',
+          });
+        }
+
         db.members[existingIndex] = { ...prev, ...member };
         logAudit(
           user.name,
-          'EDIT',
+          'MEMBER_EDITED',
           'members',
           `সদস্য ${member.name} এর তথ্য আপডেট করা হয়েছে`,
           `${prev.name} (${prev.role}, ${prev.status}, ${prev.phone})`,
@@ -755,19 +797,21 @@ async function startServer() {
           user.ipAddress
         );
       } else {
-        const newId = `m${Date.now()}`;
+        const newId = member.id || `m${Date.now()}`;
         const newMember = {
           ...member,
           id: newId,
+          status: member.status || 'active',
+          role: member.role || 'member',
           joiningDate: member.joiningDate || new Date().toISOString().split('T')[0],
           avatarColor: member.avatarColor || 'bg-emerald-600',
         };
         db.members.push(newMember);
         logAudit(
           user.name,
-          'ADD',
+          'MEMBER_ADDED',
           'members',
-          `নতুন সদস্য ${member.name} (${member.role}) যুক্ত করা হয়েছে`,
+          `নতুন সদস্য ${newMember.name} (রোল: ${newMember.role === 'admin' ? 'এডমিন' : 'সদস্য'}) মেসে যুক্ত করা হয়েছে`,
           undefined,
           `${newMember.name} (ID: ${newId})`,
           user.id,
@@ -775,7 +819,7 @@ async function startServer() {
           newId,
           user.ipAddress
         );
-        notify('নতুন সদস্য যোগ', `${member.name} মেসে যুক্ত হয়েছেন।`, 'info', 'members');
+        notify('নতুন সদস্য যোগ', `${newMember.name} মেসে যুক্ত হয়েছেন।`, 'info', 'members');
       }
 
       // Sync monthly calculations in case active count changed
@@ -787,7 +831,150 @@ async function startServer() {
     }
   });
 
-  // 3. Delete Member (Admin only)
+  // Change Member Role (Only Jahidul Islam can perform this!)
+  app.post('/api/members/change-role', (req, res) => {
+    try {
+      const user = checkAdminAuth(req, res);
+      if (!user) return;
+
+      // Only Jahidul Islam can assign or change roles
+      if (!isPermanentAdmin(user)) {
+        return res.status(403).json({
+          success: false,
+          error: 'অনুমোদন প্রত্যাখ্যাত: শুধুমাত্র মেসের স্থায়ী প্রধান এডমিন জাহিদুল ইসলাম (Jahidul Islam) অন্য সদস্যদের রোল নির্ধারণ বা পরিবর্তন করতে পারেন। (403 Forbidden - Only Jahidul Islam can assign or change roles).',
+        });
+      }
+
+      const db = getDatabase();
+      const { memberId, newRole } = req.body;
+
+      if (!memberId || !newRole || !['admin', 'member'].includes(newRole)) {
+        return res.status(400).json({ success: false, error: 'সদস্য আইডি এবং বৈধ রোল (Admin অথবা Member) প্রদান করুন।' });
+      }
+
+      const target = db.members.find(m => m.id === memberId);
+      if (!target) {
+        return res.status(404).json({ success: false, error: 'সদস্য পাওয়া যায়নি।' });
+      }
+
+      // Critical Rule: Jahidul Islam role cannot be changed
+      if (isPermanentAdmin(target) && newRole !== 'admin') {
+        return res.status(403).json({
+          success: false,
+          error: 'নিরাপত্তা নিষেধাজ্ঞা: জাহিদুল ইসলাম (Jahidul Islam) Bachelor Zone এর স্থায়ী প্রধান এডমিন। তার এডমিন পদ পরিবর্তন করা সম্পূর্ণ নিষিদ্ধ।',
+        });
+      }
+
+      const prevRole = target.role;
+      target.role = newRole;
+
+      logAudit(
+        user.name,
+        'ROLE_CHANGED',
+        'members',
+        `সদস্য ${target.name} এর রোল পরিবর্তন করে "${newRole === 'admin' ? 'এডমিন (Admin)' : 'সাধারণ সদস্য (Member)'}" করা হয়েছে।`,
+        `পূর্বের রোল: ${prevRole}`,
+        `নতুন রোল: ${newRole}`,
+        user.id,
+        'Member',
+        memberId,
+        user.ipAddress
+      );
+
+      notify('রোল পরিবর্তন', `${target.name} এর রোল পরিবর্তন করে ${newRole === 'admin' ? 'এডমিন' : 'সদস্য'} করা হয়েছে।`, 'info', 'members');
+      saveDatabase(db);
+      res.json({ success: true, message: `${target.name} এর রোল সফলভাবে পরিবর্তন করা হয়েছে।`, member: target, members: db.members });
+    } catch (err: any) {
+      res.status(500).json({ success: false, error: err.message });
+    }
+  });
+
+  // Remove Member (Preserves historical records)
+  app.post('/api/members/remove', (req, res) => {
+    try {
+      const user = checkAdminAuth(req, res);
+      if (!user) return;
+
+      const db = getDatabase();
+      const { memberId } = req.body;
+      const target = db.members.find(m => m.id === memberId);
+
+      if (!target) {
+        return res.status(404).json({ success: false, error: 'সদস্য পাওয়া যায়নি।' });
+      }
+
+      // Critical Rule: Jahidul Islam cannot be removed or deactivated
+      if (isPermanentAdmin(target)) {
+        return res.status(403).json({
+          success: false,
+          error: 'নিরাপত্তা নিষেধাজ্ঞা: জাহিদুল ইসলাম (Jahidul Islam) Bachelor Zone এর স্থায়ী প্রধান এডমিন (Permanent Primary Admin / Owner)। তাকে কোনোভাবেই মেস থেকে অপসারণ বা ডিঅ্যাক্টিভেট করা যাবে না।',
+        });
+      }
+
+      // Preserve historical data and set status to 'left' (Removed)
+      target.status = 'left';
+
+      logAudit(
+        user.name,
+        'MEMBER_REMOVED',
+        'members',
+        `সদস্য ${target.name} কে মেস থেকে অপসারণ (Removed) করা হয়েছে। পূর্বের সকল মিল, বাজার খরচ, পেমেন্ট ও হিসাবের রেকর্ড অক্ষত ও সংরক্ষিত রাখা হয়েছে।`,
+        'Status: active',
+        'Status: Removed (Historical records preserved)',
+        user.id,
+        'Member',
+        memberId,
+        user.ipAddress
+      );
+
+      notify('সদস্য অপসারণ', `সদস্য ${target.name} কে মেস তালিকা থেকে অপসারিত করা হয়েছে (আর্থিক ইতিহাস সংরক্ষিত)।`, 'warning', 'members');
+      recalculateMonthlyAccount('2026-09');
+      saveDatabase(db);
+      res.json({ success: true, message: `${target.name} কে অপসারণ করা হয়েছে এবং ঐতিহাসিক সকল রেকর্ড সংরক্ষিত রাখা হয়েছে।`, member: target, members: db.members });
+    } catch (err: any) {
+      res.status(500).json({ success: false, error: err.message });
+    }
+  });
+
+  // Reactivate Member
+  app.post('/api/members/reactivate', (req, res) => {
+    try {
+      const user = checkAdminAuth(req, res);
+      if (!user) return;
+
+      const db = getDatabase();
+      const { memberId } = req.body;
+      const target = db.members.find(m => m.id === memberId);
+
+      if (!target) {
+        return res.status(404).json({ success: false, error: 'সদস্য পাওয়া যায়নি।' });
+      }
+
+      target.status = 'active';
+
+      logAudit(
+        user.name,
+        'MEMBER_REACTIVATED',
+        'members',
+        `পূর্বে অপসারিত সদস্য ${target.name} কে পুনরায় সক্রিয় (Active) সদস্য হিসেবে অন্তর্ভুক্ত করা হয়েছে।`,
+        'Status: left/inactive',
+        'Status: active',
+        user.id,
+        'Member',
+        memberId,
+        user.ipAddress
+      );
+
+      notify('সদস্য পুনরায় সক্রিয়', `সদস্য ${target.name} পুনরায় মেসে সক্রিয় হয়েছেন।`, 'info', 'members');
+      recalculateMonthlyAccount('2026-09');
+      saveDatabase(db);
+      res.json({ success: true, message: `${target.name} কে সফলভাবে পুনরায় সক্রিয় করা হয়েছে।`, member: target, members: db.members });
+    } catch (err: any) {
+      res.status(500).json({ success: false, error: err.message });
+    }
+  });
+
+  // 3. Delete or Remove Member (Admin only - preserves records by setting status to left)
   app.delete('/api/members/:id', (req, res) => {
     try {
       const user = checkAdminAuth(req, res);
@@ -801,34 +988,43 @@ async function startServer() {
         return res.status(404).json({ success: false, error: 'সদস্য পাওয়া যায়নি' });
       }
 
-      // Check if trying to delete the only admin
+      // Critical Rule: Jahidul Islam can NEVER be deleted or removed
+      if (isPermanentAdmin(target)) {
+        return res.status(403).json({
+          success: false,
+          error: 'নিরাপত্তা নিষেধাজ্ঞা: জাহিদুল ইসলাম (Jahidul Islam) Bachelor Zone এর স্থায়ী প্রধান এডমিন (Permanent Primary Admin / Owner)। তাকে কোনোভাবেই মেস থেকে মুছে ফেলা, অপসারন করা বা ডিঅ্যাক্টিভেট করা যাবে না।',
+        });
+      }
+
+      // Check if trying to remove the only admin
       const adminCount = db.members.filter(m => m.role === 'admin' && m.status === 'active').length;
       if (target.role === 'admin' && adminCount <= 1) {
         return res.status(400).json({
           success: false,
-          error: 'মেসের একমাত্র এডমিনকে মুছে ফেলা সম্ভব নয়। প্রথমে অন্য সদস্যকে এডমিন হিসেবে নির্ধারণ করুন।',
+          error: 'মেসের একমাত্র এডমিনকে অপসারণ করা সম্ভব নয়। প্রথমে অন্য সদস্যকে এডমিন হিসেবে নির্ধারণ করুন।',
         });
       }
 
-      db.members = db.members.filter(m => m.id !== id);
+      // Always preserve historical records: set status to 'left' (Removed)
+      target.status = 'left';
 
       logAudit(
         user.name,
-        'DELETE',
+        'MEMBER_REMOVED',
         'members',
-        `সদস্য ${target.name} (${target.role}) এর রেকর্ড মেস থেকে মুছে ফেলা হয়েছে`,
+        `সদস্য ${target.name} কে মেস তালিকা থেকে অপসারিত করা হয়েছে। পূর্বের সকল মিল, বাজার খরচ ও হিসাবের রেকর্ড সংরক্ষিত রয়েছে।`,
         `${target.name} (ফোন: ${target.phone}, রুম: ${target.roomNo || 'N/A'})`,
-        undefined,
+        'Status: Removed (Preserved)',
         user.id,
         'Member',
         id,
         user.ipAddress
       );
 
-      notify('সদস্য মুছে ফেলা হয়েছে', `সদস্য ${target.name} মেস তালিকা থেকে অপসারিত হয়েছে।`, 'warning', 'members');
+      notify('সদস্য অপসারণ', `সদস্য ${target.name} মেস তালিকা থেকে অপসারিত হয়েছে (রেকর্ড সংরক্ষিত)।`, 'warning', 'members');
       recalculateMonthlyAccount('2026-09');
       saveDatabase(db);
-      res.json({ success: true, message: 'সদস্য সফলভাবে মুছে ফেলা হয়েছে', data: db.members });
+      res.json({ success: true, message: 'সদস্য অপসারিত হয়েছে এবং ঐতিহাসিক রেকর্ড সংরক্ষিত রয়েছে', data: db.members });
     } catch (err: any) {
       res.status(500).json({ success: false, error: err.message });
     }

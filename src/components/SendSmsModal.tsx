@@ -29,7 +29,7 @@ export const SendSmsModal: React.FC<SendSmsModalProps> = ({
   );
   const [smsType, setSmsType] = useState<SmsType>(initialType);
   const [message, setMessage] = useState(
-    initialMessage || 'আসসালামু আলাইকুম। শান্তিনগর মেসের জরুরি নোটিশ: নির্ধারিত সময় অনুযায়ী মেস একাউন্ট আপডেট করা হয়েছে।'
+    initialMessage || 'আসসালামু আলাইকুম। Bachelor Zone জরুরি নোটিশ: নির্ধারিত সময় অনুযায়ী মেস একাউন্ট আপডেট করা হয়েছে। - Bachelor Zone'
   );
   const [isSending, setIsSending] = useState(false);
   const [successNotice, setSuccessNotice] = useState<string | null>(null);

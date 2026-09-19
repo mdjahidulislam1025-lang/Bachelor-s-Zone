@@ -43,9 +43,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode; initialAdminPro
       token: 'tok_default_admin',
       userId: 'm1',
       role: 'admin',
-      name: 'Rahim Uddin (Admin)',
+      name: 'Jahidul Islam (Admin)',
       phone: '01711234567',
-      email: 'rahim.mess@gmail.com',
+      email: 'mdjahidulislam1025@gmail.com',
       avatarColor: 'bg-emerald-600',
       loginTime: new Date().toISOString(),
     };
@@ -53,10 +53,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode; initialAdminPro
 
   const [adminProfile, setAdminProfile] = useState<AdminProfile | null>(initialAdminProfile || {
     id: 'admin_m1',
-    name: 'Rahim Uddin',
+    name: 'Jahidul Islam',
     phone: '01711234567',
-    email: 'rahim.mess@gmail.com',
-    messName: 'শান্তিনগর মেস (Shantinagar Mess)',
+    email: 'mdjahidulislam1025@gmail.com',
+    messName: 'Bachelor Zone',
     role: 'admin',
     status: 'active',
     createdDate: '2026-01-01',
@@ -122,9 +122,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode; initialAdminPro
       const localDb = getInitialOrSavedState();
       const defaultAdmin: AdminProfile = {
         id: 'm1',
-        name: 'Rahim Uddin (Admin)',
+        name: 'Jahidul Islam (Admin)',
         phone: '01711234567',
-        email: 'rahim.mess@gmail.com',
+        email: 'mdjahidulislam1025@gmail.com',
         role: 'admin',
         status: 'active',
         messName: 'Bachelor Zone',
@@ -206,7 +206,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode; initialAdminPro
         name: setupData.name.trim(),
         phone: setupData.phone.trim(),
         email: setupData.email.trim(),
-        messName: setupData.messName.trim() || 'শান্তিনগর মেস',
+        messName: setupData.messName.trim() || 'Bachelor Zone',
         role: 'admin',
         status: 'active',
         createdDate: new Date().toISOString().split('T')[0],
@@ -296,9 +296,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode; initialAdminPro
       const localDb = getInitialOrSavedState();
       const currentAdmin: AdminProfile = localDb.adminProfile || {
         id: 'm1',
-        name: 'Rahim Uddin (Admin)',
+        name: 'Jahidul Islam (Admin)',
         phone: '01711234567',
-        email: 'rahim.mess@gmail.com',
+        email: 'mdjahidulislam1025@gmail.com',
         role: 'admin',
         status: 'active',
         messName: 'Bachelor Zone',

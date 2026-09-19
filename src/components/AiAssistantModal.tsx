@@ -120,7 +120,7 @@ export const AiAssistantModal: React.FC<AiAssistantModalProps> = ({
             <div>
               <h3 className="text-sm font-bold leading-tight">মেস AI সহকারী (Gemini)</h3>
               <p className="text-[11px] text-emerald-200">
-                শান্তিনগর ব্যাচেলর মেসের ডেটাবেজ দ্বারা চালিত
+                Bachelor Zone লাইভ ডেটাবেজ দ্বারা চালিত
               </p>
             </div>
           </div>

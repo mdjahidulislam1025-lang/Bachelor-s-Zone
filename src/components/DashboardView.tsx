@@ -169,8 +169,8 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
               <button onClick={() => setShowNotifications(false)} className="text-emerald-700 hover:text-emerald-950 font-bold cursor-pointer">×</button>
             </div>
             <ul className="space-y-1 text-[11px] text-emerald-800">
-              <li>• আজ শান্তিনগর মেসে রান্নার দায়িত্ব: <strong>{todayCook?.memberName || 'রহিম উদ্দিন'}</strong></li>
-              <li>• আজকের বাজার বাজেট: <strong>৳{todayBazarDuty?.expectedBudget || 1500}</strong> (বাজারকারী: {todayBazarDuty?.memberName || 'ফয়সাল'})</li>
+              <li>• আজ মেসে রান্নার দায়িত্ব: <strong>{todayCook?.memberName || 'জাহিদুল ইসলাম'}</strong></li>
+              <li>• আজকের বাজার বাজেট: <strong>৳{todayBazarDuty?.expectedBudget || 1500}</strong> (বাজারকারী: {todayBazarDuty?.memberName || 'ফিয়াজ'})</li>
               <li>• সেপ্টেম্বর মাসের খসড়া মিল রেট: <strong>৳{currentMonthCalc.mealRate.toFixed(2)}</strong></li>
             </ul>
           </div>

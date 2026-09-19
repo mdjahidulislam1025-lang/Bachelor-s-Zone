@@ -69,13 +69,13 @@ export const Navbar: React.FC<NavbarProps> = ({
           <div className="hidden sm:block">
             <BachelorZoneLogo
               size="md"
-              subtitle={messName ? `${messName} • ${messAddress || 'বাংলাদেশ'}` : 'Mess Management System'}
+              subtitle={messAddress ? `${messName || 'Bachelor Zone'} • ${messAddress}` : 'মেসের মিল, বাজার, রান্না ও হিসাব — সব এক জায়গায়'}
             />
           </div>
           <div className="sm:hidden">
             <BachelorZoneLogo
               size="sm"
-              subtitle="Mess Management"
+              subtitle="মেসের হিসাব ও মিল"
             />
           </div>
         </div>

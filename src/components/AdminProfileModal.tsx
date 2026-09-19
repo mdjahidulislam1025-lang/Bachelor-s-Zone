@@ -27,11 +27,11 @@ interface AdminProfileModalProps {
 export const AdminProfileModal: React.FC<AdminProfileModalProps> = ({ isOpen, onClose }) => {
   const { adminProfile, updateProfile, changePassword, isAdmin } = useAuth();
 
-  const [name, setName] = useState(adminProfile?.name || 'Rahim Uddin');
+  const [name, setName] = useState(adminProfile?.name || 'Jahidul Islam');
   const [photo, setPhoto] = useState(adminProfile?.photo || '');
   const [phone, setPhone] = useState(adminProfile?.phone || '01711234567');
-  const [email, setEmail] = useState(adminProfile?.email || 'rahim.mess@gmail.com');
-  const [messName, setMessName] = useState(adminProfile?.messName || 'শান্তিনগর মেস');
+  const [email, setEmail] = useState(adminProfile?.email || 'mdjahidulislam1025@gmail.com');
+  const [messName, setMessName] = useState(adminProfile?.messName || 'Bachelor Zone');
 
   // Password change states
   const [showPasswordSection, setShowPasswordSection] = useState(false);
@@ -128,7 +128,7 @@ export const AdminProfileModal: React.FC<AdminProfileModalProps> = ({ isOpen, on
                   {adminProfile?.role?.toUpperCase() || 'ADMIN'}
                 </span>
               </div>
-              <p className="text-xs text-emerald-100">{messName || 'শান্তিনগর মেস'}</p>
+              <p className="text-xs text-emerald-100">{messName || 'Bachelor Zone'}</p>
             </div>
           </div>
           <button
