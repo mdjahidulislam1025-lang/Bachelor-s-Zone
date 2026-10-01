@@ -2,6 +2,8 @@ import fs from 'fs';
 import path from 'path';
 import { MessDatabaseState, MonthlyAccount, MemberMonthlyStatement } from '../src/types.js';
 import { getInitialMessData } from './demoData.js';
+import { calculateMonthlyAccount } from '../src/utils/calculator.js';
+import { ensureCurrentMonthPeriod } from './monthlyAccounting.js';
 
 const DATA_DIR = path.join(process.cwd(), 'data');
 const DATA_FILE = path.join(DATA_DIR, 'mess_db.json');
@@ -67,6 +69,8 @@ export function getDatabase(): MessDatabaseState {
     if (!inMemoryState!.settings) inMemoryState!.settings = initial.settings;
     inMemoryState!.settings.mealCutoffSettings = initial.settings.mealCutoffSettings;
   }
+  // Automatic new month detection and isolation
+  ensureCurrentMonthPeriod(inMemoryState!);
   return inMemoryState!;
 }
 
@@ -119,27 +123,28 @@ export function logAudit(
 
 export function isMonthClosed(dateOrMonth: string): boolean {
   if (!dateOrMonth) return false;
-  const db = getDatabase();
+  const db = inMemoryState || initDatabase();
   const month = dateOrMonth.slice(0, 7); // 'YYYY-MM'
   const account = db.monthlyAccounts?.find(m => m.month === month);
   if (account && account.status === 'closed') return true;
-  if (month === '2026-09' && db.currentMonthCalculation?.status === 'closed') return true;
+  if (db.currentMonthCalculation?.month === month && db.currentMonthCalculation?.status === 'closed') return true;
   return false;
 }
 
-export function recalculateMonthlyAccount(month: string = '2026-09') {
-  const db = getDatabase();
-  const existingIdx = db.monthlyAccounts.findIndex(m => m.month === month);
+export function recalculateMonthlyAccount(month?: string) {
+  const db = inMemoryState || initDatabase();
+  const targetMonth = month || db.currentMonthCalculation?.month || '2026-10';
+  const existingIdx = db.monthlyAccounts.findIndex(m => m.month === targetMonth);
   const existingStatus = existingIdx >= 0 ? db.monthlyAccounts[existingIdx].status : 'open';
   const closedBy = existingIdx >= 0 ? db.monthlyAccounts[existingIdx].closedBy : undefined;
 
-  const recalculated = calculateMonthlyAccount(month, existingStatus, closedBy);
+  const recalculated = calculateMonthlyAccount(db, targetMonth, existingStatus, closedBy);
   if (existingIdx >= 0) {
     db.monthlyAccounts[existingIdx] = recalculated;
   } else {
     db.monthlyAccounts.unshift(recalculated);
   }
-  if (month === '2026-09' || !db.currentMonthCalculation || db.currentMonthCalculation.month === month) {
+  if (!db.currentMonthCalculation || db.currentMonthCalculation.month === targetMonth) {
     db.currentMonthCalculation = recalculated;
   }
   saveDatabase(db);
@@ -215,149 +220,9 @@ export function validateMonthRecords(month: string): { isValid: boolean; errors:
   };
 }
 
-export function calculateMonthlyAccount(month: string, closeStatus: 'open' | 'closed' = 'open', closedBy?: string): MonthlyAccount {
+export function calculateMonthlyAccountWrapper(month: string, closeStatus: 'open' | 'closed' = 'open', closedBy?: string): MonthlyAccount {
   const db = getDatabase();
-
-  const mealsInMonth = db.dailyMeals.filter(m => m.date.startsWith(month));
-  const bazarInMonth = db.bazarRecords.filter(b => b.date.startsWith(month));
-  const expensesInMonth = db.expenses.filter(e => e.date.startsWith(month));
-  const paymentsInMonth = db.payments.filter(p => p.date.startsWith(month) && p.status === 'verified');
-
-  // Sum total bazar
-  const totalBazarExpense = bazarInMonth.reduce((sum, b) => sum + (Number(b.totalAmount) || 0), 0);
-
-  // Sum total meals and member meals
-  const memberMealCounts: Record<string, number> = {};
-  let totalMeals = 0;
-
-  db.members.forEach(m => {
-    memberMealCounts[m.id] = 0;
-  });
-
-  mealsInMonth.forEach(dm => {
-    Object.entries(dm.records).forEach(([memberId, rec]) => {
-      const mealSum = (rec.breakfast || 0) + (rec.lunch || 0) + (rec.dinner || 0);
-      memberMealCounts[memberId] = (memberMealCounts[memberId] || 0) + mealSum;
-      totalMeals += mealSum;
-    });
-  });
-
-  // Calculate meal rate
-  const mealRate = totalMeals > 0 ? parseFloat((totalBazarExpense / totalMeals).toFixed(2)) : 0;
-
-  // Shared expenses breakdown
-  const activeMembers = db.members.filter(m => m.status === 'active');
-  const activeCount = Math.max(activeMembers.length, 1);
-
-  let rentTotal = 0;
-  let gasTotal = 0;
-  let electricityTotal = 0;
-  let maidSalaryTotal = 0;
-  let internetTotal = 0;
-  let cleaningTotal = 0;
-  let otherSharedTotal = 0;
-
-  expensesInMonth.forEach(exp => {
-    const amt = Number(exp.amount) || 0;
-    switch (exp.category) {
-      case 'rent': rentTotal += amt; break;
-      case 'gas': gasTotal += amt; break;
-      case 'electricity': electricityTotal += amt; break;
-      case 'maid_salary': maidSalaryTotal += amt; break;
-      case 'internet': internetTotal += amt; break;
-      case 'cleaning': cleaningTotal += amt; break;
-      default: otherSharedTotal += amt; break;
-    }
-  });
-
-  const rentShare = Math.round(rentTotal / activeCount);
-  const gasShare = Math.round(gasTotal / activeCount);
-  const electricityShare = Math.round(electricityTotal / activeCount);
-  const maidSalaryShare = Math.round(maidSalaryTotal / activeCount);
-  const internetShare = Math.round(internetTotal / activeCount);
-  const cleaningShare = Math.round(cleaningTotal / activeCount);
-  const otherShared = Math.round(otherSharedTotal / activeCount);
-
-  const totalSharedPerMember = rentShare + gasShare + electricityShare + maidSalaryShare + internetShare + cleaningShare + otherShared;
-  const totalSharedExpenses = rentTotal + gasTotal + electricityTotal + maidSalaryTotal + internetTotal + cleaningTotal + otherSharedTotal;
-  const totalMessExpense = totalBazarExpense + totalSharedExpenses;
-
-  // Payments per member
-  const memberPayments: Record<string, number> = {};
-  db.members.forEach(m => {
-    memberPayments[m.id] = 0;
-  });
-  paymentsInMonth.forEach(p => {
-    memberPayments[p.memberId] = (memberPayments[p.memberId] || 0) + (Number(p.amount) || 0);
-  });
-
-  // Build statement for each member
-  const statements: Record<string, MemberMonthlyStatement> = {};
-  let totalCollected = 0;
-  let totalDue = 0;
-  let totalAdvance = 0;
-
-  db.members.forEach(m => {
-    const isMemberActive = m.status === 'active';
-    const mMeals = memberMealCounts[m.id] || 0;
-    const mMealCost = Math.round(mMeals * mealRate);
-    const mSharedShare = isMemberActive ? totalSharedPerMember : 0;
-    const mTotalCost = mMealCost + mSharedShare;
-    const mPaid = memberPayments[m.id] || 0;
-    const netBalance = mTotalCost - mPaid;
-
-    totalCollected += mPaid;
-    if (netBalance > 0) {
-      totalDue += netBalance;
-    } else {
-      totalAdvance += Math.abs(netBalance);
-    }
-
-    statements[m.id] = {
-      memberId: m.id,
-      memberName: m.name,
-      roomNo: m.roomNo,
-      totalMeals: mMeals,
-      mealRate,
-      mealCost: mMealCost,
-      sharedCostsShare: mSharedShare,
-      individualCosts: 0,
-      totalCost: mTotalCost,
-      totalPaid: mPaid,
-      netBalance,
-      breakdown: {
-        rentShare: isMemberActive ? rentShare : 0,
-        gasShare: isMemberActive ? gasShare : 0,
-        electricityShare: isMemberActive ? electricityShare : 0,
-        maidSalaryShare: isMemberActive ? maidSalaryShare : 0,
-        internetShare: isMemberActive ? internetShare : 0,
-        cleaningShare: isMemberActive ? cleaningShare : 0,
-        otherShared: isMemberActive ? otherShared : 0,
-      }
-    };
-  });
-
-  const monthDate = new Date(`${month}-01T00:00:00Z`);
-  const monthName = monthDate.toLocaleDateString('bn-BD', { month: 'long', year: 'numeric' }) + ` (${monthDate.toLocaleDateString('en-US', { month: 'long', year: 'numeric' })})`;
-
-  const formulaNote = `মিল রেট = মোট বাজার খরচ (৳${totalBazarExpense.toLocaleString()}) ÷ মোট মিল (${totalMeals}) = ৳${mealRate.toFixed(2)}। ফিক্সড খরচাদি ${activeCount} জন সক্রিয় সদস্যের মধ্যে সুষমভাবে বণ্টন।`;
-
-  return {
-    id: `month-${month}`,
-    month,
-    monthName,
-    status: closeStatus,
-    closedAt: closeStatus === 'closed' ? new Date().toISOString() : undefined,
-    closedBy,
-    totalMeals,
-    totalBazarExpense,
-    mealRate,
-    totalSharedExpenses,
-    totalMessExpense,
-    totalCollected,
-    totalDue,
-    totalAdvance,
-    statements,
-    formulaNote,
-  };
+  return calculateMonthlyAccount(db, month, closeStatus, closedBy);
 }
+
+export { calculateMonthlyAccountWrapper as calculateMonthlyAccount };

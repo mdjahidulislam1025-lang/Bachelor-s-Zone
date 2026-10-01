@@ -12,6 +12,12 @@ import {
   isMonthClosed,
   recalculateMonthlyAccount,
 } from './server/db.js';
+import {
+  ensureCurrentMonthPeriod,
+  closeMonthAccount,
+  reopenMonthAccount,
+} from './server/monthlyAccounting.js';
+import { getCurrentDhakaPeriod } from './src/utils/monthlyPeriodUtils.js';
 import { getInitialMessData } from './server/demoData.js';
 import { answerMessQuery } from './server/ai.js';
 import { SmsLog, MemberRole, AdminProfile, AuthSession } from './src/types.js';
@@ -94,12 +100,11 @@ function getRequestUser(req: express.Request): RequestUserInfo {
     };
   }
 
-  // Fallback default
-  const roleHeader = (req.headers['x-user-role'] as MemberRole) || req.body?.userRole;
+  // Fallback default: If not authenticated, assign unprivileged member role
   return {
-    id: targetId || 'm1',
-    name: actingUserStr || (roleHeader === 'admin' ? 'Rahim Uddin (Admin)' : 'Mess Member'),
-    role: roleHeader || 'member',
+    id: targetId || 'unauthenticated',
+    name: actingUserStr || 'Mess Member',
+    role: 'member', // Never trust client-supplied role header for admin privilege
     status: 'active',
     ipAddress,
   };
@@ -223,7 +228,7 @@ async function startServer() {
   app.get('/api/mess-data', (req, res) => {
     try {
       const db = getDatabase();
-      const currentMonthCalc = calculateMonthlyAccount('2026-09', 'open');
+      const currentMonthCalc = ensureCurrentMonthPeriod(db);
       res.json({
         success: true,
         data: {
@@ -402,7 +407,7 @@ async function startServer() {
         db.settings.messName = messName.trim();
       }
 
-      // Update or insert Rahim/admin member entry
+      // Update Jahidul Islam admin member entry
       const existingAdminMember = db.members.find(m => m.id === 'm1' || m.role === 'admin');
       if (existingAdminMember) {
         existingAdminMember.name = newAdmin.name;
@@ -733,10 +738,13 @@ async function startServer() {
     const email = (member.email || '').toLowerCase();
     return (
       member.id === 'm1' ||
+      member.id === 'admin_m1' ||
       name.includes('jahidul') ||
       name.includes('জাহিদুল') ||
       phone === '8801711234567' ||
       phone === '01711234567' ||
+      phone === '8801516528497' ||
+      phone === '01516528497' ||
       email === 'mdjahidulislam1025@gmail.com'
     );
   }
@@ -762,13 +770,13 @@ async function startServer() {
           if (member.role && member.role !== 'admin') {
             return res.status(403).json({
               success: false,
-              error: 'নিরাপত্তা নিষেধাজ্ঞা: জাহিদুল ইসলাম (Jahidul Islam) Bachelor Zone এর স্থায়ী প্রধান এডমিন ও মেস প্রতিষ্ঠাতা। তার এডমিন পদ পরিবর্তন করা সম্পূর্ণ নিষিদ্ধ।',
+              error: '403 — Permission Denied: জাহিদুল ইসলাম (Jahidul Islam) Bachelor Zone এর স্থায়ী প্রধান এডমিন (Permanent Primary Admin / Owner)। তার এডমিন পদ পরিবর্তন করা সম্পূর্ণ নিষিদ্ধ।',
             });
           }
           if (member.status && member.status !== 'active') {
             return res.status(403).json({
               success: false,
-              error: 'নিরাপত্তা নিষেধাজ্ঞা: জাহিদুল ইসলাম (Jahidul Islam) মেসের স্থায়ী প্রধান এডমিন। তাকে কোনো অবস্থাতেই নিষ্ক্রিয় (Inactive) করা যাবে না।',
+              error: '403 — Permission Denied: জাহিদুল ইসলাম (Jahidul Islam) মেসের স্থায়ী প্রধান এডমিন। তাকে কোনো অবস্থাতেই নিষ্ক্রিয় (Inactive) বা অপসারণ করা যাবে না।',
             });
           }
           member.role = 'admin';
@@ -779,7 +787,7 @@ async function startServer() {
         if (member.role && member.role !== prev.role && !isPermanentAdmin(user)) {
           return res.status(403).json({
             success: false,
-            error: 'অনুমোদন প্রত্যাখ্যাত: শুধুমাত্র মেসের স্থায়ী প্রধান এডমিন জাহিদুল ইসলাম (Jahidul Islam) সদস্যদের রোল পরিবর্তন করতে পারেন।',
+            error: '403 — Permission Denied: শুধুমাত্র মেসের স্থায়ী প্রধান এডমিন জাহিদুল ইসলাম (Jahidul Islam) অন্য সদস্যদের রোল পরিবর্তন করতে পারেন।',
           });
         }
 
@@ -798,22 +806,31 @@ async function startServer() {
         );
       } else {
         const newId = member.id || `m${Date.now()}`;
+        // Only Jahidul Islam can grant admin role to a new member
+        const assignedRole = (member.role === 'admin' && isPermanentAdmin(user)) ? 'admin' : 'member';
         const newMember = {
           ...member,
           id: newId,
           status: member.status || 'active',
-          role: member.role || 'member',
+          role: assignedRole,
           joiningDate: member.joiningDate || new Date().toISOString().split('T')[0],
           avatarColor: member.avatarColor || 'bg-emerald-600',
         };
         db.members.push(newMember);
+
+        // If member limit exists and active count exceeds it, automatically expand limit to accommodate
+        const activeCount = db.members.filter(m => m.status === 'active').length;
+        if (!db.settings.memberLimit || activeCount > db.settings.memberLimit) {
+          db.settings.memberLimit = Math.max(activeCount, 6);
+        }
+
         logAudit(
           user.name,
           'MEMBER_ADDED',
           'members',
           `নতুন সদস্য ${newMember.name} (রোল: ${newMember.role === 'admin' ? 'এডমিন' : 'সদস্য'}) মেসে যুক্ত করা হয়েছে`,
           undefined,
-          `${newMember.name} (ID: ${newId})`,
+          `${newMember.name} (ID: ${newId}, Phone: ${newMember.phone})`,
           user.id,
           'Member',
           newId,
@@ -826,6 +843,38 @@ async function startServer() {
       recalculateMonthlyAccount('2026-09');
       saveDatabase(db);
       res.json({ success: true, data: db.members });
+    } catch (err: any) {
+      res.status(500).json({ success: false, error: err.message });
+    }
+  });
+
+  // Set Member Limit (Admin only)
+  app.post('/api/members/set-limit', (req, res) => {
+    try {
+      const user = checkAdminAuth(req, res);
+      if (!user) return;
+      const db = getDatabase();
+      const { limit } = req.body;
+      const numLimit = parseInt(limit, 10);
+      if (isNaN(numLimit) || numLimit < 1) {
+        return res.status(400).json({ success: false, error: 'বৈধ সদস্য সংখ্যা প্রদান করুন (কমপক্ষে ১)।' });
+      }
+      const prevLimit = db.settings.memberLimit || 6;
+      db.settings.memberLimit = numLimit;
+      logAudit(
+        user.name,
+        'MEMBER_LIMIT_CHANGED',
+        'members',
+        `মেস সদস্য ধারণক্ষমতা লিমিট পরিবর্তন করা হয়েছে: ${prevLimit} জন → ${numLimit} জন`,
+        `${prevLimit} Members`,
+        `${numLimit} Members`,
+        user.id,
+        'Settings',
+        'memberLimit',
+        user.ipAddress
+      );
+      saveDatabase(db);
+      res.json({ success: true, memberLimit: numLimit, message: `সদস্য লিমিট সফলভাবে ${numLimit} জনে আপডেট করা হয়েছে।` });
     } catch (err: any) {
       res.status(500).json({ success: false, error: err.message });
     }
@@ -2387,7 +2436,7 @@ async function startServer() {
     }
   });
 
-  // 21. Month Close (Admin only)
+  // 21. Month Close (Admin only - creates snapshot, locks month, sends statements)
   app.post('/api/month/close', (req, res) => {
     try {
       const user = checkAdminAuth(req, res);
@@ -2395,7 +2444,7 @@ async function startServer() {
 
       const db = getDatabase();
       const { month, sendMonthEndSms } = req.body;
-      const targetMonth = month || '2026-09';
+      const targetMonth = month || db.currentMonthCalculation?.month || '2026-10';
 
       const validation = validateMonthRecords(targetMonth);
       if (!validation.isValid) {
@@ -2406,70 +2455,14 @@ async function startServer() {
         });
       }
 
-      const closedAccount = calculateMonthlyAccount(targetMonth, 'closed', user.name);
-
-      const existingIdx = db.monthlyAccounts.findIndex(m => m.month === targetMonth);
-      if (existingIdx >= 0) {
-        db.monthlyAccounts[existingIdx] = closedAccount;
-      } else {
-        db.monthlyAccounts.unshift(closedAccount);
-      }
-      if (targetMonth === '2026-09') {
-        db.currentMonthCalculation = closedAccount;
-      }
-
-      logAudit(
-        user.name,
-        'CLOSE_MONTH',
-        'monthly',
-        `${targetMonth} মাসের মেস হিসাব চূড়ান্ত ও বন্ধ (Locked) ঘোষণা করা হয়েছে। মিল রেট: ৳${closedAccount.mealRate}`,
-        'Status: Open',
-        'Status: Closed',
-        user.id,
-        'MonthlyAccount',
-        closedAccount.id,
-        user.ipAddress
-      );
-
-      notify(
-        'মাসিক হিসাব চূড়ান্ত',
-        `${closedAccount.monthName} এর মেস হিসাব বন্ধ ঘোষণা করা হয়েছে। মিল রেট: ৳${closedAccount.mealRate}`,
-        'success',
-        'accounts'
-      );
-
-      // Trigger automatic SMS if requested
-      if (sendMonthEndSms) {
-        Object.values(closedAccount.statements).forEach(stmt => {
-          const member = db.members.find(m => m.id === stmt.memberId);
-          if (member && member.phone) {
-            const balanceText =
-              stmt.netBalance > 0 ? `বকেয়া: ৳${stmt.netBalance}` : `উদ্বৃত্ত: ৳${Math.abs(stmt.netBalance)}`;
-            const msg = `${closedAccount.monthName} মেস হিসাব সম্পন্ন। মোট মিল: ${stmt.totalMeals}, মিল খরচ: ৳${stmt.mealCost}, শেয়ার: ৳${stmt.sharedCostsShare}, জমা: ৳${stmt.totalPaid}, ${balanceText}। - Bachelor Zone`;
-            db.smsLogs.unshift({
-              id: `sms-${Date.now()}-${stmt.memberId}`,
-              timestamp: new Date().toISOString(),
-              recipientId: stmt.memberId,
-              recipientName: stmt.memberName,
-              phone: member.phone,
-              type: 'monthly_account',
-              message: msg,
-              status: 'sent',
-              provider: db.settings.smsGateway.providerName,
-              refId: `SMS-CLOSE-${Date.now().toString().slice(-6)}`,
-            });
-          }
-        });
-      }
-
-      saveDatabase(db);
+      const closedAccount = closeMonthAccount(db, targetMonth, user, sendMonthEndSms !== false);
       res.json({ success: true, account: closedAccount });
     } catch (err: any) {
       res.status(500).json({ success: false, error: err.message });
     }
   });
 
-  // 22. Reopen Month (Admin only - Section 9)
+  // 22. Reopen Month (CRITICAL RULE: Only Permanent Admin Jahidul Islam can reopen a closed month!)
   app.post('/api/month/reopen', (req, res) => {
     try {
       const user = checkAdminAuth(req, res);
@@ -2479,30 +2472,12 @@ async function startServer() {
       const { month } = req.body;
       const targetMonth = month || '2026-09';
 
-      const existingIdx = db.monthlyAccounts.findIndex(m => m.month === targetMonth);
-      if (existingIdx >= 0) {
-        db.monthlyAccounts[existingIdx].status = 'open';
-      }
-      if (targetMonth === '2026-09' && db.currentMonthCalculation) {
-        db.currentMonthCalculation.status = 'open';
+      const result = reopenMonthAccount(db, targetMonth, user);
+      if (!result.success) {
+        return res.status(403).json({ success: false, error: result.error });
       }
 
-      logAudit(
-        user.name,
-        'REOPEN_MONTH',
-        'monthly',
-        `${targetMonth} মাসের হিসাব পুনরায় সম্পাদনার জন্য উন্মুক্ত (Reopened) করা হয়েছে।`,
-        'Status: Closed',
-        'Status: Open',
-        user.id,
-        'MonthlyAccount',
-        `month-${targetMonth}`,
-        user.ipAddress
-      );
-
-      notify('হিসাব পুনঃউন্মুক্ত', `${targetMonth} মাসের হিসাব এডমিন কর্তৃক পুনরায় খোলা হয়েছে।`, 'warning', 'accounts');
-      saveDatabase(db);
-      res.json({ success: true, message: `${targetMonth} মাস সফলভাবে পুনঃউন্মুক্ত করা হয়েছে` });
+      res.json({ success: true, message: `${targetMonth} মাস সফলভাবে পুনঃউন্মুক্ত করা হয়েছে`, account: result.account });
     } catch (err: any) {
       res.status(500).json({ success: false, error: err.message });
     }
@@ -2515,7 +2490,8 @@ async function startServer() {
       if (!user) return;
 
       const { month } = req.body;
-      const targetMonth = month || '2026-09';
+      const db = getDatabase();
+      const targetMonth = month || db.currentMonthCalculation?.month || '2026-10';
       const recalculated = recalculateMonthlyAccount(targetMonth);
 
       logAudit(
@@ -2532,6 +2508,58 @@ async function startServer() {
       );
 
       res.json({ success: true, account: recalculated });
+    } catch (err: any) {
+      res.status(500).json({ success: false, error: err.message });
+    }
+  });
+
+  // Get all monthly periods & historical archives
+  app.get('/api/month/periods', (req, res) => {
+    try {
+      const db = getDatabase();
+      ensureCurrentMonthPeriod(db);
+      const periods = (db.monthlyAccounts || []).map(a => ({
+        id: a.id,
+        month: a.month,
+        monthName: a.monthName,
+        status: a.status,
+        totalMeals: a.totalMeals,
+        mealRate: a.mealRate,
+        totalMessExpense: a.totalMessExpense,
+        totalCollected: a.totalCollected,
+        totalDue: a.totalDue,
+        closedAt: a.closedAt,
+        closedBy: a.closedBy,
+        reopenedAt: a.reopenedAt,
+        reopenedBy: a.reopenedBy,
+      }));
+      res.json({ success: true, periods });
+    } catch (err: any) {
+      res.status(500).json({ success: false, error: err.message });
+    }
+  });
+
+  // Get specific month account detail
+  app.get('/api/month/account/:period', (req, res) => {
+    try {
+      const db = getDatabase();
+      const { period } = req.params;
+      let account = (db.monthlyAccounts || []).find(a => a.month === period);
+      if (!account) {
+        account = calculateMonthlyAccount(period, 'open');
+      }
+      res.json({ success: true, account });
+    } catch (err: any) {
+      res.status(500).json({ success: false, error: err.message });
+    }
+  });
+
+  // Ensure and return current month
+  app.post('/api/month/ensure-current', (req, res) => {
+    try {
+      const db = getDatabase();
+      const current = ensureCurrentMonthPeriod(db);
+      res.json({ success: true, currentMonthCalculation: current });
     } catch (err: any) {
       res.status(500).json({ success: false, error: err.message });
     }

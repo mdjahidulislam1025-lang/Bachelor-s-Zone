@@ -18,6 +18,8 @@ import { ExpensesView } from './components/ExpensesView.js';
 import { PaymentsView } from './components/PaymentsView.js';
 import { MonthlyCalculationView } from './components/MonthlyCalculationView.js';
 import { MembersView } from './components/MembersView.js';
+import { AuditLogsView } from './components/AuditLogsView.js';
+import { MyProfileView } from './components/MyProfileView.js';
 import { ReportsView } from './components/ReportsView.js';
 import { SmsAndSettingsView } from './components/SmsAndSettingsView.js';
 import { AiAssistantModal } from './components/AiAssistantModal.js';
@@ -30,6 +32,7 @@ import { BachelorZoneLogo } from './components/BachelorZoneLogo.js';
 import { useAuth } from './context/AuthContext.js';
 import { getInitialOrSavedState, saveLocalState, resetLocalState } from './data/localDatabase.js';
 import { calculateMonthlyAccount } from './utils/calculator.js';
+import { getCurrentDhakaPeriod } from './utils/monthlyPeriodUtils.js';
 import {
   MessDatabaseState,
   Member,
@@ -68,7 +71,7 @@ export function App() {
   const [activeTab, setActiveTab] = useState('dashboard');
   const [language, setLanguage] = useState<Language>('bn');
 
-  // Active logged-in user simulation (defaults to Rahim Uddin - Manager/Admin)
+  // Active logged-in user simulation (defaults to Jahidul Islam - Permanent Admin/Owner)
   const [currentMemberId, setCurrentMemberId] = useState<string>('m1');
 
   // Auth context
@@ -161,10 +164,13 @@ export function App() {
   const currentMember =
     dbState.members.find(m => m.id === currentMemberId) || dbState.members[0];
 
+  const dhakaPeriod = getCurrentDhakaPeriod();
+
   const currentMonthCalc =
     dbState.currentMonthCalculation ||
-    dbState.monthlyAccounts.find(m => m.month === '2026-09') ||
-    dbState.monthlyAccounts[0];
+    dbState.monthlyAccounts.find(m => m.month === dhakaPeriod.periodId) ||
+    dbState.monthlyAccounts[0] ||
+    calculateMonthlyAccount(dbState, dhakaPeriod.periodId, 'open');
 
   const isMonthClosed = currentMonthCalc?.status === 'closed';
 
@@ -203,10 +209,11 @@ export function App() {
     if (!apiSucceeded) {
       setDbState(prev => {
         const next = localUpdate(prev);
+        const activeMonth = next.currentMonthCalculation?.month || dhakaPeriod.periodId;
         const activeStatus = next.currentMonthCalculation?.status || 'open';
         const recalculated = {
           ...next,
-          currentMonthCalculation: calculateMonthlyAccount(next, '2026-09', activeStatus),
+          currentMonthCalculation: calculateMonthlyAccount(next, activeMonth, activeStatus),
         };
         saveLocalState(recalculated);
         return recalculated;
@@ -859,6 +866,25 @@ export function App() {
     );
   };
 
+  const handleSendNewMonthAnnouncement = async (monthName: string): Promise<void> => {
+    await executeMutation(
+      () =>
+        fetch('/api/sms/send', {
+          method: 'POST',
+          headers: getAuthHeaders(),
+          body: JSON.stringify({
+            recipientId: 'active_members',
+            recipientName: 'সকল সক্রিয় সদস্য',
+            phone: '01711234567',
+            type: 'custom',
+            message: `Bachelor Zone: নতুন মাস শুরু হয়েছে — ${monthName}। নতুন মাসের Meal, Bazar ও হিসাব এখন থেকে নতুনভাবে গণনা হবে।`,
+          }),
+        }),
+      prev => prev,
+      'নতুন মাস শুরুর ঘোষণা সকল সদস্যকে SMS আকারে পাঠানো হয়েছে'
+    );
+  };
+
   // Members
   const handleSaveMember = async (member: Partial<Member>): Promise<void> => {
     const memId = member.id || `m_${Date.now()}`;
@@ -933,6 +959,25 @@ export function App() {
 
   const handleDeleteMember = async (id: string): Promise<void> => {
     await handleRemoveMember(id);
+  };
+
+  const handleUpdateMemberLimit = async (limit: number): Promise<void> => {
+    await executeMutation(
+      () =>
+        fetch('/api/members/set-limit', {
+          method: 'POST',
+          headers: getAuthHeaders(),
+          body: JSON.stringify({ limit, actingUser: actingUserLabel }),
+        }),
+      prev => ({
+        ...prev,
+        settings: {
+          ...prev.settings,
+          memberLimit: limit,
+        },
+      }),
+      `মেস সদস্য ধারণক্ষমতা লিমিট ${limit} জনে সফলভাবে আপডেট করা হয়েছে`
+    );
   };
 
   // Settings
@@ -1215,6 +1260,7 @@ export function App() {
                   message: `আসসালামু আলাইকুম ${stmt.memberName}। চলতি মাসের মেস হিসাব: মোট মিল ${stmt.totalMeals}, মিল খরচ ৳${stmt.mealCost}, ফিক্সড শেয়ার ৳${stmt.sharedCostsShare}, জমা ৳${stmt.totalPaid}, ${balanceText}। - Bachelor Zone`,
                 });
               }}
+              onSendNewMonthAnnouncement={handleSendNewMonthAnnouncement}
               isProcessing={isProcessing}
             />
           )}
@@ -1224,17 +1270,96 @@ export function App() {
               members={dbState.members}
               currentMember={currentMember}
               language={language}
+              memberLimit={dbState.settings.memberLimit || 6}
+              onUpdateMemberLimit={handleUpdateMemberLimit}
               onSaveMember={handleSaveMember}
               onChangeRole={handleChangeMemberRole}
               onRemoveMember={handleRemoveMember}
               onReactivateMember={handleReactivateMember}
               onDeleteMember={handleDeleteMember}
+              isManagementMode={false}
+              onNavigateToTab={setActiveTab}
+            />
+          )}
+
+          {activeTab === 'member-management' && (
+            isAdmin ? (
+              <MembersView
+                members={dbState.members}
+                currentMember={currentMember}
+                language={language}
+                memberLimit={dbState.settings.memberLimit || 6}
+                onUpdateMemberLimit={handleUpdateMemberLimit}
+                onSaveMember={handleSaveMember}
+                onChangeRole={handleChangeMemberRole}
+                onRemoveMember={handleRemoveMember}
+                onReactivateMember={handleReactivateMember}
+                onDeleteMember={handleDeleteMember}
+                isManagementMode={true}
+                onNavigateToTab={setActiveTab}
+              />
+            ) : (
+              <div className="bg-white rounded-2xl border border-rose-200 p-8 shadow-xs text-center space-y-4 max-w-lg mx-auto my-12">
+                <div className="h-16 w-16 rounded-full bg-rose-100 text-rose-600 flex items-center justify-center mx-auto">
+                  <AlertCircle className="h-8 w-8" />
+                </div>
+                <h3 className="text-xl font-bold text-slate-900">403 — Permission Denied</h3>
+                <p className="text-xs text-slate-600 leading-relaxed">
+                  অনুমোদন প্রত্যাখ্যাত: শুধুমাত্র মেসের এডমিন (Admin) এই সেকশনটি পরিচালনা করতে পারবেন।
+                </p>
+                <button
+                  onClick={() => setActiveTab('dashboard')}
+                  className="px-4 py-2 bg-slate-900 text-white text-xs font-bold rounded-xl cursor-pointer hover:bg-slate-800"
+                >
+                  ড্যাশবোর্ডে ফিরে যান
+                </button>
+              </div>
+            )
+          )}
+
+          {activeTab === 'audit-logs' && (
+            isAdmin ? (
+              <AuditLogsView
+                auditLogs={dbState.auditLogs || []}
+                language={language}
+                onRefresh={fetchData}
+                isLoading={isLoading}
+              />
+            ) : (
+              <div className="bg-white rounded-2xl border border-rose-200 p-8 shadow-xs text-center space-y-4 max-w-lg mx-auto my-12">
+                <div className="h-16 w-16 rounded-full bg-rose-100 text-rose-600 flex items-center justify-center mx-auto">
+                  <AlertCircle className="h-8 w-8" />
+                </div>
+                <h3 className="text-xl font-bold text-slate-900">403 — Permission Denied</h3>
+                <p className="text-xs text-slate-600 leading-relaxed">
+                  অনুমোদন প্রত্যাখ্যাত: শুধুমাত্র মেসের এডমিন (Admin) অডিট লগ পর্যবেক্ষণ করতে পারবেন।
+                </p>
+                <button
+                  onClick={() => setActiveTab('dashboard')}
+                  className="px-4 py-2 bg-slate-900 text-white text-xs font-bold rounded-xl cursor-pointer hover:bg-slate-800"
+                >
+                  ড্যাশবোর্ডে ফিরে যান
+                </button>
+              </div>
+            )
+          )}
+
+          {activeTab === 'my-profile' && (
+            <MyProfileView
+              currentMember={currentMember}
+              currentStatement={currentMonthCalc?.statements[currentMember.id] || null}
+              dailyMeals={dbState.dailyMeals}
+              language={language}
+              onOpenStatementVoucher={stmt => setStatementVoucher(stmt)}
+              onUpdateMemberInfo={handleSaveMember}
+              onTabSelect={setActiveTab}
             />
           )}
 
           {activeTab === 'reports' && (
             <ReportsView
               currentMonthCalc={currentMonthCalc}
+              historicalAccounts={dbState.monthlyAccounts}
               dailyMeals={dbState.dailyMeals}
               bazarRecords={dbState.bazarRecords}
               expenses={dbState.expenses}
@@ -1244,18 +1369,36 @@ export function App() {
             />
           )}
 
-          {activeTab === 'settings' && (
-            <SmsAndSettingsView
-              settings={dbState.settings}
-              smsLogs={dbState.smsLogs}
-              auditLogs={dbState.auditLogs}
-              members={dbState.members}
-              currentMember={currentMember}
-              language={language}
-              onSaveSettings={handleSaveSettings}
-              onSendCustomSms={handleSendSms}
-              onResetDemo={handleResetDemo}
-            />
+          {(activeTab === 'settings' || activeTab === 'sms') && (
+            isAdmin ? (
+              <SmsAndSettingsView
+                settings={dbState.settings}
+                smsLogs={dbState.smsLogs}
+                auditLogs={dbState.auditLogs}
+                members={dbState.members}
+                currentMember={currentMember}
+                language={language}
+                onSaveSettings={handleSaveSettings}
+                onSendCustomSms={handleSendSms}
+                onResetDemo={handleResetDemo}
+              />
+            ) : (
+              <div className="bg-white rounded-2xl border border-rose-200 p-8 shadow-xs text-center space-y-4 max-w-lg mx-auto my-12">
+                <div className="h-16 w-16 rounded-full bg-rose-100 text-rose-600 flex items-center justify-center mx-auto">
+                  <AlertCircle className="h-8 w-8" />
+                </div>
+                <h3 className="text-xl font-bold text-slate-900">403 — Permission Denied</h3>
+                <p className="text-xs text-slate-600 leading-relaxed">
+                  অনুমোদন প্রত্যাখ্যাত: সেটিংস ও এসএমএস কনফিগারেশন শুধুমাত্র এডমিনদের জন্য নির্ধারিত।
+                </p>
+                <button
+                  onClick={() => setActiveTab('dashboard')}
+                  className="px-4 py-2 bg-slate-900 text-white text-xs font-bold rounded-xl cursor-pointer hover:bg-slate-800"
+                >
+                  ড্যাশবোর্ডে ফিরে যান
+                </button>
+              </div>
+            )
           )}
         </main>
       </div>
@@ -1265,6 +1408,7 @@ export function App() {
         activeTab={activeTab}
         onSelectTab={setActiveTab}
         language={language}
+        userRole={currentMember.role}
       />
 
       {/* Grounded Server-Side Gemini AI Chatbot */}

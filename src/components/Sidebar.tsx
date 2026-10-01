@@ -12,7 +12,12 @@ import {
   BarChart3,
   Settings,
   ShieldCheck,
+  ShieldAlert,
+  UserCog,
+  MessageSquare,
   Lock,
+  User,
+  History,
 } from 'lucide-react';
 import { Language, translations } from '../utils/translations.js';
 import { useAuth } from '../context/AuthContext.js';
@@ -37,20 +42,37 @@ export const Sidebar: React.FC<SidebarProps> = ({
 }) => {
   const t = translations[language];
   const { isAdmin, adminProfile } = useAuth();
+  const isUserAdmin = userRole === 'admin' || isAdmin;
 
-  const navItems = [
-    { id: 'dashboard', label: t.dashboard, icon: LayoutDashboard },
-    { id: 'my-meals', label: t.myMeals, icon: UtensilsCrossed },
-    { id: 'meals', label: t.dailyMealManagement, icon: CalendarCheck },
-    { id: 'cooking', label: t.cooking, icon: ChefHat },
-    { id: 'bazar', label: t.bazar, icon: ShoppingBag },
-    { id: 'expenses', label: t.expenses, icon: Receipt },
-    { id: 'payments', label: t.payments, icon: Wallet },
-    { id: 'monthly', label: t.monthlyCalc, icon: Calculator },
-    { id: 'members', label: t.members, icon: Users },
-    { id: 'reports', label: t.reports, icon: BarChart3 },
-    { id: 'settings', label: t.smsSettings, icon: Settings },
+  // Exact navigation as per Section 14
+  const adminNavItems = [
+    { id: 'dashboard', label: language === 'bn' ? 'ড্যাশবোর্ড' : 'Dashboard', icon: LayoutDashboard },
+    { id: 'members', label: language === 'bn' ? 'সদস্য তালিকা' : 'Members', icon: Users },
+    { id: 'meals', label: language === 'bn' ? 'মিল খাতা' : 'Meals', icon: CalendarCheck },
+    { id: 'cooking', label: language === 'bn' ? 'রান্নার রুটিন' : 'Cooking', icon: ChefHat },
+    { id: 'bazar', label: language === 'bn' ? 'বাজার ব্যবস্থাপনা' : 'Bazar', icon: ShoppingBag },
+    { id: 'expenses', label: language === 'bn' ? 'মেস খরচ' : 'Expenses', icon: Receipt },
+    { id: 'payments', label: language === 'bn' ? 'জমা ও পেমেন্ট' : 'Payments', icon: Wallet },
+    { id: 'monthly', label: language === 'bn' ? 'মাসিক হিসাব' : 'Monthly Accounts', icon: Calculator },
+    { id: 'sms', label: language === 'bn' ? 'এসএমএস (SMS)' : 'SMS', icon: MessageSquare },
+    { id: 'reports', label: language === 'bn' ? 'রিপোর্ট ও বিশ্লেষণ' : 'Reports', icon: BarChart3 },
+    { id: 'member-management', label: language === 'bn' ? 'সদস্য ও রোল ব্যবস্থাপনা' : 'Member Management', icon: UserCog, isHighlight: true },
+    { id: 'settings', label: language === 'bn' ? 'সেটিংস' : 'Settings', icon: Settings },
+    { id: 'audit-logs', label: language === 'bn' ? 'অডিট লগ (Audit Logs)' : 'Audit Logs', icon: History },
   ];
+
+  const memberNavItems = [
+    { id: 'dashboard', label: language === 'bn' ? 'ড্যাশবোর্ড' : 'Dashboard', icon: LayoutDashboard },
+    { id: 'my-meals', label: language === 'bn' ? 'আমার মিল (ON/OFF)' : 'My Meals', icon: UtensilsCrossed, isHighlight: true },
+    { id: 'meals', label: language === 'bn' ? 'মিল তালিকা' : 'Meals', icon: CalendarCheck },
+    { id: 'cooking', label: language === 'bn' ? 'রান্নার রুটিন' : 'Cooking', icon: ChefHat },
+    { id: 'bazar', label: language === 'bn' ? 'বাজার তালিকা ও হিসাব' : 'Bazar', icon: ShoppingBag },
+    { id: 'expenses', label: language === 'bn' ? 'মেস খরচ' : 'Expenses', icon: Receipt },
+    { id: 'monthly', label: language === 'bn' ? 'মাসিক হিসাব' : 'Monthly Accounts', icon: Calculator },
+    { id: 'my-profile', label: language === 'bn' ? 'আমার প্রোফাইল' : 'My Profile', icon: User },
+  ];
+
+  const currentNavItems = isUserAdmin ? adminNavItems : memberNavItems;
 
   return (
     <aside className="hidden lg:flex flex-col w-64 border-r border-slate-200 bg-white min-h-[calc(100vh-61px)] p-3">
@@ -59,26 +81,28 @@ export const Sidebar: React.FC<SidebarProps> = ({
         <BachelorZoneLogo size="sm" subtitle="Mess Management System" />
         <p className="text-[10px] text-emerald-800/80 mt-1.5 font-medium leading-tight px-0.5">
           {language === 'bn'
-            ? 'মেসের মিল, বাজার, রান্না ও হিসাব'
+            ? 'মেসের মিল, বাজার, রান্না ও হিসাব — সব এক জায়গায়'
             : 'Your Mess, Meals & হিসাব in one place'}
         </p>
       </div>
 
-      <div className="space-y-1">
-        {navItems.map(item => {
+      <div className="space-y-1 overflow-y-auto max-h-[calc(100vh-250px)] pr-1">
+        {currentNavItems.map(item => {
           const Icon = item.icon;
           const isActive = activeTab === item.id;
           return (
             <button
               key={item.id}
               onClick={() => onSelectTab(item.id)}
-              className={`w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-semibold transition-all cursor-pointer ${
+              className={`w-full flex items-center gap-3 px-3 py-2 rounded-xl text-xs font-semibold transition-all cursor-pointer ${
                 isActive
                   ? 'bg-emerald-600 text-white shadow-xs'
+                  : item.isHighlight
+                  ? 'text-purple-700 bg-purple-50/60 hover:bg-purple-100/70 border border-purple-200/50'
                   : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
               }`}
             >
-              <Icon className={`h-4 w-4 shrink-0 ${isActive ? 'text-white' : 'text-slate-500'}`} />
+              <Icon className={`h-4 w-4 shrink-0 ${isActive ? 'text-white' : item.isHighlight ? 'text-purple-600' : 'text-slate-500'}`} />
               <span className="truncate">{item.label}</span>
             </button>
           );
@@ -86,8 +110,8 @@ export const Sidebar: React.FC<SidebarProps> = ({
       </div>
 
       {/* Admin Action Button & Role badge card at bottom */}
-      <div className="mt-auto pt-4 border-t border-slate-200 space-y-2">
-        {isAdmin ? (
+      <div className="mt-auto pt-3 border-t border-slate-200 space-y-2">
+        {isUserAdmin ? (
           <button
             onClick={onOpenAdminProfile}
             className="w-full flex items-center justify-between p-2.5 bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 rounded-xl text-xs font-semibold text-emerald-900 transition-colors cursor-pointer"
@@ -95,8 +119,8 @@ export const Sidebar: React.FC<SidebarProps> = ({
             <div className="flex items-center gap-2">
               <ShieldCheck className="w-4 h-4 text-emerald-600 shrink-0" />
               <div className="text-left truncate">
-                <div className="truncate">{adminProfile?.name || 'এডমিন প্রোফাইল'}</div>
-                <div className="text-[10px] text-emerald-600 font-normal">প্রোফাইল ও পাসওয়ার্ড পরিবর্তন</div>
+                <div className="truncate font-bold">{adminProfile?.name || 'Jahidul Islam'}</div>
+                <div className="text-[10px] text-emerald-600 font-normal">এডমিন প্রোফাইল ও নিরাপত্তা</div>
               </div>
             </div>
           </button>
@@ -110,19 +134,19 @@ export const Sidebar: React.FC<SidebarProps> = ({
           </button>
         )}
 
-        <div className="p-3 bg-slate-50 rounded-xl border border-slate-200/80">
+        <div className="p-2.5 bg-slate-50 rounded-xl border border-slate-200/80">
           <div className="flex items-center justify-between text-[11px] font-bold text-slate-700">
-            <span>বর্তমান রোল</span>
-            <span className="px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 uppercase text-[10px]">
-              {userRole}
+            <span>বর্তমান ইন্টারফেস</span>
+            <span className={`px-2 py-0.5 rounded-full uppercase text-[10px] font-bold ${
+              isUserAdmin ? 'bg-purple-100 text-purple-800' : 'bg-slate-200 text-slate-700'
+            }`}>
+              {isUserAdmin ? 'Admin Mode' : 'Member Mode'}
             </span>
           </div>
-          <p className="text-[11px] text-slate-500 mt-1 leading-relaxed">
-            {userRole === 'admin'
-              ? 'ম্যানেজার: সম্পূর্ণ হিসাব এন্ট্রি, এডিট ও মাস বন্ধের অনুমতি রয়েছে।'
-              : userRole === 'treasurer'
-              ? 'ক্যাশিয়ার: খরচ, বাজার ও জমা রেকর্ড পরিচালনা করতে পারবেন।'
-              : 'সদস্য: স্বচ্ছ ব্যক্তিগত ও সার্বিক হিসাব দেখার অধিকার রয়েছে।'}
+          <p className="text-[10px] text-slate-500 mt-1 leading-relaxed">
+            {isUserAdmin
+              ? 'এডমিন কন্ট্রোল: মেসের মিল, বাজার, খরচ, সদস্য ব্যবস্থাপনা ও অডিট লগের সম্পূর্ণ নিয়ন্ত্রণ।'
+              : 'সদস্য ভিউ: নিজের মিল অন/অফ এবং মেসের স্বচ্ছ আর্থিক বিবরণী দেখার অধিকার।'}
           </p>
         </div>
       </div>

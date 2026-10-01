@@ -166,14 +166,19 @@ export type ExpenseCategory =
   | 'maid_salary'
   | 'other';
 
+export type ExpenseClassification = 'meal_related' | 'shared_equal' | 'individual' | 'excluded';
+
 export interface ExpenseRecord {
   id: string;
   date: string; // YYYY-MM-DD
+  periodId?: string; // e.g. "2026-09", "2026-10"
   category: ExpenseCategory;
+  expenseClassification?: ExpenseClassification;
   amount: number;
   paidById: string; // memberId or 'mess_fund'
   paidByName: string;
   paidBy?: string;
+  targetMemberId?: string; // for individual expense
   description: string;
   distributionRule?: string;
   receiptUrl?: string;
@@ -188,6 +193,7 @@ export interface PaymentRecord {
   memberId: string;
   memberName: string;
   date: string; // YYYY-MM-DD
+  periodId?: string; // e.g. "2026-09", "2026-10"
   amount: number;
   paymentMethod: PaymentMethod;
   transactionRef?: string;
@@ -206,8 +212,11 @@ export interface MemberMonthlyStatement {
   mealCost: number;
   sharedCostsShare: number;
   individualCosts: number;
+  currentMonthCost?: number;
+  previousBalance?: number; // Carried forward from previous month's final statement
   totalCost: number;
   totalPaid: number;
+  currentMonthPaid?: number;
   netBalance: number; // positive = Due, negative = Advance/Refund
   breakdown: {
     rentShare: number;
@@ -220,23 +229,55 @@ export interface MemberMonthlyStatement {
   };
 }
 
+export interface MonthlyAccountSnapshot {
+  totalMembers: number;
+  activeMembers: number;
+  totalMeals: number;
+  totalMealRelatedExpenses: number;
+  totalOtherExpenses: number;
+  finalMealRate: number;
+  totalPayments: number;
+  memberWiseBills: Record<string, {
+    totalMeals: number;
+    mealCost: number;
+    sharedCosts: number;
+    individualCosts: number;
+    totalCost: number;
+    paid: number;
+    previousBalance: number;
+    balance: number;
+  }>;
+  bazarTotal: number;
+  expenseTotal: number;
+  closedAt: string;
+  closedBy: string;
+}
+
 export interface MonthlyAccount {
   id: string;
   month: string; // YYYY-MM e.g. "2026-09"
   monthName: string;
   status: 'open' | 'closed';
+  accounting_period_id?: string;
   closedAt?: string;
   closedBy?: string;
+  reopenedAt?: string;
+  reopenedBy?: string;
+  totalMembers?: number;
+  activeMembers?: number;
   totalMeals: number;
   totalBazarExpense: number;
-  mealRate: number; // totalBazarExpense / totalMeals
+  totalMealRelatedExpense?: number;
+  mealRate: number; // totalMealRelatedExpense / totalMeals
   totalSharedExpenses: number;
+  totalIndividualExpenses?: number;
   totalMessExpense: number; // totalBazarExpense + totalSharedExpenses
   totalCollected: number;
   totalDue: number;
   totalAdvance: number;
   statements: Record<string, MemberMonthlyStatement>;
   formulaNote: string;
+  snapshot?: MonthlyAccountSnapshot;
 }
 
 export interface AuditLog {
@@ -247,7 +288,7 @@ export interface AuditLog {
   action: string;
   recordType?: string;
   recordId?: string;
-  module: 'meals' | 'bazar' | 'expenses' | 'payments' | 'members' | 'monthly' | 'settings';
+  module: 'meals' | 'bazar' | 'expenses' | 'payments' | 'members' | 'monthly' | 'settings' | 'auth' | 'security';
   details: string;
   previousValue?: string;
   newValue?: string;
@@ -325,6 +366,16 @@ export interface MessSettings {
     canEditBazar: boolean;
   };
   mealCutoffSettings: MealCutoffSettings;
+  memberLimit?: number;
+  accountingConfig?: {
+    carryForwardPreviousBalance: boolean; // default: true
+    autoOpenNewMonth: boolean; // default: true
+    sendNewMonthSms: boolean; // default: false
+    newMonthSmsTemplate?: string;
+    sendMonthEndSms?: boolean; // default: true
+    monthEndSmsTemplate?: string;
+    mealRateFormula?: 'bazar_only' | 'bazar_plus_meal_expenses';
+  };
 }
 
 export interface AdminProfile {

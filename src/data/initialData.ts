@@ -77,19 +77,6 @@ export function getInitialMessData(): MessDatabaseState {
       notes: 'সদস্য',
       avatarColor: 'bg-purple-600',
     },
-    {
-      id: 'm6',
-      name: 'Ariful Islam',
-      nickname: 'আরিফ',
-      phone: '+8801516789012',
-      email: 'ariful.islam@gmail.com',
-      roomNo: '103',
-      role: 'member' as const,
-      status: 'active' as const,
-      joiningDate: '2026-01-01',
-      notes: 'সদস্য',
-      avatarColor: 'bg-teal-600',
-    },
   ];
 
   const adminProfile: AdminProfile = {
@@ -122,6 +109,18 @@ export function getInitialMessData(): MessDatabaseState {
     m3: {
       memberId: 'm3',
       phone: '01913456789',
+      passwordHash: simpleHashSync('member123'),
+      isActive: true,
+    },
+    m4: {
+      memberId: 'm4',
+      phone: '01614567890',
+      passwordHash: simpleHashSync('member123'),
+      isActive: true,
+    },
+    m5: {
+      memberId: 'm5',
+      phone: '01715678901',
       passwordHash: simpleHashSync('member123'),
       isActive: true,
     },
@@ -171,13 +170,13 @@ export function getInitialMessData(): MessDatabaseState {
 
   // Meal Menus for 7 days
   const mealMenus: MealMenu[] = [
-    { id: 'menu-1', date: '2026-09-17', breakfast: 'খিচুড়ি + ডিম ভুনা', lunch: 'ভাত + রুই মাছ ঝোল + ডাল', dinner: 'ভাত + মুরগির মাংস + সবজি', updatedBy: 'Rahim Uddin' },
-    { id: 'menu-2', date: '2026-09-18', breakfast: 'পরোটা + ডালভাজি + চা', lunch: 'ভাত + পাবদা মাছ + সালাদ', dinner: 'ভাত + ডিম তরকারি + আলুভর্তা', updatedBy: 'Rahim Uddin' },
-    { id: 'menu-3', date: '2026-09-19', breakfast: 'ভাত + আলুভর্তা + ডাল', lunch: 'ভাত + গরুর মাংস ভুনা + লেবু', dinner: 'ভাত + ছোট মাছ চচ্চড়ি + ডাল', updatedBy: 'Rahim Uddin' },
-    { id: 'menu-4', date: '2026-09-20', breakfast: 'রুটি + ডিম পোজ + কলা', lunch: 'ভাত + পাঙ্গাশ মাছ দো পেঁয়াজা', dinner: 'ভাত + মুরগি কারি + ডাল', updatedBy: 'Rahim Uddin' },
-    { id: 'menu-5', date: '2026-09-21', breakfast: 'ভুনা খিচুড়ি + বেগুন ভাজা', lunch: 'ভাত + তেলাপিয়া ভুনা + শাকভাজি', dinner: 'ভাত + ডিম কারি + পাতলা ডাল', updatedBy: 'Rahim Uddin' },
-    { id: 'menu-6', date: '2026-09-22', breakfast: 'স্পেশাল পরাটা + হালুয়া + ডিম', lunch: 'স্পেশাল বিফ তেহারি / পোলাও + সালাদ', dinner: 'ভাত + কাতল মাছ কালিয়া + ডাল', updatedBy: 'Rahim Uddin' },
-    { id: 'menu-7', date: '2026-09-23', breakfast: 'রুটি + সবজি ভাজি + ডিম', lunch: 'ভাত + মুরগি ঝোল + লাবড়া সবজি', dinner: 'ভাত + ডিম ভুনা + মসুর ডাল', updatedBy: 'Rahim Uddin' },
+    { id: 'menu-1', date: '2026-09-17', breakfast: 'খিচুড়ি + ডিম ভুনা', lunch: 'ভাত + রুই মাছ ঝোল + ডাল', dinner: 'ভাত + মুরগির মাংস + সবজি', updatedBy: 'Jahidul Islam' },
+    { id: 'menu-2', date: '2026-09-18', breakfast: 'পরোটা + ডালভাজি + চা', lunch: 'ভাত + পাবদা মাছ + সালাদ', dinner: 'ভাত + ডিম তরকারি + আলুভর্তা', updatedBy: 'Jahidul Islam' },
+    { id: 'menu-3', date: '2026-09-19', breakfast: 'ভাত + আলুভর্তা + ডাল', lunch: 'ভাত + গরুর মাংস ভুনা + লেবু', dinner: 'ভাত + ছোট মাছ চচ্চড়ি + ডাল', updatedBy: 'Jahidul Islam' },
+    { id: 'menu-4', date: '2026-09-20', breakfast: 'রুটি + ডিম পোজ + কলা', lunch: 'ভাত + পাঙ্গাশ মাছ দো পেঁয়াজা', dinner: 'ভাত + মুরগি কারি + ডাল', updatedBy: 'Jahidul Islam' },
+    { id: 'menu-5', date: '2026-09-21', breakfast: 'ভুনা খিচুড়ি + বেগুন ভাজা', lunch: 'ভাত + তেলাপিয়া ভুনা + শাকভাজি', dinner: 'ভাত + ডিম কারি + পাতলা ডাল', updatedBy: 'Jahidul Islam' },
+    { id: 'menu-6', date: '2026-09-22', breakfast: 'স্পেশাল পরাটা + হালুয়া + ডিম', lunch: 'স্পেশাল বিফ তেহারি / পোলাও + সালাদ', dinner: 'ভাত + কাতল মাছ কালিয়া + ডাল', updatedBy: 'Jahidul Islam' },
+    { id: 'menu-7', date: '2026-09-23', breakfast: 'রুটি + সবজি ভাজি + ডিম', lunch: 'ভাত + মুরগি ঝোল + লাবড়া সবজি', dinner: 'ভাত + ডিম ভুনা + মসুর ডাল', updatedBy: 'Jahidul Islam' },
   ];
 
   // Duties
@@ -247,9 +246,9 @@ export function getInitialMessData(): MessDatabaseState {
   ];
 
   const marketList: MarketListItem[] = [
-    { id: 'ml-1', name: 'মিনিকেট চাল (৫০ কেজি বস্তা)', quantity: '১ বস্তা', priority: 'urgent', status: 'needed', addedBy: 'Rahim Uddin', addedAt: '2026-09-18T08:00:00.000Z' },
-    { id: 'ml-2', name: 'সয়াবিন তেল ৫ লিটার', quantity: '১ বোতল', priority: 'medium', status: 'needed', addedBy: 'Karimul Haque', addedAt: '2026-09-18T08:15:00.000Z' },
-    { id: 'ml-3', name: 'মসুর ডাল', quantity: '৫ কেজি', priority: 'low', status: 'needed', addedBy: 'Rahim Uddin', addedAt: '2026-09-18T08:30:00.000Z' },
+    { id: 'ml-1', name: 'মিনিকেট চাল (৫০ কেজি বস্তা)', quantity: '১ বস্তা', priority: 'urgent', status: 'needed', addedBy: 'Jahidul Islam', addedAt: '2026-09-18T08:00:00.000Z' },
+    { id: 'ml-2', name: 'সয়াবিন তেল ৫ লিটার', quantity: '১ বোতল', priority: 'medium', status: 'needed', addedBy: 'Fiaaz Ajmaeen', addedAt: '2026-09-18T08:15:00.000Z' },
+    { id: 'ml-3', name: 'মসুর ডাল', quantity: '৫ কেজি', priority: 'low', status: 'needed', addedBy: 'Jahidul Islam', addedAt: '2026-09-18T08:30:00.000Z' },
   ];
 
   const expenses = [
@@ -259,7 +258,7 @@ export function getInitialMessData(): MessDatabaseState {
       category: 'rent' as const,
       amount: 18000,
       paidById: 'm1',
-      paidByName: 'Rahim Uddin (Admin)',
+      paidByName: 'Jahidul Islam (Admin)',
       description: 'সেপ্টেম্বর মাসের বাসা ভাড়া পরিশোধ',
       createdBy: 'm1',
       createdAt: '2026-09-02T10:00:00.000Z',
@@ -270,7 +269,7 @@ export function getInitialMessData(): MessDatabaseState {
       category: 'gas' as const,
       amount: 2160,
       paidById: 'm2',
-      paidByName: 'Karimul Haque (Treasurer)',
+      paidByName: 'Fiaaz Ajmaeen',
       description: 'দুই চুলার সরকারি গ্যাস বিল (সেপ্টেম্বর)',
       createdBy: 'm2',
       createdAt: '2026-09-05T12:00:00.000Z',
@@ -281,7 +280,7 @@ export function getInitialMessData(): MessDatabaseState {
       category: 'internet' as const,
       amount: 1200,
       paidById: 'm2',
-      paidByName: 'Karimul Haque (Treasurer)',
+      paidByName: 'Fiaaz Ajmaeen',
       description: 'ওয়াইফাই বিল (সেপ্টেম্বর - কার্নিভাল ইন্টারনেট)',
       createdBy: 'm2',
       createdAt: '2026-09-08T15:30:00.000Z',
@@ -292,12 +291,12 @@ export function getInitialMessData(): MessDatabaseState {
     {
       id: 'pay-1',
       memberId: 'm1',
-      memberName: 'Rahim Uddin',
+      memberName: 'Jahidul Islam',
       date: '2026-09-01',
       amount: 5000,
       paymentMethod: 'bKash' as const,
       transactionRef: 'BK923847291',
-      receivedBy: 'Karimul Haque (Treasurer)',
+      receivedBy: 'Jahidul Islam (Admin)',
       notes: 'মাসিক অগ্রিম জমা',
       status: 'verified' as const,
       createdAt: '2026-09-01T10:30:00.000Z',
@@ -305,12 +304,12 @@ export function getInitialMessData(): MessDatabaseState {
     {
       id: 'pay-2',
       memberId: 'm2',
-      memberName: 'Karimul Haque',
+      memberName: 'Fiaaz Ajmaeen',
       date: '2026-09-01',
       amount: 5000,
       paymentMethod: 'bKash' as const,
       transactionRef: 'BK923847292',
-      receivedBy: 'Rahim Uddin (Admin)',
+      receivedBy: 'Jahidul Islam (Admin)',
       notes: 'অগ্রিম মেস খরচ জমা',
       status: 'verified' as const,
       createdAt: '2026-09-01T11:00:00.000Z',
@@ -318,12 +317,12 @@ export function getInitialMessData(): MessDatabaseState {
     {
       id: 'pay-3',
       memberId: 'm3',
-      memberName: 'Hasan Mahmud',
+      memberName: 'RA Raihan',
       date: '2026-09-03',
       amount: 4500,
       paymentMethod: 'Nagad' as const,
       transactionRef: 'NG192837465',
-      receivedBy: 'Karimul Haque (Treasurer)',
+      receivedBy: 'Jahidul Islam (Admin)',
       notes: 'সেপ্টেম্বর অগ্রিম',
       status: 'verified' as const,
       createdAt: '2026-09-03T16:00:00.000Z',
@@ -344,7 +343,7 @@ export function getInitialMessData(): MessDatabaseState {
     totalDue: 0,
     totalAdvance: 390,
     closedAt: '2026-09-01T10:00:00.000Z',
-    closedBy: 'Rahim Uddin (Admin)',
+    closedBy: 'Jahidul Islam (Admin)',
     statements: {},
     formulaNote: 'মিল রেট = মোট বাজার খরচ ÷ মোট মিল সংখ্যা',
   };
@@ -354,7 +353,7 @@ export function getInitialMessData(): MessDatabaseState {
       id: 'log-1',
       timestamp: '2026-09-01T10:00:00.000Z',
       userId: 'm1',
-      userName: 'Rahim Uddin (Admin)',
+      userName: 'Jahidul Islam (Admin)',
       action: 'মাস সমাপ্তি (Month Closed)',
       module: 'monthly' as const,
       details: 'আগস্ট ২০২৬ মাসের হিসাব সফলভাবে সম্পন্ন ও ক্লোজ করা হয়েছে। মিল রেট: ৳৪৯.০৫',
@@ -363,7 +362,7 @@ export function getInitialMessData(): MessDatabaseState {
       id: 'log-2',
       timestamp: '2026-09-18T08:00:00.000Z',
       userId: 'admin_m1',
-      userName: 'Rahim Uddin (Admin)',
+      userName: 'Jahidul Islam (Admin)',
       action: 'এডমিন লগইন',
       module: 'settings' as const,
       details: 'এডমিন সফলভাবে Bachelor Zone সিস্টেমে প্রবেশ করেছেন',
@@ -436,6 +435,7 @@ export function getInitialMessData(): MessDatabaseState {
       enableSmsNotification: false,
       sendSmsOnStatusChange: true,
     },
+    memberLimit: 6,
   };
 
   // Generate memberMealSelections
@@ -539,13 +539,13 @@ export function getInitialMessData(): MessDatabaseState {
     {
       id: 'mcl-1',
       memberId: 'm1',
-      memberName: 'Rahim Uddin',
+      memberName: 'Jahidul Islam',
       date: '2026-09-18',
       mealType: 'dinner' as const,
       previousStatus: 'ON' as const,
       newStatus: 'OFF' as const,
       changedBy: 'm1',
-      changedByName: 'Rahim Uddin',
+      changedByName: 'Jahidul Islam',
       changedByRole: 'admin' as const,
       changedAt: '2026-09-18T09:35:00.000Z',
       reason: 'ব্যক্তিগত কাজ থাকার কারণে রাতের মিল অফ করা হয়েছে',

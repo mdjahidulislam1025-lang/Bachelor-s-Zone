@@ -1,6 +1,6 @@
 {
   "name": "Bachelor Zone",
-  "description": "Complete, modern and transparent student and bachelor mess management application for Bangladesh with meal tracking, cooking & bazar schedules, expense calculation, SMS alerts, and accounts.",
+  "description": "Bachelor Zone — মেসের মিল, বাজার, রান্না ও হিসাব — সব এক জায়গায়। Complete, modern and transparent student and bachelor mess management application for Bangladesh with meal tracking, cooking & bazar schedules, expense calculation, SMS alerts, and accounts.",
   "requestFramePermissions": [],
   "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
 }

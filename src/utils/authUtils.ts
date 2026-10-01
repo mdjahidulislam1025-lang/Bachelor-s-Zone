@@ -72,3 +72,25 @@ export function clearAuthSession(): void {
     localStorage.removeItem(AUTH_STORAGE_KEY);
   }
 }
+
+/**
+ * Checks if a member/user is the Permanent Primary Admin (Jahidul Islam)
+ */
+export function isPermanentAdminUser(user?: { id?: string; name?: string; phone?: string; email?: string } | null): boolean {
+  if (!user) return false;
+  const name = (user.name || '').toLowerCase();
+  const phone = (user.phone || '').replace(/[\s\-\+]/g, '');
+  const email = (user.email || '').toLowerCase();
+  return (
+    user.id === 'm1' ||
+    user.id === 'admin_m1' ||
+    name.includes('jahidul') ||
+    name.includes('জাহিদুল') ||
+    phone === '8801711234567' ||
+    phone === '01711234567' ||
+    phone === '8801516528497' ||
+    phone === '01516528497' ||
+    email === 'mdjahidulislam1025@gmail.com'
+  );
+}
+

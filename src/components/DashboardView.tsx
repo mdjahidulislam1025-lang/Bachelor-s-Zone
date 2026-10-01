@@ -171,7 +171,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
             <ul className="space-y-1 text-[11px] text-emerald-800">
               <li>• আজ মেসে রান্নার দায়িত্ব: <strong>{todayCook?.memberName || 'জাহিদুল ইসলাম'}</strong></li>
               <li>• আজকের বাজার বাজেট: <strong>৳{todayBazarDuty?.expectedBudget || 1500}</strong> (বাজারকারী: {todayBazarDuty?.memberName || 'ফিয়াজ'})</li>
-              <li>• সেপ্টেম্বর মাসের খসড়া মিল রেট: <strong>৳{currentMonthCalc.mealRate.toFixed(2)}</strong></li>
+              <li>• {currentMonthCalc.monthName} এর মিল রেট: <strong>{currentMonthCalc.totalMeals > 0 ? `৳${currentMonthCalc.mealRate.toFixed(2)}` : '—'}</strong></li>
             </ul>
           </div>
         )}
@@ -226,6 +226,14 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
               <button onClick={onOpenSendSms} className="flex items-center gap-2 p-2.5 rounded-xl border border-slate-200 hover:border-emerald-500 hover:bg-emerald-50/50 text-slate-700 text-xs font-semibold transition-all cursor-pointer">
                 <Send className="h-4 w-4 text-emerald-600 shrink-0" />
                 <span className="truncate">SMS</span>
+              </button>
+              <button onClick={() => onSelectTab('member-management')} className="flex items-center gap-2 p-2.5 rounded-xl border border-purple-200 bg-purple-50/50 hover:bg-purple-100 text-purple-900 text-xs font-bold transition-all cursor-pointer">
+                <Users className="h-4 w-4 text-purple-600 shrink-0" />
+                <span className="truncate">Member Management</span>
+              </button>
+              <button onClick={() => onSelectTab('audit-logs')} className="flex items-center gap-2 p-2.5 rounded-xl border border-slate-200 hover:border-slate-800 hover:bg-slate-100 text-slate-800 text-xs font-semibold transition-all cursor-pointer">
+                <ShieldCheck className="h-4 w-4 text-indigo-600 shrink-0" />
+                <span className="truncate">Audit Logs</span>
               </button>
               <button onClick={() => onSelectTab('reports')} className="flex items-center gap-2 p-2.5 rounded-xl border border-slate-200 hover:border-emerald-500 hover:bg-emerald-50/50 text-slate-700 text-xs font-semibold transition-all cursor-pointer">
                 <BarChart3 className="h-4 w-4 text-emerald-600 shrink-0" />
@@ -309,7 +317,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
               <div className="text-right">
                 <span className="text-xs text-emerald-200 block">বর্তমান মিল রেট</span>
                 <span className="text-2xl sm:text-3xl font-extrabold text-amber-300">
-                  ৳{currentMonthCalc.mealRate.toFixed(2)}
+                  {currentMonthCalc.totalMeals > 0 ? `৳${currentMonthCalc.mealRate.toFixed(2)}` : '—'}
                 </span>
               </div>
             </div>
@@ -322,7 +330,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                   <span>আজকের রাঁধুনি</span>
                 </div>
                 <p className="text-sm font-bold truncate text-white">
-                  {todayCook ? todayCook.memberName : 'রহিম উদ্দিন'}
+                  {todayCook ? todayCook.memberName : 'জাহিদুল ইসলাম'}
                 </p>
                 <span className="text-[11px] text-emerald-300">
                   {todayCook?.status === 'completed' ? '✓ রান্না সম্পন্ন' : 'সকাল ও দুপুরের দায়িত্ব'}

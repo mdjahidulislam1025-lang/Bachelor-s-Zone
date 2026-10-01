@@ -414,7 +414,7 @@ export const AdminLoginModal: React.FC<AdminLoginModalProps> = ({
                   required
                   value={identifier}
                   onChange={e => setIdentifier(e.target.value)}
-                  placeholder="01711234567 অথবা rahim.mess@gmail.com"
+                  placeholder="01711234567 অথবা mdjahidulislam1025@gmail.com"
                   className="w-full pl-9 pr-3 py-2 text-sm bg-slate-50 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:outline-none dark:text-white"
                 />
               </div>
@@ -494,7 +494,7 @@ export const AdminLoginModal: React.FC<AdminLoginModalProps> = ({
                   onClick={() => fillQuickDemo('01711234567', 'admin123')}
                   className="p-1.5 text-left rounded-lg bg-emerald-50/70 hover:bg-emerald-100/70 dark:bg-emerald-950/30 dark:hover:bg-emerald-900/40 border border-emerald-200 dark:border-emerald-800 text-emerald-800 dark:text-emerald-300 transition-colors"
                 >
-                  <div className="font-semibold">এডমিন (Rahim)</div>
+                  <div className="font-semibold">স্থায়ী এডমিন (Jahidul Islam)</div>
                   <div className="text-[10px] text-slate-500">01711234567 / admin123</div>
                 </button>
                 <button
@@ -502,7 +502,7 @@ export const AdminLoginModal: React.FC<AdminLoginModalProps> = ({
                   onClick={() => fillQuickDemo('01913456789', 'member123')}
                   className="p-1.5 text-left rounded-lg bg-indigo-50/70 hover:bg-indigo-100/70 dark:bg-indigo-950/30 dark:hover:bg-indigo-900/40 border border-indigo-200 dark:border-indigo-800 text-indigo-800 dark:text-indigo-300 transition-colors"
                 >
-                  <div className="font-semibold">মেম্বার (Hasan)</div>
+                  <div className="font-semibold">মেম্বার (RA Raihan)</div>
                   <div className="text-[10px] text-slate-500">01913456789 / member123</div>
                 </button>
               </div>

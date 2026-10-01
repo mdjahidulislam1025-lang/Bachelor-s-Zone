@@ -12,6 +12,10 @@ import {
   BarChart3,
   Settings,
   X,
+  UserCog,
+  History,
+  MessageSquare,
+  User,
 } from 'lucide-react';
 import { Language, translations } from '../utils/translations.js';
 
@@ -19,32 +23,54 @@ interface BottomNavProps {
   activeTab: string;
   onSelectTab: (tab: string) => void;
   language: Language;
+  userRole?: string;
 }
 
 export const BottomNav: React.FC<BottomNavProps> = ({
   activeTab,
   onSelectTab,
   language,
+  userRole = 'admin',
 }) => {
   const [showMoreMenu, setShowMoreMenu] = useState(false);
   const t = translations[language];
+  const isAdmin = userRole === 'admin';
 
-  const mainItems = [
+  const adminMainItems = [
+    { id: 'dashboard', label: language === 'bn' ? 'হোম' : 'Home', icon: LayoutDashboard },
+    { id: 'meals', label: language === 'bn' ? 'মিল' : 'Meals', icon: Calculator },
+    { id: 'bazar', label: language === 'bn' ? 'বাজার' : 'Bazar', icon: ShoppingBag },
+    { id: 'monthly', label: language === 'bn' ? 'হিসাব' : 'Accounts', icon: Wallet },
+    { id: 'member-management', label: language === 'bn' ? 'সদস্য' : 'Members', icon: UserCog },
+  ];
+
+  const adminExtraItems = [
+    { id: 'members', label: language === 'bn' ? 'সদস্য তালিকা' : 'Members List', icon: Users },
+    { id: 'cooking', label: t.cooking, icon: ChefHat },
+    { id: 'expenses', label: t.expenses, icon: Receipt },
+    { id: 'payments', label: t.payments, icon: Wallet },
+    { id: 'sms', label: language === 'bn' ? 'এসএমএস' : 'SMS', icon: MessageSquare },
+    { id: 'reports', label: t.reports, icon: BarChart3 },
+    { id: 'settings', label: t.smsSettings, icon: Settings },
+    { id: 'audit-logs', label: language === 'bn' ? 'অডিট লগ' : 'Audit Logs', icon: History },
+  ];
+
+  const memberMainItems = [
     { id: 'dashboard', label: language === 'bn' ? 'হোম' : 'Home', icon: LayoutDashboard },
     { id: 'my-meals', label: language === 'bn' ? 'আমার মিল' : 'My Meals', icon: UtensilsCrossed },
-    { id: 'meals', label: language === 'bn' ? 'মিল খাতা' : 'Meals', icon: Calculator },
+    { id: 'meals', label: language === 'bn' ? 'মিল' : 'Meals', icon: Calculator },
     { id: 'bazar', label: language === 'bn' ? 'বাজার' : 'Bazar', icon: ShoppingBag },
     { id: 'monthly', label: language === 'bn' ? 'হিসাব' : 'Accounts', icon: Wallet },
   ];
 
-  const extraItems = [
+  const memberExtraItems = [
     { id: 'cooking', label: t.cooking, icon: ChefHat },
     { id: 'expenses', label: t.expenses, icon: Receipt },
-    { id: 'payments', label: t.payments, icon: Wallet },
-    { id: 'members', label: t.members, icon: Users },
-    { id: 'reports', label: t.reports, icon: BarChart3 },
-    { id: 'settings', label: t.smsSettings, icon: Settings },
+    { id: 'my-profile', label: language === 'bn' ? 'আমার প্রোফাইল' : 'My Profile', icon: User },
   ];
+
+  const mainItems = isAdmin ? adminMainItems : memberMainItems;
+  const extraItems = isAdmin ? adminExtraItems : memberExtraItems;
 
   return (
     <>
@@ -58,7 +84,7 @@ export const BottomNav: React.FC<BottomNavProps> = ({
               </span>
               <button
                 onClick={() => setShowMoreMenu(false)}
-                className="p-1.5 text-slate-400 hover:text-slate-700 rounded-lg"
+                className="p-1.5 text-slate-400 hover:text-slate-700 rounded-lg cursor-pointer"
               >
                 <X className="h-5 w-5" />
               </button>
@@ -74,7 +100,7 @@ export const BottomNav: React.FC<BottomNavProps> = ({
                       onSelectTab(item.id);
                       setShowMoreMenu(false);
                     }}
-                    className={`flex flex-col items-center justify-center p-3 rounded-xl border text-center transition-all ${
+                    className={`flex flex-col items-center justify-center p-3 rounded-xl border text-center transition-all cursor-pointer ${
                       isActive
                         ? 'bg-emerald-50 border-emerald-500 text-emerald-700 font-bold'
                         : 'border-slate-200 text-slate-700 hover:bg-slate-50'
@@ -100,24 +126,24 @@ export const BottomNav: React.FC<BottomNavProps> = ({
               <button
                 key={item.id}
                 onClick={() => onSelectTab(item.id)}
-                className={`flex flex-col items-center justify-center py-1 transition-colors ${
+                className={`flex flex-col items-center justify-center py-1 transition-colors cursor-pointer ${
                   isActive ? 'text-emerald-600 font-bold' : 'text-slate-500 hover:text-slate-800'
                 }`}
               >
-                <Icon className={`h-4.5 w-4.5 ${isActive ? 'stroke-[2.5]' : 'stroke-2'}`} />
-                <span className="text-[10px] mt-0.5">{item.label}</span>
+                <Icon className="h-5 w-5" />
+                <span className="text-[10px] mt-0.5 truncate w-full text-center">
+                  {item.label}
+                </span>
               </button>
             );
           })}
 
-          {/* More toggle */}
+          {/* 6th item: More / Drawer Toggle */}
           <button
             onClick={() => setShowMoreMenu(true)}
-            className={`flex flex-col items-center justify-center py-1 transition-colors ${
-              extraItems.some(i => i.id === activeTab) ? 'text-emerald-600 font-bold' : 'text-slate-500'
-            }`}
+            className="flex flex-col items-center justify-center py-1 text-slate-500 hover:text-slate-800 cursor-pointer"
           >
-            <MoreHorizontal className="h-4.5 w-4.5" />
+            <MoreHorizontal className="h-5 w-5" />
             <span className="text-[10px] mt-0.5">আরও</span>
           </button>
         </div>

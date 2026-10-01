@@ -24,6 +24,7 @@ import { BachelorZoneLogo } from './BachelorZoneLogo.js';
 
 interface ReportsViewProps {
   currentMonthCalc: MonthlyAccount;
+  historicalAccounts?: MonthlyAccount[];
   dailyMeals: DailyMealEntry[];
   bazarRecords: BazarRecord[];
   expenses: ExpenseRecord[];
@@ -34,6 +35,7 @@ interface ReportsViewProps {
 
 export const ReportsView: React.FC<ReportsViewProps> = ({
   currentMonthCalc,
+  historicalAccounts = [],
   dailyMeals,
   bazarRecords,
   expenses,
@@ -42,17 +44,44 @@ export const ReportsView: React.FC<ReportsViewProps> = ({
   language,
 }) => {
   const t = translations[language];
+  const [selectedMonth, setSelectedMonth] = useState<string>(currentMonthCalc.month);
   const [reportType, setReportType] = useState<'meals' | 'expenses' | 'balances'>('meals');
 
+  // Build combined list of accounts
+  const allAccountsMap = new Map<string, MonthlyAccount>();
+  if (currentMonthCalc) {
+    allAccountsMap.set(currentMonthCalc.month, currentMonthCalc);
+  }
+  historicalAccounts.forEach(a => {
+    if (!allAccountsMap.has(a.month)) {
+      allAccountsMap.set(a.month, a);
+    }
+  });
+
+  const allAccountsList = Array.from(allAccountsMap.values()).sort(
+    (a, b) => b.month.localeCompare(a.month)
+  );
+
+  const activeAccount = allAccountsMap.get(selectedMonth) || currentMonthCalc;
+  const isHistorical = activeAccount.month !== currentMonthCalc.month;
+  const isClosed = activeAccount.status === 'closed';
+
+  // Filter records belonging to selected month
+  const targetMonth = activeAccount.month;
+  const targetMeals = dailyMeals.filter(m => m.date.startsWith(targetMonth));
+  const targetBazar = bazarRecords.filter(b => b.date.startsWith(targetMonth));
+  const targetExpenses = expenses.filter(e => e.date.startsWith(targetMonth));
+  const targetPayments = payments.filter(p => p.date.startsWith(targetMonth));
+
   // Top meal eaters
-  const topMealMembers = Object.values(currentMonthCalc.statements || {})
+  const topMealMembers = Object.values(activeAccount.statements || {})
     .sort((a, b) => b.totalMeals - a.totalMeals);
 
   // Category expense breakdown
   const expenseCategories: Record<string, number> = {
-    'বাজার খরচ': currentMonthCalc.totalBazarExpense,
+    'বাজার খরচ': activeAccount.totalBazarExpense,
   };
-  expenses.forEach(e => {
+  targetExpenses.forEach(e => {
     let catName = 'অন্যান্য খরচ';
     if (e.category === 'rent') catName = 'বাসা ভাড়া';
     else if (e.category === 'electricity') catName = 'বিদ্যুৎ বিল';
@@ -72,7 +101,7 @@ export const ReportsView: React.FC<ReportsViewProps> = ({
       amt,
       totalAllExpenses > 0 ? ((amt / totalAllExpenses) * 100).toFixed(1) + '%' : '0%',
     ]);
-    downloadCsv(`Bachelor_Zone_Expense_Report_${currentMonthCalc.month}.csv`, [headers, ...rows]);
+    downloadCsv(`Bachelor_Zone_Expense_Report_${activeAccount.month}.csv`, [headers, ...rows]);
   };
 
   const handlePrint = () => {
@@ -84,7 +113,7 @@ export const ReportsView: React.FC<ReportsViewProps> = ({
       {/* Printable Report Header */}
       <div className="hidden print:block text-center pb-4 border-b-2 border-slate-900 mb-6">
         <h1 className="text-2xl font-black text-slate-900 tracking-tight">Bachelor Zone</h1>
-        <h2 className="text-sm font-bold text-slate-700 mt-1">Monthly Mess Account — {currentMonthCalc.monthName}</h2>
+        <h2 className="text-sm font-bold text-slate-700 mt-1">Monthly Mess Account — {activeAccount.monthName}</h2>
         <p className="text-xs text-slate-500">Bachelor Zone • মেস আর্থিক ও মিল বিশ্লেষণ রিপোর্ট</p>
       </div>
 
@@ -94,15 +123,38 @@ export const ReportsView: React.FC<ReportsViewProps> = ({
           <div className="flex items-center gap-2 mb-2">
             <BachelorZoneLogo size="sm" theme="white" subtitle="Monthly Mess Account Reports" />
           </div>
-          <h2 className="text-xl sm:text-2xl font-extrabold text-white">
-            {currentMonthCalc.monthName} আর্থিক সারসংক্ষেপ
-          </h2>
+          <div className="flex items-center gap-3 flex-wrap">
+            <h2 className="text-xl sm:text-2xl font-extrabold text-white">
+              {activeAccount.monthName} আর্থিক সারসংক্ষেপ
+            </h2>
+            {isClosed && (
+              <span className="px-2.5 py-0.5 rounded-full bg-rose-500/20 text-rose-300 border border-rose-500/40 text-xs font-bold">
+                🔒 ক্লোজড আর্কাইভ (Read-Only)
+              </span>
+            )}
+          </div>
           <p className="text-xs text-slate-300 mt-1">
             মিল ভলিউম, বাজার প্রবণতা এবং ব্যালান্স শিট অ্যানালিটিক্স
           </p>
         </div>
 
-        <div className="flex items-center gap-2">
+        <div className="flex flex-wrap items-center gap-2">
+          {/* Previous Months Dropdown */}
+          <div className="flex items-center gap-1.5 bg-white/10 px-3 py-1.5 rounded-xl border border-white/20">
+            <Calendar className="w-3.5 h-3.5 text-indigo-300" />
+            <select
+              value={selectedMonth}
+              onChange={e => setSelectedMonth(e.target.value)}
+              className="bg-transparent text-white text-xs font-bold outline-none cursor-pointer"
+            >
+              {allAccountsList.map(a => (
+                <option key={a.month} value={a.month} className="bg-slate-900 text-white">
+                  {a.monthName} {a.status === 'closed' ? '(আর্কাইভ 🔒)' : '(চলমান 🟢)'}
+                </option>
+              ))}
+            </select>
+          </div>
+
           <button
             onClick={handlePrint}
             className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-white/10 hover:bg-white/20 text-white text-xs font-bold border border-white/20 transition-colors cursor-pointer"

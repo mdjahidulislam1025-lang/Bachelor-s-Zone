@@ -38,7 +38,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode; initialAdminPro
   const [session, setSession] = useState<AuthSession | null>(() => {
     const saved = getSavedAuthSession();
     if (saved) return saved;
-    // Default initial session as Admin Rahim for smooth testing
+    // Default initial session as Permanent Admin Jahidul Islam for smooth testing
     return {
       token: 'tok_default_admin',
       userId: 'm1',
@@ -138,16 +138,16 @@ export const AuthProvider: React.FC<{ children: React.ReactNode; initialAdminPro
         cleanIdent === '01711234567' ||
         cleanIdent === '+8801711234567' ||
         cleanIdent.toLowerCase() === admin.email.toLowerCase() ||
-        cleanIdent.toLowerCase() === 'rahim.mess@gmail.com';
+        cleanIdent.toLowerCase() === 'mdjahidulislam1025@gmail.com';
 
       if (isMatch && (pass === 'admin123' || pass.length >= 4)) {
         const newSession: AuthSession = {
           token: 'local_admin_' + Date.now(),
           userId: admin.id || 'm1',
           role: 'admin',
-          name: admin.name || 'Rahim Uddin (Admin)',
+          name: admin.name || 'Jahidul Islam (Admin)',
           phone: admin.phone || '01711234567',
-          email: admin.email || 'rahim.mess@gmail.com',
+          email: admin.email || 'mdjahidulislam1025@gmail.com',
           avatarColor: 'bg-emerald-600',
           loginTime: new Date().toISOString(),
         };

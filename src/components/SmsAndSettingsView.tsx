@@ -49,6 +49,15 @@ export const SmsAndSettingsView: React.FC<SmsAndSettingsViewProps> = ({
   const [enableMonthEndSummary, setEnableMonthEndSummary] = useState(settings.smsGateway.enableMonthEndSummary);
   const [messName, setMessName] = useState(settings.messName);
   const [messAddress, setMessAddress] = useState(settings.messAddress);
+  const [carryForwardPreviousBalance, setCarryForwardPreviousBalance] = useState(
+    settings.accountingConfig?.carryForwardPreviousBalance !== false
+  );
+  const [autoOpenNewMonth, setAutoOpenNewMonth] = useState(
+    settings.accountingConfig?.autoOpenNewMonth !== false
+  );
+  const [sendNewMonthSms, setSendNewMonthSms] = useState(
+    settings.accountingConfig?.sendNewMonthSms || false
+  );
 
   // Quick SMS form
   const [targetMemberId, setTargetMemberId] = useState(members[0]?.id || '');
@@ -71,6 +80,12 @@ export const SmsAndSettingsView: React.FC<SmsAndSettingsViewProps> = ({
         enableCookingReminder,
         enableBazarReminder,
         enableMonthEndSummary,
+      },
+      accountingConfig: {
+        ...settings.accountingConfig,
+        carryForwardPreviousBalance,
+        autoOpenNewMonth,
+        sendNewMonthSms,
       },
     };
     await onSaveSettings(updated);
@@ -189,8 +204,8 @@ export const SmsAndSettingsView: React.FC<SmsAndSettingsViewProps> = ({
                   type="text"
                   value={messAddress}
                   onChange={e => setMessAddress(e.target.value)}
+                  placeholder="ঐচ্ছিক (প্রয়োজন না হলে ফাঁকা রাখুন)"
                   className="w-full px-3 py-2 text-xs border border-slate-300 rounded-xl outline-none"
-                  required
                 />
               </div>
 
@@ -258,6 +273,47 @@ export const SmsAndSettingsView: React.FC<SmsAndSettingsViewProps> = ({
                     className="h-4 w-4 text-emerald-600 rounded border-slate-300 cursor-pointer"
                   />
                   <span>মাস শেষ হলে চূড়ান্ত বিল ও ব্যালান্স শিট সকল সদস্যকে স্বয়ংক্রিয় এসএমএস হবে</span>
+                </label>
+              </div>
+
+              {/* Monthly Accounting & Automatic Month Controls */}
+              <div className="space-y-2 pt-3 border-t border-slate-100">
+                <span className="text-xs font-bold text-slate-800 block">
+                  মাসিক হিসাব ও নতুন মাস অটোমেশন (Monthly Accounting Automation)
+                </span>
+
+                <label className="flex items-center gap-2 cursor-pointer text-xs text-slate-700">
+                  <input
+                    type="checkbox"
+                    checked={carryForwardPreviousBalance}
+                    onChange={e => setCarryForwardPreviousBalance(e.target.checked)}
+                    className="h-4 w-4 text-emerald-600 rounded border-slate-300 cursor-pointer"
+                  />
+                  <span>
+                    পূর্বের মাসের বকেয়া বা উদ্বৃত্ত নতুন মাসের প্রারম্ভিক স্থিতিতে যুক্ত করুন (Carry Forward Previous Balance)
+                  </span>
+                </label>
+
+                <label className="flex items-center gap-2 cursor-pointer text-xs text-slate-700">
+                  <input
+                    type="checkbox"
+                    checked={autoOpenNewMonth}
+                    onChange={e => setAutoOpenNewMonth(e.target.checked)}
+                    className="h-4 w-4 text-emerald-600 rounded border-slate-300 cursor-pointer"
+                  />
+                  <span>
+                    বাংলাদেশ সময়ানুযায়ী (Asia/Dhaka) প্রতি মাসের ১ তারিখে স্বয়ংক্রিয়ভাবে নতুন হিসাব মাস চালু করুন
+                  </span>
+                </label>
+
+                <label className="flex items-center gap-2 cursor-pointer text-xs text-slate-700">
+                  <input
+                    type="checkbox"
+                    checked={sendNewMonthSms}
+                    onChange={e => setSendNewMonthSms(e.target.checked)}
+                    className="h-4 w-4 text-emerald-600 rounded border-slate-300 cursor-pointer"
+                  />
+                  <span>নতুন মাস শুরু হলে সকল সক্রিয় সদস্যকে স্বয়ংক্রিয় নতুন মাস ঘোষণা SMS পাঠান</span>
                 </label>
               </div>
 

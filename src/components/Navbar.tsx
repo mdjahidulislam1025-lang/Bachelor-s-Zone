@@ -60,6 +60,7 @@ export const Navbar: React.FC<NavbarProps> = ({
   const { isAdmin, adminProfile, logout } = useAuth();
   const t = translations[language];
   const unreadCount = notifications.filter(n => !n.read).length;
+  const cleanAddress = messAddress && !messAddress.includes('শান্তিনগর') && !messAddress.includes('৪২/এ') ? messAddress.trim() : '';
 
   return (
     <header className="sticky top-0 z-30 bg-white/95 backdrop-blur border-b border-slate-200 px-4 py-2.5 shadow-xs">
@@ -69,7 +70,7 @@ export const Navbar: React.FC<NavbarProps> = ({
           <div className="hidden sm:block">
             <BachelorZoneLogo
               size="md"
-              subtitle={messAddress ? `${messName || 'Bachelor Zone'} • ${messAddress}` : 'মেসের মিল, বাজার, রান্না ও হিসাব — সব এক জায়গায়'}
+              subtitle={cleanAddress ? `${messName || 'Bachelor Zone'} • ${cleanAddress}` : 'মেসের মিল, বাজার, রান্না ও হিসাব — সব এক জায়গায়'}
             />
           </div>
           <div className="sm:hidden">
@@ -199,7 +200,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                     onClick={() => setShowAdminMenu(false)}
                   >
                     <div className="px-3 py-2 border-b border-slate-100 bg-slate-50/70 rounded-lg">
-                      <p className="font-bold text-slate-900">{adminProfile?.name || 'Rahim Uddin'}</p>
+                      <p className="font-bold text-slate-900">{adminProfile?.name || 'Jahidul Islam'}</p>
                       <p className="text-[10px] text-slate-500">{adminProfile?.phone || '01711234567'} • Admin</p>
                     </div>
                     <button
