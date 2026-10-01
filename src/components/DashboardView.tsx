@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import {
   Users,
   UtensilsCrossed,
@@ -38,6 +38,11 @@ import {
 import { Language, translations } from '../utils/translations.js';
 import { useAuth } from '../context/AuthContext.js';
 import { BachelorZoneLogo } from './BachelorZoneLogo.js';
+import {
+  getTodayDhakaDate,
+  getTomorrowDhakaDate,
+  formatBengaliFullDate,
+} from '../utils/monthlyPeriodUtils.js';
 
 interface DashboardViewProps {
   members: Member[];
@@ -81,8 +86,8 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
   const t = translations[language];
   const activeMembers = members.filter(m => m.status === 'active');
 
-  const todayStr = '2026-09-17';
-  const tomorrowStr = '2026-09-18';
+  const todayStr = useMemo(() => getTodayDhakaDate(), []);
+  const tomorrowStr = useMemo(() => getTomorrowDhakaDate(todayStr), [todayStr]);
 
   const { isAdmin } = useAuth();
   const [dashboardMode, setDashboardMode] = useState<'admin' | 'member'>(
@@ -308,7 +313,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
               <div>
                 <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold bg-emerald-600/60 border border-emerald-400/30 text-emerald-100">
                   <Calendar className="h-3 w-3" />
-                  ১৭ সেপ্টেম্বর ২০২৬ (বৃহস্পতিবার)
+                  {formatBengaliFullDate(todayStr)}
                 </span>
                 <h2 className="text-xl sm:text-2xl font-bold mt-2 text-white">
                   আজকের মেস সারসংক্ষেপ
@@ -333,7 +338,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                   {todayCook ? todayCook.memberName : 'জাহিদুল ইসলাম'}
                 </p>
                 <span className="text-[11px] text-emerald-300">
-                  {todayCook?.status === 'completed' ? '✓ রান্না সম্পন্ন' : 'সকাল ও দুপুরের দায়িত্ব'}
+                  {todayCook?.status === 'completed' ? '✓ রান্না সম্পন্ন' : 'দুপুর ও রাতের দায়িত্ব'}
                 </span>
               </div>
 
@@ -356,10 +361,10 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                   <span>আজকের মিল সংখ্যা</span>
                 </div>
                 <p className="text-sm font-bold text-white">
-                  {todayMeals ? `${todayMeals.totalMeals} টি মিল` : '২৪ টি মিল'}
+                  {todayMeals ? `${todayMeals.totalMeals} টি মিল` : '০ টি মিল'}
                 </p>
                 <span className="text-[11px] text-emerald-300">
-                  সকাল: {todayMeals?.totalBreakfast || 5} • দুপুর: {todayMeals?.totalLunch || 9} • রাত: {todayMeals?.totalDinner || 10}
+                  দুপুর: {todayMeals?.totalLunch || 0} • রাত: {todayMeals?.totalDinner || 0}
                 </span>
               </div>
             </div>

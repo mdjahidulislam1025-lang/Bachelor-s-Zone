@@ -121,7 +121,133 @@ export function ensureCurrentMonthPeriod(db: MessDatabaseState): MonthlyAccount 
     db.currentMonthCalculation = currentMonthAccount;
   }
 
+  // Ensure schedules, duties, and menus are populated for the current month
+  ensureMonthSchedules(db, currentPeriod, dhaka.dateStr);
+
   return currentMonthAccount;
+}
+
+/**
+ * Automatically ensures cooking duties, meal menus, bazar duties, and today's meal records
+ * exist for the active month, providing seamless continuity across new month transitions.
+ */
+export function ensureMonthSchedules(db: MessDatabaseState, periodId: string, todayStr: string): void {
+  if (!Array.isArray(db.cookingDuties)) db.cookingDuties = [];
+  if (!Array.isArray(db.mealMenus)) db.mealMenus = [];
+  if (!Array.isArray(db.bazarDuties)) db.bazarDuties = [];
+  if (!Array.isArray(db.dailyMeals)) db.dailyMeals = [];
+
+  const activeMembers = (db.members || []).filter(m => m.status === 'active');
+  if (activeMembers.length === 0) return;
+
+  const [yearStr, monthStr] = periodId.split('-');
+  const y = parseInt(yearStr, 10);
+  const m = parseInt(monthStr, 10);
+  const daysInMonth = new Date(y, m, 0).getDate();
+
+  let modified = false;
+
+  // 1. Ensure Cooking Duties for the period
+  const hasMonthDuties = db.cookingDuties.some(d => d.date && d.date.startsWith(periodId));
+  if (!hasMonthDuties) {
+    for (let day = 1; day <= daysInMonth; day++) {
+      const dStr = `${periodId}-${String(day).padStart(2, '0')}`;
+      const cook = activeMembers[(day - 1) % activeMembers.length];
+      db.cookingDuties.push({
+        id: `cd-${dStr}`,
+        date: dStr,
+        memberId: cook.id,
+        memberName: cook.name,
+        shift: 'both',
+        status: dStr < todayStr ? 'completed' : 'scheduled',
+        notes: dStr === todayStr ? 'আজকের রাঁধুনির দায়িত্ব' : '',
+      });
+    }
+    modified = true;
+  }
+
+  // 2. Ensure Meal Menus for the period
+  const defaultMenuCycle = [
+    { lunch: 'সাদা ভাত + রুই মাছ ভুনা + মসুর ডাল + সালাদ', dinner: 'ভাত + সোনালী মুরগির কারি + লাবড়া সবজি' },
+    { lunch: 'ভাত + পাবদা মাছ ভুনা + বেগুন ভাজা + ডাল', dinner: 'ভাত + ডিম ভুনা + আলুভর্তা + ডাল' },
+    { lunch: 'ভাত + গরুর মাংস ভুনা + লেবু + সালাদ', dinner: 'ভাত + ছোট মাছ চচ্চড়ি + ঘন ডাল' },
+    { lunch: 'ভাত + কাতল মাছ ঝোল + শাকভাজি + ডাল', dinner: 'ভাত + মুরগি ভুনা + সালাদ' },
+    { lunch: 'ভাত + পাঙ্গাশ মাছ দো পেঁয়াজা + ডাল', dinner: 'ভুনা খিচুড়ি + বেগুন ভাজা + ডিম ভুনা' },
+    { lunch: 'স্পেশাল বিফ তেহারি / পোলাও + সালাদ', dinner: 'ভাত + রুই মাছ কালিয়া + ঘন ডাল' },
+    { lunch: 'ভাত + মুরগি ভুনা + লাবড়া সবজি + ডাল', dinner: 'ভাত + ডিম তরকারি + পাতলা ডাল' },
+  ];
+  const hasMonthMenus = db.mealMenus.some(menu => menu.date && menu.date.startsWith(periodId));
+  if (!hasMonthMenus) {
+    for (let day = 1; day <= daysInMonth; day++) {
+      const dStr = `${periodId}-${String(day).padStart(2, '0')}`;
+      const template = defaultMenuCycle[(day - 1) % defaultMenuCycle.length];
+      db.mealMenus.push({
+        id: `menu-${dStr}`,
+        date: dStr,
+        breakfast: '',
+        lunch: template.lunch,
+        dinner: template.dinner,
+        updatedBy: 'Jahidul Islam',
+        specialEvent: day === 1 ? 'নতুন মাস শুরু - স্পেশাল মেনু' : undefined,
+      });
+    }
+    modified = true;
+  }
+
+  // 3. Ensure Bazar Duties for the period
+  const hasMonthBazarDuties = db.bazarDuties.some(b => b.date && b.date.startsWith(periodId));
+  if (!hasMonthBazarDuties) {
+    for (let day = 1; day <= daysInMonth; day++) {
+      const dStr = `${periodId}-${String(day).padStart(2, '0')}`;
+      const bazarMember = activeMembers[(day + 2) % activeMembers.length];
+      db.bazarDuties.push({
+        id: `bd-${dStr}`,
+        date: dStr,
+        memberId: bazarMember.id,
+        memberName: bazarMember.name,
+        status: dStr < todayStr ? 'completed' : 'scheduled',
+        budget: 1500,
+        notes: 'তাজা মাছ ও সবজি বাজার',
+      });
+    }
+    modified = true;
+  }
+
+  // 4. Ensure Today's daily meal record exists
+  const hasTodayMeals = db.dailyMeals.some(dm => dm.date === todayStr);
+  if (!hasTodayMeals) {
+    const records: Record<string, any> = {};
+    let totalLunch = 0;
+    let totalDinner = 0;
+    activeMembers.forEach(m => {
+      records[m.id] = {
+        memberId: m.id,
+        breakfast: 0,
+        lunch: 1,
+        dinner: 1,
+        total: 2,
+        notes: '',
+      };
+      totalLunch += 1;
+      totalDinner += 1;
+    });
+    db.dailyMeals.unshift({
+      id: `dm-${todayStr}`,
+      date: todayStr,
+      records,
+      totalBreakfast: 0,
+      totalLunch,
+      totalDinner,
+      totalMeals: totalLunch + totalDinner,
+      status: 'confirmed',
+      notes: 'নতুন মাসের আজকের মিল হিসাব চালু',
+    });
+    modified = true;
+  }
+
+  if (modified) {
+    saveDatabase(db);
+  }
 }
 
 /**

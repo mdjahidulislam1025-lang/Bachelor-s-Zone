@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import {
   UtensilsCrossed,
   Calendar,
@@ -35,6 +35,11 @@ import {
 import { Language, translations } from '../utils/translations.js';
 import { ConfirmDeleteModal } from './ConfirmDeleteModal.js';
 import { ClosedMonthAlert } from './ClosedMonthAlert.js';
+import {
+  getTodayDhakaDate,
+  formatBengaliFullDate,
+  getMonthNameBengali,
+} from '../utils/monthlyPeriodUtils.js';
 
 interface MealsViewProps {
   members: Member[];
@@ -66,7 +71,8 @@ export const MealsView: React.FC<MealsViewProps> = ({
   isSaving,
 }) => {
   const t = translations[language];
-  const [selectedDate, setSelectedDate] = useState<string>('2026-09-18');
+  const todayDate = useMemo(() => getTodayDhakaDate(), []);
+  const [selectedDate, setSelectedDate] = useState<string>(todayDate);
   const [searchTerm, setSearchTerm] = useState('');
   const [saveSuccessMessage, setSaveSuccessMessage] = useState<string | null>(null);
 
@@ -124,16 +130,17 @@ export const MealsView: React.FC<MealsViewProps> = ({
   }, [selectedDate, dailyMeals]);
 
   // Adjust meal count helper
-  const handleMealChange = (memberId: string, type: 'breakfast' | 'lunch' | 'dinner', delta: number) => {
+  const handleMealChange = (memberId: string, type: 'lunch' | 'dinner', delta: number) => {
     if (!canEdit) return;
     setDraftRecords(prev => {
       const current = prev[memberId] || { memberId, breakfast: 0, lunch: 0, dinner: 0, total: 0 };
       const val = Math.max(0, parseFloat(((current[type] || 0) + delta).toFixed(1)));
       const updated = {
         ...current,
+        breakfast: 0,
         [type]: val,
       };
-      updated.total = updated.breakfast + updated.lunch + updated.dinner;
+      updated.total = updated.lunch + updated.dinner;
       return {
         ...prev,
         [memberId]: updated,
@@ -142,16 +149,17 @@ export const MealsView: React.FC<MealsViewProps> = ({
   };
 
   // Direct toggle between 0 and 1
-  const handleToggle = (memberId: string, type: 'breakfast' | 'lunch' | 'dinner') => {
+  const handleToggle = (memberId: string, type: 'lunch' | 'dinner') => {
     if (!canEdit) return;
     setDraftRecords(prev => {
       const current = prev[memberId] || { memberId, breakfast: 0, lunch: 0, dinner: 0, total: 0 };
       const val = current[type] > 0 ? 0 : 1;
       const updated = {
         ...current,
+        breakfast: 0,
         [type]: val,
       };
-      updated.total = updated.breakfast + updated.lunch + updated.dinner;
+      updated.total = updated.lunch + updated.dinner;
       return {
         ...prev,
         [memberId]: updated,
@@ -168,25 +176,24 @@ export const MealsView: React.FC<MealsViewProps> = ({
         const cur = prev[m.id] || { memberId: m.id, breakfast: 0, lunch: 0, dinner: 0, total: 0 };
         updated[m.id] = {
           ...cur,
+          breakfast: 0,
           lunch: 1,
           dinner: 1,
-          total: (cur.breakfast || 0) + 2,
+          total: 2,
         };
       });
       return updated;
     });
   };
 
-  // Daily totals calculation
-  let dailyBreakfast = 0;
+  // Daily totals calculation (Lunch + Dinner)
   let dailyLunch = 0;
   let dailyDinner = 0;
   Object.values(draftRecords).forEach(r => {
-    dailyBreakfast += r.breakfast || 0;
     dailyLunch += r.lunch || 0;
     dailyDinner += r.dinner || 0;
   });
-  const dailyTotal = dailyBreakfast + dailyLunch + dailyDinner;
+  const dailyTotal = dailyLunch + dailyDinner;
 
   // Monthly totals across all dates for each member
   const memberMonthlyMeals: Record<string, number> = {};
@@ -228,7 +235,13 @@ export const MealsView: React.FC<MealsViewProps> = ({
   return (
     <div className="space-y-6">
       {/* Closed Month Banner */}
-      {isMonthClosed && <ClosedMonthAlert month="সেপ্টেম্বর" />}
+      {isMonthClosed && (
+        <ClosedMonthAlert
+          month={
+            getMonthNameBengali(selectedDate.slice(0, 7)).split('(')[0].trim() || 'মাস'
+          }
+        />
+      )}
 
       {/* Non-Admin Banner */}
       {!isAdmin && (
@@ -256,7 +269,7 @@ export const MealsView: React.FC<MealsViewProps> = ({
                   দৈনিক মিল এন্ট্রি ও পরিচালনা (Daily Meal Tracking)
                 </h2>
                 <p className="text-xs text-slate-500">
-                  তারিখ অনুযায়ী সদস্যদের সকাল, দুপুর ও রাতের মিল হিসাব সংরক্ষণ করুন
+                  তারিখ অনুযায়ী সদস্যদের দুপুর ও রাতের মিল হিসাব সংরক্ষণ করুন
                 </p>
               </div>
             </div>
@@ -268,8 +281,25 @@ export const MealsView: React.FC<MealsViewProps> = ({
               type="date"
               value={selectedDate}
               onChange={e => setSelectedDate(e.target.value)}
-              className="px-3 py-2 text-xs font-semibold text-slate-800 bg-slate-50 border border-slate-300 rounded-xl focus:ring-2 focus:ring-emerald-500 outline-none cursor-pointer"
+              className="px-3 py-2 text-xs font-bold text-slate-800 bg-slate-50 border border-slate-300 rounded-xl focus:ring-2 focus:ring-emerald-500 outline-none cursor-pointer"
             />
+
+            {/* Quick Today Button */}
+            <button
+              type="button"
+              onClick={() => setSelectedDate(todayDate)}
+              className={`px-3 py-2 text-xs font-bold rounded-xl border transition-all cursor-pointer ${
+                selectedDate === todayDate
+                  ? 'bg-emerald-600 text-white border-emerald-600 shadow-2xs'
+                  : 'bg-slate-100 hover:bg-slate-200 text-slate-700 border-slate-200'
+              }`}
+            >
+              আজ (Today)
+            </button>
+
+            <span className="text-[11px] font-bold text-emerald-800 bg-emerald-50 border border-emerald-200 px-3 py-2 rounded-xl hidden sm:inline-block">
+              {formatBengaliFullDate(selectedDate)}
+            </span>
 
             {canEdit && (
               <>
@@ -298,11 +328,7 @@ export const MealsView: React.FC<MealsViewProps> = ({
         </div>
 
         {/* Live Daily Stats Ticker */}
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mt-4 pt-4 border-t border-slate-100">
-          <div className="p-2.5 rounded-xl bg-slate-50 border border-slate-200">
-            <span className="text-[11px] text-slate-500 font-medium">সকালের নাস্তা</span>
-            <div className="text-lg font-extrabold text-slate-800">{dailyBreakfast} টি</div>
-          </div>
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mt-4 pt-4 border-t border-slate-100">
           <div className="p-2.5 rounded-xl bg-slate-50 border border-slate-200">
             <span className="text-[11px] text-slate-500 font-medium">দুপুরের খাবার</span>
             <div className="text-lg font-extrabold text-slate-800">{dailyLunch} টি</div>
@@ -333,8 +359,7 @@ export const MealsView: React.FC<MealsViewProps> = ({
                 </span>
               </div>
               <p className="text-[11px] text-slate-600 mt-0.5">
-                নাস্তা: <span className="font-bold text-slate-900">{dailyBreakfast} জন</span> | 
-                দুপুর: <span className="font-bold text-slate-900"> {dailyLunch} জন</span> | 
+                দুপুর: <span className="font-bold text-slate-900">{dailyLunch} জন</span> | 
                 রাত: <span className="font-bold text-slate-900"> {dailyDinner} জন</span> — সদস্যদের মিল ON/OFF স্ট্যাটাসের উপর ভিত্তি করে রান্নার পরিমাণ নির্ধারণ করুন।
               </p>
             </div>
@@ -415,11 +440,10 @@ export const MealsView: React.FC<MealsViewProps> = ({
             <thead>
               <tr className="bg-slate-50/80 border-b border-slate-200 text-[11px] font-bold uppercase tracking-wider text-slate-500">
                 <th className="py-3 px-4">সদস্যের নাম</th>
-                <th className="py-3 px-4 text-center">সকাল (Breakfast)</th>
                 <th className="py-3 px-4 text-center">দুপুর (Lunch)</th>
                 <th className="py-3 px-4 text-center">রাত (Dinner)</th>
                 <th className="py-3 px-4 text-center bg-slate-100/50">আজকের মোট</th>
-                <th className="py-3 px-4 text-center">সেপ্টেম্বর মোট</th>
+                <th className="py-3 px-4 text-center">মাসের মোট</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100 text-xs text-slate-700">
@@ -441,44 +465,6 @@ export const MealsView: React.FC<MealsViewProps> = ({
                             রুম {m.roomNo || 'N/A'} • {m.phone}
                           </span>
                         </div>
-                      </div>
-                    </td>
-
-                    {/* Breakfast toggle / counter */}
-                    <td className="py-3 px-4 text-center">
-                      <div className="inline-flex items-center gap-1">
-                        {canEdit && (
-                          <button
-                            type="button"
-                            onClick={() => handleMealChange(m.id, 'breakfast', -0.5)}
-                            className="p-1 rounded-md text-slate-400 hover:text-slate-700 hover:bg-slate-100 cursor-pointer"
-                          >
-                            <Minus className="h-3 w-3" />
-                          </button>
-                        )}
-                        <button
-                          type="button"
-                          disabled={!canEdit}
-                          onClick={() => handleToggle(m.id, 'breakfast')}
-                          className={`w-10 py-1 rounded-lg text-xs font-bold transition-all ${
-                            canEdit ? 'cursor-pointer' : 'cursor-default'
-                          } ${
-                            rec.breakfast > 0
-                              ? 'bg-emerald-600 text-white shadow-xs'
-                              : 'bg-slate-100 text-slate-400'
-                          }`}
-                        >
-                          {rec.breakfast}
-                        </button>
-                        {canEdit && (
-                          <button
-                            type="button"
-                            onClick={() => handleMealChange(m.id, 'breakfast', 0.5)}
-                            className="p-1 rounded-md text-slate-400 hover:text-slate-700 hover:bg-slate-100 cursor-pointer"
-                          >
-                            <Plus className="h-3 w-3" />
-                          </button>
-                        )}
                       </div>
                     </td>
 
@@ -583,7 +569,7 @@ export const MealsView: React.FC<MealsViewProps> = ({
         title="দৈনিক মিল রেকর্ড মুছে ফেলার নিশ্চিতকরণ"
         message={`আপনি কি নিশ্চিত যে ${selectedDate} তারিখের সম্পূর্ণ মিল রেকর্ড মুছে ফেলতে চান?`}
         itemName={`${selectedDate} তারিখের মোট মিল: ${dailyTotal} টি`}
-        itemDetails={`সকালের নাস্তা: ${dailyBreakfast} | দুপুর: ${dailyLunch} | রাত: ${dailyDinner}`}
+        itemDetails={`দুপুর: ${dailyLunch} | রাত: ${dailyDinner}`}
         isFinancial={true}
         isDeleting={isDeleting}
         onConfirm={handleConfirmDelete}
@@ -617,22 +603,7 @@ export const MealsView: React.FC<MealsViewProps> = ({
             </div>
 
             <div className="space-y-4 text-xs">
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                <div className="space-y-1.5">
-                  <label className="font-bold text-slate-700 flex items-center gap-1">
-                    <span>🌅 সকালের নাস্তা</span>
-                  </label>
-                  <input
-                    type="time"
-                    value={cutoffDraft.breakfastCutoff}
-                    onChange={e =>
-                      setCutoffDraft(prev => ({ ...prev, breakfastCutoff: e.target.value }))
-                    }
-                    className="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl font-bold text-slate-800 outline-none focus:ring-2 focus:ring-emerald-500"
-                  />
-                  <p className="text-[10px] text-slate-400">সকাল ৬:০০ AM</p>
-                </div>
-
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div className="space-y-1.5">
                   <label className="font-bold text-slate-700 flex items-center gap-1">
                     <span>☀️ দুপুরের খাবার</span>

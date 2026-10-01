@@ -54,7 +54,7 @@ export interface MealChangeLog {
 }
 
 export interface MealCutoffSettings {
-  breakfastCutoff: string; // "06:00" (HH:MM 24h format in Asia/Dhaka)
+  breakfastCutoff?: string; // Optional legacy cutoff (সকালের মিল বাদ দেওয়া হয়েছে)
   lunchCutoff: string;     // "10:00" (10:00 AM)
   dinnerCutoff: string;    // "16:00" (04:00 PM)
   timezone: string;        // "Asia/Dhaka"
@@ -65,7 +65,7 @@ export interface MealCutoffSettings {
 
 export interface MealRecord {
   memberId: string;
-  breakfast: number; // e.g. 0, 0.5, 1
+  breakfast?: number; // legacy optional (সকালের মিল বাদ দেওয়া হয়েছে)
   lunch: number;     // e.g. 0, 1, 2
   dinner: number;    // e.g. 0, 1, 2
   guestMeals?: number;
@@ -76,7 +76,7 @@ export interface DailyMealEntry {
   id: string;
   date: string; // YYYY-MM-DD
   records: Record<string, MealRecord>; // memberId -> MealRecord
-  totalBreakfast: number;
+  totalBreakfast?: number;
   totalLunch: number;
   totalDinner: number;
   totalMeals: number;
@@ -88,7 +88,7 @@ export interface DailyMealEntry {
 export interface MealMenu {
   id: string;
   date: string; // YYYY-MM-DD
-  breakfast: string;
+  breakfast?: string;
   lunch: string;
   dinner: string;
   specialEvent?: string;
@@ -201,6 +201,21 @@ export interface PaymentRecord {
   notes?: string;
   status: 'verified' | 'pending';
   createdAt: string;
+
+  // bKash specific details
+  bkashNumber?: string;
+  bkashAccountType?: 'Personal' | 'Agent';
+  accountHolderName?: string;
+
+  // Bank Account specific details
+  bankName?: string;
+  branchName?: string;
+  accountName?: string;
+  accountNumber?: string;
+  routingNumber?: string;
+
+  // Common attachment
+  screenshotUrl?: string;
 }
 
 export interface MemberMonthlyStatement {

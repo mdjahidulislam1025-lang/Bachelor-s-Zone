@@ -1091,23 +1091,21 @@ async function startServer() {
       }
 
       const db = getDatabase();
-      let totalBreakfast = 0;
       let totalLunch = 0;
       let totalDinner = 0;
 
       Object.values(records).forEach((r: any) => {
-        const b = Number(r.breakfast) || 0;
+        r.breakfast = 0;
         const l = Number(r.lunch) || 0;
         const d = Number(r.dinner) || 0;
-        if (b < 0 || l < 0 || d < 0) {
+        if (l < 0 || d < 0) {
           throw new Error('মিলের সংখ্যা কখনো নেগেটিভ হতে পারে না');
         }
-        totalBreakfast += b;
         totalLunch += l;
         totalDinner += d;
       });
 
-      const totalMeals = totalBreakfast + totalLunch + totalDinner;
+      const totalMeals = totalLunch + totalDinner;
       const existingIndex = db.dailyMeals.findIndex(dm => dm.date === date);
       const entryId = existingIndex >= 0 ? db.dailyMeals[existingIndex].id : `dm-${date}`;
 
@@ -1115,7 +1113,7 @@ async function startServer() {
         id: entryId,
         date,
         records,
-        totalBreakfast,
+        totalBreakfast: 0,
         totalLunch,
         totalDinner,
         totalMeals,
@@ -1220,8 +1218,11 @@ async function startServer() {
         });
       }
 
-      if (!['breakfast', 'lunch', 'dinner'].includes(mealType)) {
-        return res.status(400).json({ success: false, error: 'Invalid mealType' });
+      if (!['lunch', 'dinner'].includes(mealType)) {
+        return res.status(400).json({
+          success: false,
+          error: 'Invalid mealType. শুধুমাত্র দুপুর ও রাতের মিল চালু/বন্ধ করা যাবে।',
+        });
       }
 
       if (!['ON', 'OFF'].includes(status)) {
@@ -1375,29 +1376,27 @@ async function startServer() {
         total: 0,
       };
 
-      if (mealType === 'breakfast') memRec.breakfast = status === 'ON' ? 1 : 0;
       if (mealType === 'lunch') memRec.lunch = status === 'ON' ? 1 : 0;
       if (mealType === 'dinner') memRec.dinner = status === 'ON' ? 1 : 0;
-      memRec.total = (memRec.breakfast || 0) + (memRec.lunch || 0) + (memRec.dinner || 0);
+      memRec.breakfast = 0;
+      memRec.total = (memRec.lunch || 0) + (memRec.dinner || 0);
       dailyEntry.records[memberId] = memRec;
 
       // Recalculate daily totals strictly based on active members with confirmed ON
-      let sumBreakfast = 0;
       let sumLunch = 0;
       let sumDinner = 0;
       activeMembers.forEach(m => {
         const r = dailyEntry!.records[m.id];
         if (r) {
-          sumBreakfast += r.breakfast || 0;
           sumLunch += r.lunch || 0;
           sumDinner += r.dinner || 0;
         }
       });
 
-      dailyEntry.totalBreakfast = sumBreakfast;
+      dailyEntry.totalBreakfast = 0;
       dailyEntry.totalLunch = sumLunch;
       dailyEntry.totalDinner = sumDinner;
-      dailyEntry.totalMeals = sumBreakfast + sumLunch + sumDinner;
+      dailyEntry.totalMeals = sumLunch + sumDinner;
       dailyEntry.updatedBy = user.name;
       dailyEntry.updatedAt = new Date().toISOString();
 
@@ -1473,8 +1472,7 @@ async function startServer() {
         if (!date) return;
         updatedDates.add(date);
 
-        const mealEntries: Array<{ mealType: 'breakfast' | 'lunch' | 'dinner'; status?: 'ON' | 'OFF' }> = [
-          { mealType: 'breakfast', status: breakfast },
+        const mealEntries: Array<{ mealType: 'lunch' | 'dinner'; status?: 'ON' | 'OFF' }> = [
           { mealType: 'lunch', status: lunch },
           { mealType: 'dinner', status: dinner },
         ];
@@ -1545,32 +1543,30 @@ async function startServer() {
           db.dailyMeals.push(dailyEntry);
         }
 
-        const bOn = db.memberMealSelections!.find(s => s.memberId === memberId && s.date === date && s.mealType === 'breakfast')?.plannedStatus === 'ON';
         const lOn = db.memberMealSelections!.find(s => s.memberId === memberId && s.date === date && s.mealType === 'lunch')?.plannedStatus === 'ON';
         const dOn = db.memberMealSelections!.find(s => s.memberId === memberId && s.date === date && s.mealType === 'dinner')?.plannedStatus === 'ON';
 
         dailyEntry.records[memberId] = {
           memberId,
-          breakfast: bOn ? 1 : 0,
+          breakfast: 0,
           lunch: lOn ? 1 : 0,
           dinner: dOn ? 1 : 0,
-          total: (bOn ? 1 : 0) + (lOn ? 1 : 0) + (dOn ? 1 : 0),
+          total: (lOn ? 1 : 0) + (dOn ? 1 : 0),
         };
 
         const activeMembers = db.members.filter(m => m.status === 'active');
-        let sumB = 0, sumL = 0, sumD = 0;
+        let sumL = 0, sumD = 0;
         activeMembers.forEach(m => {
           const rec = dailyEntry!.records[m.id];
           if (rec) {
-            sumB += rec.breakfast || 0;
             sumL += rec.lunch || 0;
             sumD += rec.dinner || 0;
           }
         });
-        dailyEntry.totalBreakfast = sumB;
+        dailyEntry.totalBreakfast = 0;
         dailyEntry.totalLunch = sumL;
         dailyEntry.totalDinner = sumD;
-        dailyEntry.totalMeals = sumB + sumL + sumD;
+        dailyEntry.totalMeals = sumL + sumD;
         dailyEntry.updatedAt = new Date().toISOString();
       });
 
@@ -2316,8 +2312,18 @@ async function startServer() {
         return res.status(400).json({ success: false, error: 'Member, date, and amount are required' });
       }
 
-      const user = checkAdminAuth(req, res, { recordDate: payment.date, allowTreasurerFor: 'payments' });
-      if (!user) return;
+      const reqUser = getRequestUser(req);
+      const isSelfSubmission = !payment.id && reqUser.id === payment.memberId && reqUser.status === 'active';
+      let user: RequestUserInfo | null = null;
+      if (isSelfSubmission) {
+        if (isMonthClosed(payment.date)) {
+          return res.status(400).json({ success: false, error: 'এই মাসের হিসাব বন্ধ রয়েছে।' });
+        }
+        user = reqUser;
+      } else {
+        user = checkAdminAuth(req, res, { recordDate: payment.date, allowTreasurerFor: 'payments' });
+        if (!user) return;
+      }
 
       const amt = Number(payment.amount);
       if (amt <= 0) {

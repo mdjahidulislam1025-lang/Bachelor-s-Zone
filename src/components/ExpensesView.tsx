@@ -18,6 +18,7 @@ import { ExpenseRecord, ExpenseCategory, Member } from '../types.js';
 import { Language, translations } from '../utils/translations.js';
 import { ConfirmDeleteModal } from './ConfirmDeleteModal.js';
 import { ClosedMonthAlert } from './ClosedMonthAlert.js';
+import { getTodayDhakaDate } from '../utils/monthlyPeriodUtils.js';
 
 interface ExpensesViewProps {
   expenses: ExpenseRecord[];
@@ -47,7 +48,7 @@ export const ExpensesView: React.FC<ExpensesViewProps> = ({
   const [isDeleting, setIsDeleting] = useState(false);
 
   // Form state
-  const [date, setDate] = useState('2026-09-05');
+  const [date, setDate] = useState(() => getTodayDhakaDate());
   const [category, setCategory] = useState<ExpenseCategory>('rent');
   const [amount, setAmount] = useState<number>(25000);
   const [description, setDescription] = useState('');

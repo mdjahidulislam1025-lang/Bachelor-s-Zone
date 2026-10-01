@@ -110,7 +110,7 @@ export function calculateMonthlyAccount(
 
   mealsInMonth.forEach(dm => {
     Object.entries(dm.records || {}).forEach(([memberId, rec]: [string, any]) => {
-      const mealSum = (rec.breakfast || 0) + (rec.lunch || 0) + (rec.dinner || 0);
+      const mealSum = (rec.lunch || 0) + (rec.dinner || 0);
       memberMealCounts[memberId] = (memberMealCounts[memberId] || 0) + mealSum;
       totalMeals += mealSum;
     });

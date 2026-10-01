@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import {
   ChefHat,
   Calendar,
@@ -11,10 +11,16 @@ import {
   Trash2,
   Eye,
   Sparkles,
+  ArrowRight,
 } from 'lucide-react';
 import { Member, MealMenu, CookingDuty } from '../types.js';
 import { Language, translations } from '../utils/translations.js';
 import { ConfirmDeleteModal } from './ConfirmDeleteModal.js';
+import {
+  getTodayDhakaDate,
+  getTomorrowDhakaDate,
+  formatBengaliFullDate,
+} from '../utils/monthlyPeriodUtils.js';
 
 interface CookingMenuViewProps {
   members: Member[];
@@ -42,7 +48,10 @@ export const CookingMenuView: React.FC<CookingMenuViewProps> = ({
   const t = translations[language];
   const activeMembers = members.filter(m => m.status === 'active');
 
-  const [selectedDate, setSelectedDate] = useState<string>('2026-09-17');
+  const todayStr = useMemo(() => getTodayDhakaDate(), []);
+  const tomorrowStr = useMemo(() => getTomorrowDhakaDate(todayStr), [todayStr]);
+
+  const [selectedDate, setSelectedDate] = useState<string>(todayStr);
   const [showDutyModal, setShowDutyModal] = useState(false);
   const [editingDuty, setEditingDuty] = useState<CookingDuty | null>(null);
   const [showMenuModal, setShowMenuModal] = useState(false);
@@ -53,7 +62,6 @@ export const CookingMenuView: React.FC<CookingMenuViewProps> = ({
 
   // Form states for menu
   const currentMenu = mealMenus.find(m => m.date === selectedDate);
-  const [breakfastMenu, setBreakfastMenu] = useState(currentMenu?.breakfast || 'ডিম ভুনা + পাতলা ডাল + পরোটা');
   const [lunchMenu, setLunchMenu] = useState(currentMenu?.lunch || 'সাদা ভাত + রুই মাছ ভুনা + ডাল + সালাদ');
   const [dinnerMenu, setDinnerMenu] = useState(currentMenu?.dinner || 'সাদা ভাত + মুরগির মাংসের ঝোল + আলুভর্তা + ঘন ডাল');
   const [specialEvent, setSpecialEvent] = useState(currentMenu?.specialEvent || '');
@@ -61,23 +69,28 @@ export const CookingMenuView: React.FC<CookingMenuViewProps> = ({
   // Form states for duty
   const currentDuty = cookingDuties.find(d => d.date === selectedDate);
   const [assignedMemberId, setAssignedMemberId] = useState(currentDuty?.memberId || activeMembers[0]?.id || '');
-  const [dutyMealType, setDutyMealType] = useState<'all_day' | 'breakfast' | 'lunch' | 'dinner'>(currentDuty?.mealType || 'all_day');
+  const [dutyMealType, setDutyMealType] = useState<'all_day' | 'lunch' | 'dinner'>(
+    currentDuty?.mealType === 'breakfast' ? 'all_day' : (currentDuty?.mealType as any) || 'all_day'
+  );
   const [dutyStatus, setDutyStatus] = useState<'scheduled' | 'completed' | 'swapped'>(currentDuty?.status || 'scheduled');
   const [dutyNotes, setDutyNotes] = useState(currentDuty?.notes || '');
 
   const isAdmin = currentMember.role === 'admin';
 
+  // Today and Tomorrow cook lookups
+  const todayCook = cookingDuties.find(d => d.date === todayStr);
+  const tomorrowCook = cookingDuties.find(d => d.date === tomorrowStr);
+
   // Update form inputs when selectedDate changes
   React.useEffect(() => {
     const m = mealMenus.find(menu => menu.date === selectedDate);
-    setBreakfastMenu(m?.breakfast || '');
     setLunchMenu(m?.lunch || '');
     setDinnerMenu(m?.dinner || '');
     setSpecialEvent(m?.specialEvent || '');
 
     const d = cookingDuties.find(duty => duty.date === selectedDate);
     setAssignedMemberId(d?.memberId || activeMembers[0]?.id || '');
-    setDutyMealType(d?.mealType || 'all_day');
+    setDutyMealType(d?.mealType === 'breakfast' ? 'all_day' : (d?.mealType as any) || 'all_day');
     setDutyStatus(d?.status || 'scheduled');
     setDutyNotes(d?.notes || '');
   }, [selectedDate, mealMenus, cookingDuties]);
@@ -86,7 +99,7 @@ export const CookingMenuView: React.FC<CookingMenuViewProps> = ({
     e.preventDefault();
     await onSaveMenu({
       date: selectedDate,
-      breakfast: breakfastMenu,
+      breakfast: '',
       lunch: lunchMenu,
       dinner: dinnerMenu,
       specialEvent,
@@ -107,7 +120,7 @@ export const CookingMenuView: React.FC<CookingMenuViewProps> = ({
     setEditingDuty(duty);
     setSelectedDate(duty.date);
     setAssignedMemberId(duty.memberId);
-    setDutyMealType(duty.mealType);
+    setDutyMealType(duty.mealType === 'breakfast' ? 'all_day' : (duty.mealType as any));
     setDutyStatus(duty.status);
     setDutyNotes(duty.notes || '');
     setShowDutyModal(true);
@@ -151,18 +164,28 @@ export const CookingMenuView: React.FC<CookingMenuViewProps> = ({
               <span>রান্নার শিডিউল ও দায়িত্ব (Cooking Duties)</span>
             </div>
             <h2 className="text-xl sm:text-2xl font-extrabold mt-1">
-              আজ রান্না করবে: {cookingDuties.find(d => d.date === '2026-09-17')?.memberName || 'রহিম উদ্দিন'}
+              আজ রান্না করবে: {todayCook ? todayCook.memberName : (activeMembers[0]?.name || 'নির্ধারিত হয়নি')}
             </h2>
             <p className="text-xs text-amber-100 mt-1">
-              আগামীকাল রান্না করবে: {cookingDuties.find(d => d.date === '2026-09-18')?.memberName || 'সাকিব আল আমিন'}
+              আগামীকাল রান্না করবে: {tomorrowCook ? tomorrowCook.memberName : (activeMembers[1]?.name || 'নির্ধারিত হয়নি')} • ({formatBengaliFullDate(todayStr)})
             </p>
           </div>
 
           <div className="flex items-center gap-2">
             <button
               onClick={() => {
-                const d = cookingDuties.find(duty => duty.date === '2026-09-17');
-                if (d) onTriggerCookingSms(d);
+                if (todayCook) {
+                  onTriggerCookingSms(todayCook);
+                } else if (activeMembers[0]) {
+                  onTriggerCookingSms({
+                    id: `cd-${todayStr}`,
+                    date: todayStr,
+                    memberId: activeMembers[0].id,
+                    memberName: activeMembers[0].name,
+                    shift: 'both',
+                    status: 'scheduled',
+                  });
+                }
               }}
               className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-white text-amber-900 text-xs font-bold shadow-xs hover:bg-amber-50 transition-colors cursor-pointer"
             >
@@ -174,19 +197,47 @@ export const CookingMenuView: React.FC<CookingMenuViewProps> = ({
       </div>
 
       {/* Date Navigation & Controls */}
-      <div className="bg-white rounded-2xl p-4 border border-slate-200 shadow-xs flex flex-col sm:flex-row items-center justify-between gap-3">
-        <div className="flex items-center gap-2 w-full sm:w-auto">
-          <Calendar className="h-4 w-4 text-slate-500" />
+      <div className="bg-white rounded-2xl p-4 border border-slate-200 shadow-xs flex flex-col md:flex-row items-center justify-between gap-3">
+        <div className="flex flex-wrap items-center gap-2 w-full md:w-auto">
+          <Calendar className="h-4 w-4 text-slate-500 shrink-0" />
           <span className="text-xs font-bold text-slate-700">তারিখ নির্বাচন:</span>
           <input
             type="date"
             value={selectedDate}
             onChange={e => setSelectedDate(e.target.value)}
-            className="px-3 py-1.5 text-xs font-semibold text-slate-800 bg-slate-50 border border-slate-300 rounded-xl outline-none cursor-pointer"
+            className="px-3 py-1.5 text-xs font-bold text-slate-800 bg-slate-50 border border-slate-300 rounded-xl outline-none cursor-pointer"
           />
+
+          {/* Quick Date Jumper Buttons */}
+          <button
+            type="button"
+            onClick={() => setSelectedDate(todayStr)}
+            className={`px-2.5 py-1 text-xs font-bold rounded-lg border transition-all cursor-pointer ${
+              selectedDate === todayStr
+                ? 'bg-amber-600 text-white border-amber-600 shadow-2xs'
+                : 'bg-slate-100 hover:bg-slate-200 text-slate-700 border-slate-200'
+            }`}
+          >
+            আজ (Today)
+          </button>
+          <button
+            type="button"
+            onClick={() => setSelectedDate(tomorrowStr)}
+            className={`px-2.5 py-1 text-xs font-bold rounded-lg border transition-all cursor-pointer ${
+              selectedDate === tomorrowStr
+                ? 'bg-amber-600 text-white border-amber-600 shadow-2xs'
+                : 'bg-slate-100 hover:bg-slate-200 text-slate-700 border-slate-200'
+            }`}
+          >
+            আগামীকাল (Tomorrow)
+          </button>
+
+          <span className="text-[11px] font-bold text-amber-800 bg-amber-50 border border-amber-200 px-2.5 py-1 rounded-lg">
+            {formatBengaliFullDate(selectedDate)}
+          </span>
         </div>
 
-        <div className="flex items-center gap-2 w-full sm:w-auto">
+        <div className="flex items-center gap-2 w-full md:w-auto">
           {isAdmin ? (
             <>
               <button
@@ -218,7 +269,7 @@ export const CookingMenuView: React.FC<CookingMenuViewProps> = ({
         <div className="flex items-center justify-between pb-3 border-b border-slate-100">
           <div>
             <h3 className="text-base font-bold text-slate-900">
-              {selectedDate} তারিখের খাবার মেনু
+              {formatBengaliFullDate(selectedDate)} এর খাবার মেনু
             </h3>
             <p className="text-xs text-slate-500">মেস সদস্যদের জন্য নির্ধারিত দৈনিক খাবার তালিকা</p>
           </div>
@@ -229,20 +280,7 @@ export const CookingMenuView: React.FC<CookingMenuViewProps> = ({
           )}
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          {/* Breakfast */}
-          <div className="p-4 rounded-xl bg-amber-50/60 border border-amber-200/80">
-            <div className="flex items-center justify-between mb-2">
-              <span className="text-xs font-bold text-amber-900 uppercase tracking-wide">
-                সকালের নাস্তা (Breakfast)
-              </span>
-              <Utensils className="h-4 w-4 text-amber-600" />
-            </div>
-            <p className="text-sm font-semibold text-slate-800 leading-relaxed">
-              {currentMenu?.breakfast || 'এখনো কোন মেনু সেট করা হয়নি'}
-            </p>
-          </div>
-
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {/* Lunch */}
           <div className="p-4 rounded-xl bg-emerald-50/60 border border-emerald-200/80">
             <div className="flex items-center justify-between mb-2">
@@ -363,19 +401,6 @@ export const CookingMenuView: React.FC<CookingMenuViewProps> = ({
             <form onSubmit={handleSaveMenuSubmit} className="space-y-3.5">
               <div>
                 <label className="block text-xs font-semibold text-slate-700 mb-1">
-                  সকালের নাস্তা (Breakfast)
-                </label>
-                <input
-                  type="text"
-                  value={breakfastMenu}
-                  onChange={e => setBreakfastMenu(e.target.value)}
-                  placeholder="উদা: পরোটা + ডিম ভুনা + ডাল"
-                  className="w-full px-3 py-2 text-xs border border-slate-300 rounded-xl outline-none"
-                />
-              </div>
-
-              <div>
-                <label className="block text-xs font-semibold text-slate-700 mb-1">
                   দুপুরের খাবার (Lunch)
                 </label>
                 <input
@@ -475,8 +500,7 @@ export const CookingMenuView: React.FC<CookingMenuViewProps> = ({
                   onChange={e => setDutyMealType(e.target.value as any)}
                   className="w-full px-3 py-2 text-xs border border-slate-300 rounded-xl outline-none"
                 >
-                  <option value="all_day">সারাদিন (সকাল + দুপুর + রাত)</option>
-                  <option value="breakfast">শুধু সকালের নাস্তা</option>
+                  <option value="all_day">সারাদিন (দুপুর + রাত)</option>
                   <option value="lunch">শুধু দুপুরের খাবার</option>
                   <option value="dinner">শুধু রাতের খাবার</option>
                 </select>

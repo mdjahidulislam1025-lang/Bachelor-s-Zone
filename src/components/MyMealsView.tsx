@@ -54,7 +54,7 @@ interface MyMealsViewProps {
   ) => Promise<boolean>;
   onBatchSavePlan?: (
     memberId: string,
-    plans: Array<{ date: string; breakfast?: MealStatus; lunch?: MealStatus; dinner?: MealStatus }>
+    plans: Array<{ date: string; lunch?: MealStatus; dinner?: MealStatus }>
   ) => Promise<boolean>;
 }
 
@@ -124,7 +124,7 @@ export const MyMealsView: React.FC<MyMealsViewProps> = ({
     const dm = dailyMeals.find(d => d.date === date);
     const rec = dm?.records?.[targetMember.id];
     if (rec) {
-      if (mealType === 'breakfast') return rec.breakfast > 0 ? 'ON' : 'OFF';
+      if (mealType === 'breakfast') return (rec.breakfast || 0) > 0 ? 'ON' : 'OFF';
       if (mealType === 'lunch') return rec.lunch > 0 ? 'ON' : 'OFF';
       if (mealType === 'dinner') return rec.dinner > 0 ? 'ON' : 'OFF';
     }
@@ -223,16 +223,15 @@ export const MyMealsView: React.FC<MyMealsViewProps> = ({
   }, [dhakaNow]);
 
   const [plannerDraft, setPlannerDraft] = useState<
-    Record<string, { breakfast: MealStatus; lunch: MealStatus; dinner: MealStatus }>
+    Record<string, { lunch: MealStatus; dinner: MealStatus }>
   >({});
 
   // Initialize weekly planner draft when switching to planner tab
   React.useEffect(() => {
     if (activeTab === 'weekly_planner') {
-      const initial: Record<string, { breakfast: MealStatus; lunch: MealStatus; dinner: MealStatus }> = {};
+      const initial: Record<string, { lunch: MealStatus; dinner: MealStatus }> = {};
       next7Days.forEach(d => {
         initial[d] = {
-          breakfast: getMealStatus(d, 'breakfast'),
           lunch: getMealStatus(d, 'lunch'),
           dinner: getMealStatus(d, 'dinner'),
         };
@@ -247,7 +246,6 @@ export const MyMealsView: React.FC<MyMealsViewProps> = ({
     try {
       const plans = next7Days.map(d => ({
         date: d,
-        breakfast: plannerDraft[d]?.breakfast || 'OFF',
         lunch: plannerDraft[d]?.lunch || 'OFF',
         dinner: plannerDraft[d]?.dinner || 'OFF',
       }));
@@ -273,22 +271,18 @@ export const MyMealsView: React.FC<MyMealsViewProps> = ({
       .filter(dm => dm.date.startsWith(currentMonth))
       .sort((a, b) => b.date.localeCompare(a.date));
 
-    let totalB = 0;
     let totalL = 0;
     let totalD = 0;
 
     const rows = datesInMonth.map(dm => {
       const rec = dm.records?.[targetMember.id] || { breakfast: 0, lunch: 0, dinner: 0, total: 0 };
-      const b = rec.breakfast > 0 ? 1 : 0;
       const l = rec.lunch > 0 ? 1 : 0;
       const d = rec.dinner > 0 ? 1 : 0;
-      const dayTotal = b + l + d;
-      totalB += b;
+      const dayTotal = l + d;
       totalL += l;
       totalD += d;
       return {
         date: dm.date,
-        breakfast: b > 0 ? 'ON' : 'OFF',
         lunch: l > 0 ? 'ON' : 'OFF',
         dinner: d > 0 ? 'ON' : 'OFF',
         total: dayTotal,
@@ -297,10 +291,9 @@ export const MyMealsView: React.FC<MyMealsViewProps> = ({
 
     return {
       month: currentMonth,
-      totalBreakfast: totalB,
       totalLunch: totalL,
       totalDinner: totalD,
-      totalMeals: totalB + totalL + totalD,
+      totalMeals: totalL + totalD,
       rows,
     };
   }, [dailyMeals, currentMonth, targetMember.id]);
@@ -525,34 +518,16 @@ export const MyMealsView: React.FC<MyMealsViewProps> = ({
                 {language === 'bn' ? 'এই দিনের মোট মিল' : 'Total Meals'}
               </span>
               <span className="text-2xl font-black text-white">
-                {(getMealStatus(selectedDate, 'breakfast') === 'ON' ? 1 : 0) +
-                  (getMealStatus(selectedDate, 'lunch') === 'ON' ? 1 : 0) +
+                {(getMealStatus(selectedDate, 'lunch') === 'ON' ? 1 : 0) +
                   (getMealStatus(selectedDate, 'dinner') === 'ON' ? 1 : 0)}{' '}
                 <span className="text-xs font-normal text-emerald-200">{language === 'bn' ? 'টি' : 'meals'}</span>
               </span>
             </div>
           </div>
 
-          {/* 3 Interactive Meal Cards: Breakfast, Lunch, Dinner */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
-            {/* 1. BREAKFAST */}
-            <MealCard
-              mealType="breakfast"
-              title={language === 'bn' ? 'সকালের নাস্তা' : 'Breakfast'}
-              icon={Coffee}
-              colorClass="from-amber-500/10 to-orange-500/5 border-amber-200/80"
-              iconBg="bg-amber-100 text-amber-700"
-              date={selectedDate}
-              status={getMealStatus(selectedDate, 'breakfast')}
-              lockInfo={checkMealLock(selectedDate, 'breakfast', cutoffSettings)}
-              menuText={selectedDateMenu?.breakfast}
-              cutoffSettings={cutoffSettings}
-              isAdmin={isAdmin}
-              language={language}
-              onToggle={() => handleInitiateToggle('breakfast')}
-            />
-
-            {/* 2. LUNCH */}
+          {/* 2 Interactive Meal Cards: Lunch, Dinner (সকালের মিল বাদ দেওয়া হয়েছে) */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+            {/* 1. LUNCH */}
             <MealCard
               mealType="lunch"
               title={language === 'bn' ? 'দুপুরের খাবার' : 'Lunch'}
@@ -569,7 +544,7 @@ export const MyMealsView: React.FC<MyMealsViewProps> = ({
               onToggle={() => handleInitiateToggle('lunch')}
             />
 
-            {/* 3. DINNER */}
+            {/* 2. DINNER */}
             <MealCard
               mealType="dinner"
               title={language === 'bn' ? 'রাতের খাবার' : 'Dinner'}
@@ -641,7 +616,6 @@ export const MyMealsView: React.FC<MyMealsViewProps> = ({
                 <thead className="bg-slate-50 text-slate-600 font-bold border-b border-slate-200 uppercase text-[11px]">
                   <tr>
                     <th className="py-3 px-4">{language === 'bn' ? 'তারিখ' : 'Date'}</th>
-                    <th className="py-3 px-4">{language === 'bn' ? 'সকালের নাস্তা' : 'Breakfast'}</th>
                     <th className="py-3 px-4">{language === 'bn' ? 'দুপুরের খাবার' : 'Lunch'}</th>
                     <th className="py-3 px-4">{language === 'bn' ? 'রাতের খাবার' : 'Dinner'}</th>
                     <th className="py-3 px-4 text-center">{language === 'bn' ? 'দৈনিক মোট' : 'Day Total'}</th>
@@ -651,14 +625,12 @@ export const MyMealsView: React.FC<MyMealsViewProps> = ({
                   {next7Days.map(date => {
                     const isToday = date === todayDate;
                     const isTomorrow = date === tomorrowDate;
-                    const currentPlan = plannerDraft[date] || { breakfast: 'OFF', lunch: 'OFF', dinner: 'OFF' };
+                    const currentPlan = plannerDraft[date] || { lunch: 'OFF', dinner: 'OFF' };
 
-                    const lockB = checkMealLock(date, 'breakfast', cutoffSettings);
                     const lockL = checkMealLock(date, 'lunch', cutoffSettings);
                     const lockD = checkMealLock(date, 'dinner', cutoffSettings);
 
                     const dayTotal =
-                      (currentPlan.breakfast === 'ON' ? 1 : 0) +
                       (currentPlan.lunch === 'ON' ? 1 : 0) +
                       (currentPlan.dinner === 'ON' ? 1 : 0);
 
@@ -678,23 +650,6 @@ export const MyMealsView: React.FC<MyMealsViewProps> = ({
                               </span>
                             )}
                           </div>
-                        </td>
-
-                        {/* Breakfast Switch */}
-                        <td className="py-3.5 px-4">
-                          <PlannerSwitch
-                            status={currentPlan.breakfast}
-                            isLocked={lockB.isLocked && !isAdmin}
-                            onChange={() =>
-                              setPlannerDraft(prev => ({
-                                ...prev,
-                                [date]: {
-                                  ...prev[date],
-                                  breakfast: prev[date]?.breakfast === 'ON' ? 'OFF' : 'ON',
-                                },
-                              }))
-                            }
-                          />
                         </td>
 
                         {/* Lunch Switch */}
@@ -748,17 +703,7 @@ export const MyMealsView: React.FC<MyMealsViewProps> = ({
       {activeTab === 'history' && (
         <div className="space-y-5">
           {/* Summary Metric Cards for current month */}
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-            <div className="bg-white rounded-2xl p-4 border border-slate-200/80 shadow-xs">
-              <span className="text-[11px] font-bold text-slate-500 uppercase tracking-wider block">
-                {language === 'bn' ? 'সকালের নাস্তা' : 'Breakfast Total'}
-              </span>
-              <span className="text-2xl font-black text-amber-600 mt-1 block">
-                {memberMonthHistory.totalBreakfast}{' '}
-                <span className="text-xs font-normal text-slate-400">{language === 'bn' ? 'টি' : 'meals'}</span>
-              </span>
-            </div>
-
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
             <div className="bg-white rounded-2xl p-4 border border-slate-200/80 shadow-xs">
               <span className="text-[11px] font-bold text-slate-500 uppercase tracking-wider block">
                 {language === 'bn' ? 'দুপুরের খাবার' : 'Lunch Total'}
@@ -804,7 +749,6 @@ export const MyMealsView: React.FC<MyMealsViewProps> = ({
                 <thead className="bg-slate-50 text-slate-600 font-bold border-b border-slate-200 uppercase text-[11px]">
                   <tr>
                     <th className="py-3 px-4">{language === 'bn' ? 'তারিখ' : 'Date'}</th>
-                    <th className="py-3 px-4">{language === 'bn' ? 'সকাল' : 'Breakfast'}</th>
                     <th className="py-3 px-4">{language === 'bn' ? 'দুপুর' : 'Lunch'}</th>
                     <th className="py-3 px-4">{language === 'bn' ? 'রাত' : 'Dinner'}</th>
                     <th className="py-3 px-4 text-center">{language === 'bn' ? 'মোট মিল' : 'Total'}</th>
@@ -814,15 +758,6 @@ export const MyMealsView: React.FC<MyMealsViewProps> = ({
                   {memberMonthHistory.rows.map(row => (
                     <tr key={row.date} className="hover:bg-slate-50/80 transition-colors">
                       <td className="py-3 px-4 font-semibold text-slate-800">{row.date}</td>
-                      <td className="py-3 px-4">
-                        <span
-                          className={`px-2 py-0.5 rounded-full text-[11px] font-bold ${
-                            row.breakfast === 'ON' ? 'bg-emerald-100 text-emerald-800' : 'bg-slate-100 text-slate-500'
-                          }`}
-                        >
-                          {row.breakfast}
-                        </span>
-                      </td>
                       <td className="py-3 px-4">
                         <span
                           className={`px-2 py-0.5 rounded-full text-[11px] font-bold ${

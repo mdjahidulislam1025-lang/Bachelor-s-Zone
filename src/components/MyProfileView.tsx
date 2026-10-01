@@ -54,7 +54,7 @@ export const MyProfileView: React.FC<MyProfileViewProps> = ({
   const totalMealsThisMonth = dailyMeals.reduce((acc, dm) => {
     const rec = dm.records[currentMember.id];
     if (rec) {
-      return acc + (rec.breakfast || 0) + (rec.lunch || 0) + (rec.dinner || 0);
+      return acc + (rec.lunch || 0) + (rec.dinner || 0);
     }
     return acc;
   }, 0);

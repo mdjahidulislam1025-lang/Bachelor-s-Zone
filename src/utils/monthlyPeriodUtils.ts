@@ -152,3 +152,69 @@ export function getNextMonthPeriod(periodId: string): string {
   }
   return `${year}-${String(month + 1).padStart(2, '0')}`;
 }
+
+const BENGALI_DAY_NAMES = [
+  'রবিবার',
+  'সোমবার',
+  'মঙ্গলবার',
+  'বুধবার',
+  'বৃহস্পতিবার',
+  'শুক্রবার',
+  'শনিবার',
+];
+
+/**
+ * Returns current today's date in Asia/Dhaka timezone ("YYYY-MM-DD")
+ */
+export function getTodayDhakaDate(): string {
+  return getCurrentDhakaPeriod().dateStr;
+}
+
+/**
+ * Returns tomorrow's date string in Asia/Dhaka ("YYYY-MM-DD")
+ */
+export function getTomorrowDhakaDate(baseDateStr?: string): string {
+  const baseStr = baseDateStr || getTodayDhakaDate();
+  const [y, m, d] = baseStr.split('-').map(Number);
+  const dt = new Date(y, m - 1, d + 1);
+  const nextY = dt.getFullYear();
+  const nextM = String(dt.getMonth() + 1).padStart(2, '0');
+  const nextD = String(dt.getDate()).padStart(2, '0');
+  return `${nextY}-${nextM}-${nextD}`;
+}
+
+/**
+ * Returns yesterday's date string in Asia/Dhaka ("YYYY-MM-DD")
+ */
+export function getYesterdayDhakaDate(baseDateStr?: string): string {
+  const baseStr = baseDateStr || getTodayDhakaDate();
+  const [y, m, d] = baseStr.split('-').map(Number);
+  const dt = new Date(y, m - 1, d - 1);
+  const prevY = dt.getFullYear();
+  const prevM = String(dt.getMonth() + 1).padStart(2, '0');
+  const prevD = String(dt.getDate()).padStart(2, '0');
+  return `${prevY}-${prevM}-${prevD}`;
+}
+
+/**
+ * Formats a YYYY-MM-DD string into localized Bengali format e.g. "১ অক্টোবর ২০২৬ (বৃহস্পতিবার)"
+ */
+export function formatBengaliFullDate(dateStr: string): string {
+  if (!dateStr || !dateStr.includes('-')) return dateStr || '';
+  const [yearStr, monthStr, dayStr] = dateStr.split('-');
+  const year = parseInt(yearStr, 10);
+  const month = parseInt(monthStr, 10);
+  const day = parseInt(dayStr, 10);
+  if (isNaN(year) || isNaN(month) || isNaN(day)) return dateStr;
+
+  const bnMonth = BENGALI_MONTH_NAMES[month - 1] || '';
+  const bnYear = toBengaliNumber(year);
+  const bnDay = toBengaliNumber(day);
+
+  const dt = new Date(year, month - 1, day);
+  const dayOfWeek = dt.getDay();
+  const bnDayName = BENGALI_DAY_NAMES[dayOfWeek] || '';
+
+  return `${bnDay} ${bnMonth} ${bnYear} (${bnDayName})`;
+}
+

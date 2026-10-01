@@ -242,21 +242,20 @@ export function App() {
       prev => {
         const existingIdx = prev.dailyMeals.findIndex(m => m.date === date);
         const updated = [...prev.dailyMeals];
-        let totalBreakfast = 0;
         let totalLunch = 0;
         let totalDinner = 0;
         Object.values(records).forEach(r => {
-          totalBreakfast += r.breakfast || 0;
+          r.breakfast = 0;
           totalLunch += r.lunch || 0;
           totalDinner += r.dinner || 0;
         });
         const entry: DailyMealEntry = {
           id: existingIdx >= 0 ? updated[existingIdx].id : `dme_${date}`,
           date,
-          totalBreakfast,
+          totalBreakfast: 0,
           totalLunch,
           totalDinner,
-          totalMeals: totalBreakfast + totalLunch + totalDinner,
+          totalMeals: totalLunch + totalDinner,
           records,
           notes: notes || '',
           updatedBy: actingUserLabel,
@@ -297,7 +296,7 @@ export function App() {
     isOverride?: boolean,
     reason?: string
   ): Promise<boolean> => {
-    const mealNameBn = mealType === 'breakfast' ? 'সকালের নাস্তা' : mealType === 'lunch' ? 'দুপুরের খাবার' : 'রাতের খাবার';
+    const mealNameBn = mealType === 'lunch' ? 'দুপুরের খাবার' : 'রাতের খাবার';
     const statusBn = status === 'ON' ? 'চালু (ON)' : 'বন্ধ (OFF)';
     return executeMutation(
       () =>
@@ -322,41 +321,38 @@ export function App() {
           const day = updatedDailyMeals[existingIdx];
           const prevRec = day.records[memberId] || {
             memberId,
-            breakfast: 1,
+            breakfast: 0,
             lunch: 1,
             dinner: 1,
             guestMeals: 0,
-            total: 3,
+            total: 2,
           };
-          const newBreakfast = mealType === 'breakfast' ? val : prevRec.breakfast;
           const newLunch = mealType === 'lunch' ? val : prevRec.lunch;
           const newDinner = mealType === 'dinner' ? val : prevRec.dinner;
           const newMemRec: MealRecord = {
             memberId,
-            breakfast: newBreakfast,
+            breakfast: 0,
             lunch: newLunch,
             dinner: newDinner,
             guestMeals: prevRec.guestMeals || 0,
-            total: newBreakfast + newLunch + newDinner + (prevRec.guestMeals || 0),
+            total: newLunch + newDinner + (prevRec.guestMeals || 0),
           };
           const newRecords = {
             ...day.records,
             [memberId]: newMemRec,
           };
-          let totalBreakfast = 0;
           let totalLunch = 0;
           let totalDinner = 0;
           Object.values(newRecords).forEach(r => {
-            totalBreakfast += r.breakfast || 0;
             totalLunch += r.lunch || 0;
             totalDinner += r.dinner || 0;
           });
           updatedDailyMeals[existingIdx] = {
             ...day,
-            totalBreakfast,
+            totalBreakfast: 0,
             totalLunch,
             totalDinner,
-            totalMeals: totalBreakfast + totalLunch + totalDinner,
+            totalMeals: totalLunch + totalDinner,
             records: newRecords,
             updatedBy: actingUserLabel,
             updatedAt: new Date().toISOString(),
@@ -366,47 +362,44 @@ export function App() {
           prev.members.forEach(m => {
             rec[m.id] = {
               memberId: m.id,
-              breakfast: 1,
+              breakfast: 0,
               lunch: 1,
               dinner: 1,
               guestMeals: 0,
-              total: 3,
+              total: 2,
             };
           });
           const prevRec = rec[memberId] || {
             memberId,
-            breakfast: 1,
+            breakfast: 0,
             lunch: 1,
             dinner: 1,
             guestMeals: 0,
-            total: 3,
+            total: 2,
           };
-          const newBreakfast = mealType === 'breakfast' ? val : prevRec.breakfast;
           const newLunch = mealType === 'lunch' ? val : prevRec.lunch;
           const newDinner = mealType === 'dinner' ? val : prevRec.dinner;
           rec[memberId] = {
             memberId,
-            breakfast: newBreakfast,
+            breakfast: 0,
             lunch: newLunch,
             dinner: newDinner,
             guestMeals: prevRec.guestMeals || 0,
-            total: newBreakfast + newLunch + newDinner + (prevRec.guestMeals || 0),
+            total: newLunch + newDinner + (prevRec.guestMeals || 0),
           };
-          let totalBreakfast = 0;
           let totalLunch = 0;
           let totalDinner = 0;
           Object.values(rec).forEach(r => {
-            totalBreakfast += r.breakfast || 0;
             totalLunch += r.lunch || 0;
             totalDinner += r.dinner || 0;
           });
           updatedDailyMeals.push({
             id: `dme_${date}`,
             date,
-            totalBreakfast,
+            totalBreakfast: 0,
             totalLunch,
             totalDinner,
-            totalMeals: totalBreakfast + totalLunch + totalDinner,
+            totalMeals: totalLunch + totalDinner,
             records: rec,
             updatedBy: actingUserLabel,
             updatedAt: new Date().toISOString(),
@@ -421,7 +414,7 @@ export function App() {
   // Weekly / Batch Plan
   const handleBatchSavePlan = async (
     memberId: string,
-    plans: Array<{ date: string; breakfast?: MealStatus; lunch?: MealStatus; dinner?: MealStatus }>
+    plans: Array<{ date: string; lunch?: MealStatus; dinner?: MealStatus }>
   ): Promise<boolean> => {
     return executeMutation(
       () =>
@@ -440,56 +433,52 @@ export function App() {
           const idx = updatedDailyMeals.findIndex(m => m.date === plan.date);
           const currentRec = updatedDailyMeals[idx]?.records?.[memberId] || {
             memberId,
-            breakfast: 1,
+            breakfast: 0,
             lunch: 1,
             dinner: 1,
             guestMeals: 0,
-            total: 3,
+            total: 2,
           };
-          const b = plan.breakfast ? (plan.breakfast === 'ON' ? 1 : 0) : currentRec.breakfast;
           const l = plan.lunch ? (plan.lunch === 'ON' ? 1 : 0) : currentRec.lunch;
           const d = plan.dinner ? (plan.dinner === 'ON' ? 1 : 0) : currentRec.dinner;
           const newRec: MealRecord = {
             memberId,
-            breakfast: b,
+            breakfast: 0,
             lunch: l,
             dinner: d,
             guestMeals: currentRec.guestMeals || 0,
-            total: b + l + d + (currentRec.guestMeals || 0),
+            total: l + d + (currentRec.guestMeals || 0),
           };
           if (idx >= 0) {
             const day = updatedDailyMeals[idx];
             const newRecords = { ...day.records, [memberId]: newRec };
-            let totalBreakfast = 0;
             let totalLunch = 0;
             let totalDinner = 0;
             Object.values(newRecords).forEach(r => {
-              totalBreakfast += r.breakfast || 0;
               totalLunch += r.lunch || 0;
               totalDinner += r.dinner || 0;
             });
             updatedDailyMeals[idx] = {
               ...day,
-              totalBreakfast,
+              totalBreakfast: 0,
               totalLunch,
               totalDinner,
-              totalMeals: totalBreakfast + totalLunch + totalDinner,
+              totalMeals: totalLunch + totalDinner,
               records: newRecords,
               updatedBy: actingUserLabel,
               updatedAt: new Date().toISOString(),
             };
           } else {
             const rec: Record<string, MealRecord> = { [memberId]: newRec };
-            let totalBreakfast = b;
             let totalLunch = l;
             let totalDinner = d;
             updatedDailyMeals.push({
               id: `dme_${plan.date}`,
               date: plan.date,
-              totalBreakfast,
+              totalBreakfast: 0,
               totalLunch,
               totalDinner,
-              totalMeals: totalBreakfast + totalLunch + totalDinner,
+              totalMeals: totalLunch + totalDinner,
               records: rec,
               updatedBy: actingUserLabel,
               updatedAt: new Date().toISOString(),

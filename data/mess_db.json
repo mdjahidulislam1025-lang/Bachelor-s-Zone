@@ -124,189 +124,88 @@
   },
   "dailyMeals": [
     {
-      "id": "dm-2026-09-01",
-      "date": "2026-09-01",
+      "id": "dm-2026-10-01",
+      "date": "2026-10-01",
       "records": {
         "m1": {
           "memberId": "m1",
-          "breakfast": 1,
+          "breakfast": 0,
           "lunch": 1,
-          "dinner": 1,
-          "total": 3,
-          "notes": ""
+          "dinner": 0,
+          "total": 1
         },
         "m2": {
           "memberId": "m2",
           "breakfast": 0,
-          "lunch": 1,
-          "dinner": 1,
-          "total": 2,
-          "notes": ""
+          "lunch": 0,
+          "dinner": 0,
+          "total": 0
         },
         "m3": {
           "memberId": "m3",
-          "breakfast": 1,
-          "lunch": 1,
-          "dinner": 1,
-          "total": 3,
-          "notes": ""
+          "breakfast": 0,
+          "lunch": 0,
+          "dinner": 0,
+          "total": 0
         },
         "m4": {
           "memberId": "m4",
           "breakfast": 0,
-          "lunch": 1,
-          "dinner": 1,
-          "total": 2,
-          "notes": ""
+          "lunch": 0,
+          "dinner": 0,
+          "total": 0
         },
         "m5": {
           "memberId": "m5",
-          "breakfast": 1,
+          "breakfast": 0,
           "lunch": 0,
           "dinner": 0,
-          "total": 1,
-          "notes": ""
+          "total": 0
+        },
+        "m_9837": {
+          "memberId": "m_9837",
+          "breakfast": 0,
+          "lunch": 0,
+          "dinner": 0,
+          "total": 0
         }
       },
-      "totalBreakfast": 3,
-      "totalLunch": 4,
-      "totalDinner": 4,
-      "totalMeals": 11,
-      "status": "confirmed",
-      "notes": ""
+      "totalBreakfast": 0,
+      "totalLunch": 1,
+      "totalDinner": 0,
+      "totalMeals": 1,
+      "notes": "",
+      "updatedBy": "Jahidul Islam",
+      "updatedAt": "2026-10-01T08:21:34.566Z"
     },
     {
-      "id": "dm-2026-09-02",
-      "date": "2026-09-02",
+      "id": "dm-2026-09-18",
+      "date": "2026-09-18",
       "records": {
         "m1": {
           "memberId": "m1",
-          "breakfast": 1,
+          "breakfast": 0,
           "lunch": 1,
           "dinner": 1,
-          "total": 3,
+          "total": 2,
           "notes": ""
         },
         "m2": {
           "memberId": "m2",
-          "breakfast": 1,
+          "breakfast": 0,
           "lunch": 1,
           "dinner": 1,
-          "total": 3,
+          "total": 2,
           "notes": ""
         },
         "m3": {
           "memberId": "m3",
-          "breakfast": 1,
-          "lunch": 1,
-          "dinner": 1,
-          "total": 3,
-          "notes": ""
-        },
-        "m4": {
-          "memberId": "m4",
           "breakfast": 0,
           "lunch": 1,
           "dinner": 0,
           "total": 1,
           "notes": ""
         },
-        "m5": {
-          "memberId": "m5",
-          "breakfast": 1,
-          "lunch": 0,
-          "dinner": 1,
-          "total": 2,
-          "notes": ""
-        }
-      },
-      "totalBreakfast": 4,
-      "totalLunch": 4,
-      "totalDinner": 4,
-      "totalMeals": 12,
-      "status": "confirmed",
-      "notes": ""
-    },
-    {
-      "id": "dm-2026-09-03",
-      "date": "2026-09-03",
-      "records": {
-        "m1": {
-          "memberId": "m1",
-          "breakfast": 1,
-          "lunch": 1,
-          "dinner": 1,
-          "total": 3,
-          "notes": ""
-        },
-        "m2": {
-          "memberId": "m2",
-          "breakfast": 0,
-          "lunch": 1,
-          "dinner": 1,
-          "total": 2,
-          "notes": ""
-        },
-        "m3": {
-          "memberId": "m3",
-          "breakfast": 1,
-          "lunch": 1,
-          "dinner": 0,
-          "total": 2,
-          "notes": ""
-        },
-        "m4": {
-          "memberId": "m4",
-          "breakfast": 1,
-          "lunch": 1,
-          "dinner": 1,
-          "total": 3,
-          "notes": ""
-        },
-        "m5": {
-          "memberId": "m5",
-          "breakfast": 1,
-          "lunch": 0,
-          "dinner": 1,
-          "total": 2,
-          "notes": ""
-        }
-      },
-      "totalBreakfast": 4,
-      "totalLunch": 4,
-      "totalDinner": 4,
-      "totalMeals": 12,
-      "status": "confirmed",
-      "notes": ""
-    },
-    {
-      "id": "dm-2026-09-04",
-      "date": "2026-09-04",
-      "records": {
-        "m1": {
-          "memberId": "m1",
-          "breakfast": 1,
-          "lunch": 1,
-          "dinner": 1,
-          "total": 3,
-          "notes": ""
-        },
-        "m2": {
-          "memberId": "m2",
-          "breakfast": 0,
-          "lunch": 1,
-          "dinner": 0,
-          "total": 1,
-          "notes": ""
-        },
-        "m3": {
-          "memberId": "m3",
-          "breakfast": 1,
-          "lunch": 1,
-          "dinner": 1,
-          "total": 3,
-          "notes": ""
-        },
         "m4": {
           "memberId": "m4",
           "breakfast": 0,
@@ -317,134 +216,30 @@
         },
         "m5": {
           "memberId": "m5",
-          "breakfast": 1,
-          "lunch": 0,
-          "dinner": 1,
-          "total": 2,
-          "notes": ""
-        }
-      },
-      "totalBreakfast": 3,
-      "totalLunch": 4,
-      "totalDinner": 4,
-      "totalMeals": 11,
-      "status": "confirmed",
-      "notes": ""
-    },
-    {
-      "id": "dm-2026-09-05",
-      "date": "2026-09-05",
-      "records": {
-        "m1": {
-          "memberId": "m1",
-          "breakfast": 1,
-          "lunch": 1,
-          "dinner": 0,
-          "total": 2,
-          "notes": ""
-        },
-        "m2": {
-          "memberId": "m2",
-          "breakfast": 1,
-          "lunch": 1,
-          "dinner": 1,
-          "total": 3,
-          "notes": ""
-        },
-        "m3": {
-          "memberId": "m3",
-          "breakfast": 1,
-          "lunch": 1,
-          "dinner": 1,
-          "total": 3,
-          "notes": ""
-        },
-        "m4": {
-          "memberId": "m4",
           "breakfast": 0,
-          "lunch": 1,
-          "dinner": 1,
-          "total": 2,
-          "notes": ""
-        },
-        "m5": {
-          "memberId": "m5",
-          "breakfast": 1,
           "lunch": 0,
           "dinner": 1,
-          "total": 2,
-          "notes": ""
-        }
-      },
-      "totalBreakfast": 4,
-      "totalLunch": 4,
-      "totalDinner": 4,
-      "totalMeals": 12,
-      "status": "confirmed",
-      "notes": ""
-    },
-    {
-      "id": "dm-2026-09-06",
-      "date": "2026-09-06",
-      "records": {
-        "m1": {
-          "memberId": "m1",
-          "breakfast": 1,
-          "lunch": 1,
-          "dinner": 1,
-          "total": 3,
-          "notes": ""
-        },
-        "m2": {
-          "memberId": "m2",
-          "breakfast": 0,
-          "lunch": 1,
-          "dinner": 1,
-          "total": 2,
-          "notes": ""
-        },
-        "m3": {
-          "memberId": "m3",
-          "breakfast": 1,
-          "lunch": 1,
-          "dinner": 1,
-          "total": 3,
-          "notes": ""
-        },
-        "m4": {
-          "memberId": "m4",
-          "breakfast": 1,
-          "lunch": 1,
-          "dinner": 1,
-          "total": 3,
-          "notes": ""
-        },
-        "m5": {
-          "memberId": "m5",
-          "breakfast": 1,
-          "lunch": 0,
-          "dinner": 0,
           "total": 1,
           "notes": ""
         }
       },
-      "totalBreakfast": 4,
+      "totalBreakfast": 0,
       "totalLunch": 4,
       "totalDinner": 4,
-      "totalMeals": 12,
+      "totalMeals": 8,
       "status": "confirmed",
-      "notes": ""
+      "notes": "আজকের মিল হিসাব সম্পন্ন"
     },
     {
-      "id": "dm-2026-09-07",
-      "date": "2026-09-07",
+      "id": "dm-2026-09-17",
+      "date": "2026-09-17",
       "records": {
         "m1": {
           "memberId": "m1",
-          "breakfast": 1,
+          "breakfast": 0,
           "lunch": 1,
           "dinner": 1,
-          "total": 3,
+          "total": 2,
           "notes": ""
         },
         "m2": {
@@ -457,10 +252,10 @@
         },
         "m3": {
           "memberId": "m3",
-          "breakfast": 1,
+          "breakfast": 0,
           "lunch": 1,
           "dinner": 1,
-          "total": 3,
+          "total": 2,
           "notes": ""
         },
         "m4": {
@@ -473,433 +268,17 @@
         },
         "m5": {
           "memberId": "m5",
-          "breakfast": 1,
+          "breakfast": 0,
           "lunch": 0,
           "dinner": 1,
-          "total": 2,
-          "notes": ""
-        }
-      },
-      "totalBreakfast": 3,
-      "totalLunch": 4,
-      "totalDinner": 4,
-      "totalMeals": 11,
-      "status": "confirmed",
-      "notes": ""
-    },
-    {
-      "id": "dm-2026-09-08",
-      "date": "2026-09-08",
-      "records": {
-        "m1": {
-          "memberId": "m1",
-          "breakfast": 1,
-          "lunch": 1,
-          "dinner": 1,
-          "total": 3,
-          "notes": ""
-        },
-        "m2": {
-          "memberId": "m2",
-          "breakfast": 1,
-          "lunch": 1,
-          "dinner": 1,
-          "total": 3,
-          "notes": ""
-        },
-        "m3": {
-          "memberId": "m3",
-          "breakfast": 1,
-          "lunch": 1,
-          "dinner": 0,
-          "total": 2,
-          "notes": ""
-        },
-        "m4": {
-          "memberId": "m4",
-          "breakfast": 0,
-          "lunch": 1,
-          "dinner": 1,
-          "total": 2,
-          "notes": ""
-        },
-        "m5": {
-          "memberId": "m5",
-          "breakfast": 1,
-          "lunch": 0,
-          "dinner": 1,
-          "total": 2,
-          "notes": ""
-        }
-      },
-      "totalBreakfast": 4,
-      "totalLunch": 4,
-      "totalDinner": 4,
-      "totalMeals": 12,
-      "status": "confirmed",
-      "notes": ""
-    },
-    {
-      "id": "dm-2026-09-09",
-      "date": "2026-09-09",
-      "records": {
-        "m1": {
-          "memberId": "m1",
-          "breakfast": 1,
-          "lunch": 1,
-          "dinner": 1,
-          "total": 3,
-          "notes": ""
-        },
-        "m2": {
-          "memberId": "m2",
-          "breakfast": 0,
-          "lunch": 1,
-          "dinner": 0,
-          "total": 1,
-          "notes": ""
-        },
-        "m3": {
-          "memberId": "m3",
-          "breakfast": 1,
-          "lunch": 1,
-          "dinner": 1,
-          "total": 3,
-          "notes": ""
-        },
-        "m4": {
-          "memberId": "m4",
-          "breakfast": 1,
-          "lunch": 1,
-          "dinner": 1,
-          "total": 3,
-          "notes": ""
-        },
-        "m5": {
-          "memberId": "m5",
-          "breakfast": 1,
-          "lunch": 0,
-          "dinner": 1,
-          "total": 2,
-          "notes": ""
-        }
-      },
-      "totalBreakfast": 4,
-      "totalLunch": 4,
-      "totalDinner": 4,
-      "totalMeals": 12,
-      "status": "confirmed",
-      "notes": ""
-    },
-    {
-      "id": "dm-2026-09-10",
-      "date": "2026-09-10",
-      "records": {
-        "m1": {
-          "memberId": "m1",
-          "breakfast": 1,
-          "lunch": 1,
-          "dinner": 0,
-          "total": 2,
-          "notes": ""
-        },
-        "m2": {
-          "memberId": "m2",
-          "breakfast": 0,
-          "lunch": 1,
-          "dinner": 1,
-          "total": 2,
-          "notes": ""
-        },
-        "m3": {
-          "memberId": "m3",
-          "breakfast": 1,
-          "lunch": 1,
-          "dinner": 1,
-          "total": 3,
-          "notes": ""
-        },
-        "m4": {
-          "memberId": "m4",
-          "breakfast": 0,
-          "lunch": 1,
-          "dinner": 1,
-          "total": 2,
-          "notes": ""
-        },
-        "m5": {
-          "memberId": "m5",
-          "breakfast": 1,
-          "lunch": 0,
-          "dinner": 1,
-          "total": 2,
-          "notes": ""
-        }
-      },
-      "totalBreakfast": 3,
-      "totalLunch": 4,
-      "totalDinner": 4,
-      "totalMeals": 11,
-      "status": "confirmed",
-      "notes": ""
-    },
-    {
-      "id": "dm-2026-09-11",
-      "date": "2026-09-11",
-      "records": {
-        "m1": {
-          "memberId": "m1",
-          "breakfast": 1,
-          "lunch": 1,
-          "dinner": 1,
-          "total": 3,
-          "notes": ""
-        },
-        "m2": {
-          "memberId": "m2",
-          "breakfast": 1,
-          "lunch": 1,
-          "dinner": 1,
-          "total": 3,
-          "notes": ""
-        },
-        "m3": {
-          "memberId": "m3",
-          "breakfast": 1,
-          "lunch": 1,
-          "dinner": 1,
-          "total": 3,
-          "notes": ""
-        },
-        "m4": {
-          "memberId": "m4",
-          "breakfast": 0,
-          "lunch": 1,
-          "dinner": 1,
-          "total": 2,
-          "notes": ""
-        },
-        "m5": {
-          "memberId": "m5",
-          "breakfast": 1,
-          "lunch": 0,
-          "dinner": 0,
           "total": 1,
           "notes": ""
         }
       },
-      "totalBreakfast": 4,
+      "totalBreakfast": 0,
       "totalLunch": 4,
       "totalDinner": 4,
-      "totalMeals": 12,
-      "status": "confirmed",
-      "notes": ""
-    },
-    {
-      "id": "dm-2026-09-12",
-      "date": "2026-09-12",
-      "records": {
-        "m1": {
-          "memberId": "m1",
-          "breakfast": 1,
-          "lunch": 1,
-          "dinner": 1,
-          "total": 3,
-          "notes": ""
-        },
-        "m2": {
-          "memberId": "m2",
-          "breakfast": 0,
-          "lunch": 1,
-          "dinner": 1,
-          "total": 2,
-          "notes": ""
-        },
-        "m3": {
-          "memberId": "m3",
-          "breakfast": 1,
-          "lunch": 1,
-          "dinner": 1,
-          "total": 3,
-          "notes": ""
-        },
-        "m4": {
-          "memberId": "m4",
-          "breakfast": 1,
-          "lunch": 1,
-          "dinner": 0,
-          "total": 2,
-          "notes": ""
-        },
-        "m5": {
-          "memberId": "m5",
-          "breakfast": 1,
-          "lunch": 0,
-          "dinner": 1,
-          "total": 2,
-          "notes": ""
-        }
-      },
-      "totalBreakfast": 4,
-      "totalLunch": 4,
-      "totalDinner": 4,
-      "totalMeals": 12,
-      "status": "confirmed",
-      "notes": ""
-    },
-    {
-      "id": "dm-2026-09-13",
-      "date": "2026-09-13",
-      "records": {
-        "m1": {
-          "memberId": "m1",
-          "breakfast": 1,
-          "lunch": 1,
-          "dinner": 1,
-          "total": 3,
-          "notes": ""
-        },
-        "m2": {
-          "memberId": "m2",
-          "breakfast": 0,
-          "lunch": 1,
-          "dinner": 1,
-          "total": 2,
-          "notes": ""
-        },
-        "m3": {
-          "memberId": "m3",
-          "breakfast": 1,
-          "lunch": 1,
-          "dinner": 0,
-          "total": 2,
-          "notes": ""
-        },
-        "m4": {
-          "memberId": "m4",
-          "breakfast": 0,
-          "lunch": 1,
-          "dinner": 1,
-          "total": 2,
-          "notes": ""
-        },
-        "m5": {
-          "memberId": "m5",
-          "breakfast": 1,
-          "lunch": 0,
-          "dinner": 1,
-          "total": 2,
-          "notes": ""
-        }
-      },
-      "totalBreakfast": 3,
-      "totalLunch": 4,
-      "totalDinner": 4,
-      "totalMeals": 11,
-      "status": "confirmed",
-      "notes": ""
-    },
-    {
-      "id": "dm-2026-09-14",
-      "date": "2026-09-14",
-      "records": {
-        "m1": {
-          "memberId": "m1",
-          "breakfast": 1,
-          "lunch": 1,
-          "dinner": 1,
-          "total": 3,
-          "notes": ""
-        },
-        "m2": {
-          "memberId": "m2",
-          "breakfast": 1,
-          "lunch": 1,
-          "dinner": 0,
-          "total": 2,
-          "notes": ""
-        },
-        "m3": {
-          "memberId": "m3",
-          "breakfast": 1,
-          "lunch": 1,
-          "dinner": 1,
-          "total": 3,
-          "notes": ""
-        },
-        "m4": {
-          "memberId": "m4",
-          "breakfast": 0,
-          "lunch": 1,
-          "dinner": 1,
-          "total": 2,
-          "notes": ""
-        },
-        "m5": {
-          "memberId": "m5",
-          "breakfast": 1,
-          "lunch": 0,
-          "dinner": 1,
-          "total": 2,
-          "notes": ""
-        }
-      },
-      "totalBreakfast": 4,
-      "totalLunch": 4,
-      "totalDinner": 4,
-      "totalMeals": 12,
-      "status": "confirmed",
-      "notes": ""
-    },
-    {
-      "id": "dm-2026-09-15",
-      "date": "2026-09-15",
-      "records": {
-        "m1": {
-          "memberId": "m1",
-          "breakfast": 1,
-          "lunch": 1,
-          "dinner": 0,
-          "total": 2,
-          "notes": ""
-        },
-        "m2": {
-          "memberId": "m2",
-          "breakfast": 0,
-          "lunch": 1,
-          "dinner": 1,
-          "total": 2,
-          "notes": ""
-        },
-        "m3": {
-          "memberId": "m3",
-          "breakfast": 1,
-          "lunch": 1,
-          "dinner": 1,
-          "total": 3,
-          "notes": ""
-        },
-        "m4": {
-          "memberId": "m4",
-          "breakfast": 1,
-          "lunch": 1,
-          "dinner": 1,
-          "total": 3,
-          "notes": ""
-        },
-        "m5": {
-          "memberId": "m5",
-          "breakfast": 1,
-          "lunch": 0,
-          "dinner": 1,
-          "total": 2,
-          "notes": ""
-        }
-      },
-      "totalBreakfast": 4,
-      "totalLunch": 4,
-      "totalDinner": 4,
-      "totalMeals": 12,
+      "totalMeals": 8,
       "status": "confirmed",
       "notes": ""
     },
@@ -909,10 +288,10 @@
       "records": {
         "m1": {
           "memberId": "m1",
-          "breakfast": 1,
+          "breakfast": 0,
           "lunch": 1,
           "dinner": 1,
-          "total": 3,
+          "total": 2,
           "notes": ""
         },
         "m2": {
@@ -925,10 +304,10 @@
         },
         "m3": {
           "memberId": "m3",
-          "breakfast": 1,
+          "breakfast": 0,
           "lunch": 1,
           "dinner": 1,
-          "total": 3,
+          "total": 2,
           "notes": ""
         },
         "m4": {
@@ -941,82 +320,134 @@
         },
         "m5": {
           "memberId": "m5",
-          "breakfast": 1,
+          "breakfast": 0,
           "lunch": 0,
           "dinner": 0,
-          "total": 1,
+          "total": 0,
           "notes": ""
         }
       },
-      "totalBreakfast": 3,
+      "totalBreakfast": 0,
       "totalLunch": 4,
       "totalDinner": 4,
-      "totalMeals": 11,
+      "totalMeals": 8,
       "status": "confirmed",
       "notes": ""
     },
     {
-      "id": "dm-2026-09-17",
-      "date": "2026-09-17",
+      "id": "dm-2026-09-15",
+      "date": "2026-09-15",
       "records": {
         "m1": {
           "memberId": "m1",
-          "breakfast": 1,
-          "lunch": 1,
-          "dinner": 1,
-          "total": 3,
-          "notes": ""
-        },
-        "m2": {
-          "memberId": "m2",
-          "breakfast": 1,
-          "lunch": 1,
-          "dinner": 1,
-          "total": 3,
-          "notes": ""
-        },
-        "m3": {
-          "memberId": "m3",
-          "breakfast": 1,
-          "lunch": 1,
-          "dinner": 1,
-          "total": 3,
-          "notes": ""
-        },
-        "m4": {
-          "memberId": "m4",
           "breakfast": 0,
           "lunch": 1,
           "dinner": 0,
           "total": 1,
           "notes": ""
         },
-        "m5": {
-          "memberId": "m5",
-          "breakfast": 1,
-          "lunch": 0,
+        "m2": {
+          "memberId": "m2",
+          "breakfast": 0,
+          "lunch": 1,
           "dinner": 1,
           "total": 2,
           "notes": ""
+        },
+        "m3": {
+          "memberId": "m3",
+          "breakfast": 0,
+          "lunch": 1,
+          "dinner": 1,
+          "total": 2,
+          "notes": ""
+        },
+        "m4": {
+          "memberId": "m4",
+          "breakfast": 0,
+          "lunch": 1,
+          "dinner": 1,
+          "total": 2,
+          "notes": ""
+        },
+        "m5": {
+          "memberId": "m5",
+          "breakfast": 0,
+          "lunch": 0,
+          "dinner": 1,
+          "total": 1,
+          "notes": ""
         }
       },
-      "totalBreakfast": 4,
+      "totalBreakfast": 0,
       "totalLunch": 4,
       "totalDinner": 4,
-      "totalMeals": 12,
+      "totalMeals": 8,
       "status": "confirmed",
       "notes": ""
     },
     {
-      "id": "dm-2026-09-18",
-      "date": "2026-09-18",
+      "id": "dm-2026-09-14",
+      "date": "2026-09-14",
       "records": {
         "m1": {
           "memberId": "m1",
-          "breakfast": 1,
+          "breakfast": 0,
           "lunch": 1,
           "dinner": 1,
-          "total": 3,
+          "total": 2,
+          "notes": ""
+        },
+        "m2": {
+          "memberId": "m2",
+          "breakfast": 0,
+          "lunch": 1,
+          "dinner": 0,
+          "total": 1,
+          "notes": ""
+        },
+        "m3": {
+          "memberId": "m3",
+          "breakfast": 0,
+          "lunch": 1,
+          "dinner": 1,
+          "total": 2,
+          "notes": ""
+        },
+        "m4": {
+          "memberId": "m4",
+          "breakfast": 0,
+          "lunch": 1,
+          "dinner": 1,
+          "total": 2,
+          "notes": ""
+        },
+        "m5": {
+          "memberId": "m5",
+          "breakfast": 0,
+          "lunch": 0,
+          "dinner": 1,
+          "total": 1,
+          "notes": ""
+        }
+      },
+      "totalBreakfast": 0,
+      "totalLunch": 4,
+      "totalDinner": 4,
+      "totalMeals": 8,
+      "status": "confirmed",
+      "notes": ""
+    },
+    {
+      "id": "dm-2026-09-13",
+      "date": "2026-09-13",
+      "records": {
+        "m1": {
+          "memberId": "m1",
+          "breakfast": 0,
+          "lunch": 1,
+          "dinner": 1,
+          "total": 2,
           "notes": ""
         },
         "m2": {
@@ -1029,51 +460,662 @@
         },
         "m3": {
           "memberId": "m3",
-          "breakfast": 1,
+          "breakfast": 0,
           "lunch": 1,
           "dinner": 0,
+          "total": 1,
+          "notes": ""
+        },
+        "m4": {
+          "memberId": "m4",
+          "breakfast": 0,
+          "lunch": 1,
+          "dinner": 1,
+          "total": 2,
+          "notes": ""
+        },
+        "m5": {
+          "memberId": "m5",
+          "breakfast": 0,
+          "lunch": 0,
+          "dinner": 1,
+          "total": 1,
+          "notes": ""
+        }
+      },
+      "totalBreakfast": 0,
+      "totalLunch": 4,
+      "totalDinner": 4,
+      "totalMeals": 8,
+      "status": "confirmed",
+      "notes": ""
+    },
+    {
+      "id": "dm-2026-09-12",
+      "date": "2026-09-12",
+      "records": {
+        "m1": {
+          "memberId": "m1",
+          "breakfast": 0,
+          "lunch": 1,
+          "dinner": 1,
+          "total": 2,
+          "notes": ""
+        },
+        "m2": {
+          "memberId": "m2",
+          "breakfast": 0,
+          "lunch": 1,
+          "dinner": 1,
+          "total": 2,
+          "notes": ""
+        },
+        "m3": {
+          "memberId": "m3",
+          "breakfast": 0,
+          "lunch": 1,
+          "dinner": 1,
           "total": 2,
           "notes": ""
         },
         "m4": {
           "memberId": "m4",
-          "breakfast": 1,
+          "breakfast": 0,
           "lunch": 1,
-          "dinner": 1,
-          "total": 3,
+          "dinner": 0,
+          "total": 1,
           "notes": ""
         },
         "m5": {
           "memberId": "m5",
-          "breakfast": 1,
+          "breakfast": 0,
           "lunch": 0,
           "dinner": 1,
-          "total": 2,
+          "total": 1,
           "notes": ""
         }
       },
-      "totalBreakfast": 4,
+      "totalBreakfast": 0,
       "totalLunch": 4,
       "totalDinner": 4,
-      "totalMeals": 12,
+      "totalMeals": 8,
       "status": "confirmed",
-      "notes": "আজকের মিল হিসাব সম্পন্ন"
+      "notes": ""
+    },
+    {
+      "id": "dm-2026-09-11",
+      "date": "2026-09-11",
+      "records": {
+        "m1": {
+          "memberId": "m1",
+          "breakfast": 0,
+          "lunch": 1,
+          "dinner": 1,
+          "total": 2,
+          "notes": ""
+        },
+        "m2": {
+          "memberId": "m2",
+          "breakfast": 0,
+          "lunch": 1,
+          "dinner": 1,
+          "total": 2,
+          "notes": ""
+        },
+        "m3": {
+          "memberId": "m3",
+          "breakfast": 0,
+          "lunch": 1,
+          "dinner": 1,
+          "total": 2,
+          "notes": ""
+        },
+        "m4": {
+          "memberId": "m4",
+          "breakfast": 0,
+          "lunch": 1,
+          "dinner": 1,
+          "total": 2,
+          "notes": ""
+        },
+        "m5": {
+          "memberId": "m5",
+          "breakfast": 0,
+          "lunch": 0,
+          "dinner": 0,
+          "total": 0,
+          "notes": ""
+        }
+      },
+      "totalBreakfast": 0,
+      "totalLunch": 4,
+      "totalDinner": 4,
+      "totalMeals": 8,
+      "status": "confirmed",
+      "notes": ""
+    },
+    {
+      "id": "dm-2026-09-10",
+      "date": "2026-09-10",
+      "records": {
+        "m1": {
+          "memberId": "m1",
+          "breakfast": 0,
+          "lunch": 1,
+          "dinner": 0,
+          "total": 1,
+          "notes": ""
+        },
+        "m2": {
+          "memberId": "m2",
+          "breakfast": 0,
+          "lunch": 1,
+          "dinner": 1,
+          "total": 2,
+          "notes": ""
+        },
+        "m3": {
+          "memberId": "m3",
+          "breakfast": 0,
+          "lunch": 1,
+          "dinner": 1,
+          "total": 2,
+          "notes": ""
+        },
+        "m4": {
+          "memberId": "m4",
+          "breakfast": 0,
+          "lunch": 1,
+          "dinner": 1,
+          "total": 2,
+          "notes": ""
+        },
+        "m5": {
+          "memberId": "m5",
+          "breakfast": 0,
+          "lunch": 0,
+          "dinner": 1,
+          "total": 1,
+          "notes": ""
+        }
+      },
+      "totalBreakfast": 0,
+      "totalLunch": 4,
+      "totalDinner": 4,
+      "totalMeals": 8,
+      "status": "confirmed",
+      "notes": ""
+    },
+    {
+      "id": "dm-2026-09-09",
+      "date": "2026-09-09",
+      "records": {
+        "m1": {
+          "memberId": "m1",
+          "breakfast": 0,
+          "lunch": 1,
+          "dinner": 1,
+          "total": 2,
+          "notes": ""
+        },
+        "m2": {
+          "memberId": "m2",
+          "breakfast": 0,
+          "lunch": 1,
+          "dinner": 0,
+          "total": 1,
+          "notes": ""
+        },
+        "m3": {
+          "memberId": "m3",
+          "breakfast": 0,
+          "lunch": 1,
+          "dinner": 1,
+          "total": 2,
+          "notes": ""
+        },
+        "m4": {
+          "memberId": "m4",
+          "breakfast": 0,
+          "lunch": 1,
+          "dinner": 1,
+          "total": 2,
+          "notes": ""
+        },
+        "m5": {
+          "memberId": "m5",
+          "breakfast": 0,
+          "lunch": 0,
+          "dinner": 1,
+          "total": 1,
+          "notes": ""
+        }
+      },
+      "totalBreakfast": 0,
+      "totalLunch": 4,
+      "totalDinner": 4,
+      "totalMeals": 8,
+      "status": "confirmed",
+      "notes": ""
+    },
+    {
+      "id": "dm-2026-09-08",
+      "date": "2026-09-08",
+      "records": {
+        "m1": {
+          "memberId": "m1",
+          "breakfast": 0,
+          "lunch": 1,
+          "dinner": 1,
+          "total": 2,
+          "notes": ""
+        },
+        "m2": {
+          "memberId": "m2",
+          "breakfast": 0,
+          "lunch": 1,
+          "dinner": 1,
+          "total": 2,
+          "notes": ""
+        },
+        "m3": {
+          "memberId": "m3",
+          "breakfast": 0,
+          "lunch": 1,
+          "dinner": 0,
+          "total": 1,
+          "notes": ""
+        },
+        "m4": {
+          "memberId": "m4",
+          "breakfast": 0,
+          "lunch": 1,
+          "dinner": 1,
+          "total": 2,
+          "notes": ""
+        },
+        "m5": {
+          "memberId": "m5",
+          "breakfast": 0,
+          "lunch": 0,
+          "dinner": 1,
+          "total": 1,
+          "notes": ""
+        }
+      },
+      "totalBreakfast": 0,
+      "totalLunch": 4,
+      "totalDinner": 4,
+      "totalMeals": 8,
+      "status": "confirmed",
+      "notes": ""
+    },
+    {
+      "id": "dm-2026-09-07",
+      "date": "2026-09-07",
+      "records": {
+        "m1": {
+          "memberId": "m1",
+          "breakfast": 0,
+          "lunch": 1,
+          "dinner": 1,
+          "total": 2,
+          "notes": ""
+        },
+        "m2": {
+          "memberId": "m2",
+          "breakfast": 0,
+          "lunch": 1,
+          "dinner": 1,
+          "total": 2,
+          "notes": ""
+        },
+        "m3": {
+          "memberId": "m3",
+          "breakfast": 0,
+          "lunch": 1,
+          "dinner": 1,
+          "total": 2,
+          "notes": ""
+        },
+        "m4": {
+          "memberId": "m4",
+          "breakfast": 0,
+          "lunch": 1,
+          "dinner": 0,
+          "total": 1,
+          "notes": ""
+        },
+        "m5": {
+          "memberId": "m5",
+          "breakfast": 0,
+          "lunch": 0,
+          "dinner": 1,
+          "total": 1,
+          "notes": ""
+        }
+      },
+      "totalBreakfast": 0,
+      "totalLunch": 4,
+      "totalDinner": 4,
+      "totalMeals": 8,
+      "status": "confirmed",
+      "notes": ""
+    },
+    {
+      "id": "dm-2026-09-06",
+      "date": "2026-09-06",
+      "records": {
+        "m1": {
+          "memberId": "m1",
+          "breakfast": 0,
+          "lunch": 1,
+          "dinner": 1,
+          "total": 2,
+          "notes": ""
+        },
+        "m2": {
+          "memberId": "m2",
+          "breakfast": 0,
+          "lunch": 1,
+          "dinner": 1,
+          "total": 2,
+          "notes": ""
+        },
+        "m3": {
+          "memberId": "m3",
+          "breakfast": 0,
+          "lunch": 1,
+          "dinner": 1,
+          "total": 2,
+          "notes": ""
+        },
+        "m4": {
+          "memberId": "m4",
+          "breakfast": 0,
+          "lunch": 1,
+          "dinner": 1,
+          "total": 2,
+          "notes": ""
+        },
+        "m5": {
+          "memberId": "m5",
+          "breakfast": 0,
+          "lunch": 0,
+          "dinner": 0,
+          "total": 0,
+          "notes": ""
+        }
+      },
+      "totalBreakfast": 0,
+      "totalLunch": 4,
+      "totalDinner": 4,
+      "totalMeals": 8,
+      "status": "confirmed",
+      "notes": ""
+    },
+    {
+      "id": "dm-2026-09-05",
+      "date": "2026-09-05",
+      "records": {
+        "m1": {
+          "memberId": "m1",
+          "breakfast": 0,
+          "lunch": 1,
+          "dinner": 0,
+          "total": 1,
+          "notes": ""
+        },
+        "m2": {
+          "memberId": "m2",
+          "breakfast": 0,
+          "lunch": 1,
+          "dinner": 1,
+          "total": 2,
+          "notes": ""
+        },
+        "m3": {
+          "memberId": "m3",
+          "breakfast": 0,
+          "lunch": 1,
+          "dinner": 1,
+          "total": 2,
+          "notes": ""
+        },
+        "m4": {
+          "memberId": "m4",
+          "breakfast": 0,
+          "lunch": 1,
+          "dinner": 1,
+          "total": 2,
+          "notes": ""
+        },
+        "m5": {
+          "memberId": "m5",
+          "breakfast": 0,
+          "lunch": 0,
+          "dinner": 1,
+          "total": 1,
+          "notes": ""
+        }
+      },
+      "totalBreakfast": 0,
+      "totalLunch": 4,
+      "totalDinner": 4,
+      "totalMeals": 8,
+      "status": "confirmed",
+      "notes": ""
+    },
+    {
+      "id": "dm-2026-09-04",
+      "date": "2026-09-04",
+      "records": {
+        "m1": {
+          "memberId": "m1",
+          "breakfast": 0,
+          "lunch": 1,
+          "dinner": 1,
+          "total": 2,
+          "notes": ""
+        },
+        "m2": {
+          "memberId": "m2",
+          "breakfast": 0,
+          "lunch": 1,
+          "dinner": 0,
+          "total": 1,
+          "notes": ""
+        },
+        "m3": {
+          "memberId": "m3",
+          "breakfast": 0,
+          "lunch": 1,
+          "dinner": 1,
+          "total": 2,
+          "notes": ""
+        },
+        "m4": {
+          "memberId": "m4",
+          "breakfast": 0,
+          "lunch": 1,
+          "dinner": 1,
+          "total": 2,
+          "notes": ""
+        },
+        "m5": {
+          "memberId": "m5",
+          "breakfast": 0,
+          "lunch": 0,
+          "dinner": 1,
+          "total": 1,
+          "notes": ""
+        }
+      },
+      "totalBreakfast": 0,
+      "totalLunch": 4,
+      "totalDinner": 4,
+      "totalMeals": 8,
+      "status": "confirmed",
+      "notes": ""
+    },
+    {
+      "id": "dm-2026-09-03",
+      "date": "2026-09-03",
+      "records": {
+        "m1": {
+          "memberId": "m1",
+          "breakfast": 0,
+          "lunch": 1,
+          "dinner": 1,
+          "total": 2,
+          "notes": ""
+        },
+        "m2": {
+          "memberId": "m2",
+          "breakfast": 0,
+          "lunch": 1,
+          "dinner": 1,
+          "total": 2,
+          "notes": ""
+        },
+        "m3": {
+          "memberId": "m3",
+          "breakfast": 0,
+          "lunch": 1,
+          "dinner": 0,
+          "total": 1,
+          "notes": ""
+        },
+        "m4": {
+          "memberId": "m4",
+          "breakfast": 0,
+          "lunch": 1,
+          "dinner": 1,
+          "total": 2,
+          "notes": ""
+        },
+        "m5": {
+          "memberId": "m5",
+          "breakfast": 0,
+          "lunch": 0,
+          "dinner": 1,
+          "total": 1,
+          "notes": ""
+        }
+      },
+      "totalBreakfast": 0,
+      "totalLunch": 4,
+      "totalDinner": 4,
+      "totalMeals": 8,
+      "status": "confirmed",
+      "notes": ""
+    },
+    {
+      "id": "dm-2026-09-02",
+      "date": "2026-09-02",
+      "records": {
+        "m1": {
+          "memberId": "m1",
+          "breakfast": 0,
+          "lunch": 1,
+          "dinner": 1,
+          "total": 2,
+          "notes": ""
+        },
+        "m2": {
+          "memberId": "m2",
+          "breakfast": 0,
+          "lunch": 1,
+          "dinner": 1,
+          "total": 2,
+          "notes": ""
+        },
+        "m3": {
+          "memberId": "m3",
+          "breakfast": 0,
+          "lunch": 1,
+          "dinner": 1,
+          "total": 2,
+          "notes": ""
+        },
+        "m4": {
+          "memberId": "m4",
+          "breakfast": 0,
+          "lunch": 1,
+          "dinner": 0,
+          "total": 1,
+          "notes": ""
+        },
+        "m5": {
+          "memberId": "m5",
+          "breakfast": 0,
+          "lunch": 0,
+          "dinner": 1,
+          "total": 1,
+          "notes": ""
+        }
+      },
+      "totalBreakfast": 0,
+      "totalLunch": 4,
+      "totalDinner": 4,
+      "totalMeals": 8,
+      "status": "confirmed",
+      "notes": ""
+    },
+    {
+      "id": "dm-2026-09-01",
+      "date": "2026-09-01",
+      "records": {
+        "m1": {
+          "memberId": "m1",
+          "breakfast": 0,
+          "lunch": 1,
+          "dinner": 1,
+          "total": 2,
+          "notes": ""
+        },
+        "m2": {
+          "memberId": "m2",
+          "breakfast": 0,
+          "lunch": 1,
+          "dinner": 1,
+          "total": 2,
+          "notes": ""
+        },
+        "m3": {
+          "memberId": "m3",
+          "breakfast": 0,
+          "lunch": 1,
+          "dinner": 1,
+          "total": 2,
+          "notes": ""
+        },
+        "m4": {
+          "memberId": "m4",
+          "breakfast": 0,
+          "lunch": 1,
+          "dinner": 1,
+          "total": 2,
+          "notes": ""
+        },
+        "m5": {
+          "memberId": "m5",
+          "breakfast": 0,
+          "lunch": 0,
+          "dinner": 0,
+          "total": 0,
+          "notes": ""
+        }
+      },
+      "totalBreakfast": 0,
+      "totalLunch": 4,
+      "totalDinner": 4,
+      "totalMeals": 8,
+      "status": "confirmed",
+      "notes": ""
     }
   ],
   "memberMealSelections": [
-    {
-      "id": "mms-2026-09-01-m1-breakfast",
-      "memberId": "m1",
-      "memberName": "Jahidul Islam",
-      "date": "2026-09-01",
-      "mealType": "breakfast",
-      "plannedStatus": "ON",
-      "actualStatus": "attended",
-      "accountingStatus": "billed",
-      "updatedBy": "m1",
-      "updatedByName": "Jahidul Islam",
-      "updatedAt": "2026-09-01T05:30:00.000Z"
-    },
     {
       "id": "mms-2026-09-01-m1-lunch",
       "memberId": "m1",
@@ -1099,19 +1141,6 @@
       "updatedBy": "m1",
       "updatedByName": "Jahidul Islam",
       "updatedAt": "2026-09-01T14:30:00.000Z"
-    },
-    {
-      "id": "mms-2026-09-01-m2-breakfast",
-      "memberId": "m2",
-      "memberName": "Fiaaz Ajmaeen",
-      "date": "2026-09-01",
-      "mealType": "breakfast",
-      "plannedStatus": "OFF",
-      "actualStatus": "missed",
-      "accountingStatus": "exempt",
-      "updatedBy": "m2",
-      "updatedByName": "Fiaaz Ajmaeen",
-      "updatedAt": "2026-09-01T05:30:00.000Z"
     },
     {
       "id": "mms-2026-09-01-m2-lunch",
@@ -1140,19 +1169,6 @@
       "updatedAt": "2026-09-01T14:30:00.000Z"
     },
     {
-      "id": "mms-2026-09-01-m3-breakfast",
-      "memberId": "m3",
-      "memberName": "RA Raihan",
-      "date": "2026-09-01",
-      "mealType": "breakfast",
-      "plannedStatus": "ON",
-      "actualStatus": "attended",
-      "accountingStatus": "billed",
-      "updatedBy": "m3",
-      "updatedByName": "RA Raihan",
-      "updatedAt": "2026-09-01T05:30:00.000Z"
-    },
-    {
       "id": "mms-2026-09-01-m3-lunch",
       "memberId": "m3",
       "memberName": "RA Raihan",
@@ -1177,19 +1193,6 @@
       "updatedBy": "m3",
       "updatedByName": "RA Raihan",
       "updatedAt": "2026-09-01T14:30:00.000Z"
-    },
-    {
-      "id": "mms-2026-09-01-m4-breakfast",
-      "memberId": "m4",
-      "memberName": "Tanvir Patwary",
-      "date": "2026-09-01",
-      "mealType": "breakfast",
-      "plannedStatus": "OFF",
-      "actualStatus": "missed",
-      "accountingStatus": "exempt",
-      "updatedBy": "m4",
-      "updatedByName": "Tanvir Patwary",
-      "updatedAt": "2026-09-01T05:30:00.000Z"
     },
     {
       "id": "mms-2026-09-01-m4-lunch",
@@ -1218,19 +1221,6 @@
       "updatedAt": "2026-09-01T14:30:00.000Z"
     },
     {
-      "id": "mms-2026-09-01-m5-breakfast",
-      "memberId": "m5",
-      "memberName": "Tarek hossen",
-      "date": "2026-09-01",
-      "mealType": "breakfast",
-      "plannedStatus": "ON",
-      "actualStatus": "attended",
-      "accountingStatus": "billed",
-      "updatedBy": "m5",
-      "updatedByName": "Tarek hossen",
-      "updatedAt": "2026-09-01T05:30:00.000Z"
-    },
-    {
       "id": "mms-2026-09-01-m5-lunch",
       "memberId": "m5",
       "memberName": "Tarek hossen",
@@ -1255,19 +1245,6 @@
       "updatedBy": "m5",
       "updatedByName": "Tarek hossen",
       "updatedAt": "2026-09-01T14:30:00.000Z"
-    },
-    {
-      "id": "mms-2026-09-02-m1-breakfast",
-      "memberId": "m1",
-      "memberName": "Jahidul Islam",
-      "date": "2026-09-02",
-      "mealType": "breakfast",
-      "plannedStatus": "ON",
-      "actualStatus": "attended",
-      "accountingStatus": "billed",
-      "updatedBy": "m1",
-      "updatedByName": "Jahidul Islam",
-      "updatedAt": "2026-09-02T05:30:00.000Z"
     },
     {
       "id": "mms-2026-09-02-m1-lunch",
@@ -1296,19 +1273,6 @@
       "updatedAt": "2026-09-02T14:30:00.000Z"
     },
     {
-      "id": "mms-2026-09-02-m2-breakfast",
-      "memberId": "m2",
-      "memberName": "Fiaaz Ajmaeen",
-      "date": "2026-09-02",
-      "mealType": "breakfast",
-      "plannedStatus": "ON",
-      "actualStatus": "attended",
-      "accountingStatus": "billed",
-      "updatedBy": "m2",
-      "updatedByName": "Fiaaz Ajmaeen",
-      "updatedAt": "2026-09-02T05:30:00.000Z"
-    },
-    {
       "id": "mms-2026-09-02-m2-lunch",
       "memberId": "m2",
       "memberName": "Fiaaz Ajmaeen",
@@ -1333,19 +1297,6 @@
       "updatedBy": "m2",
       "updatedByName": "Fiaaz Ajmaeen",
       "updatedAt": "2026-09-02T14:30:00.000Z"
-    },
-    {
-      "id": "mms-2026-09-02-m3-breakfast",
-      "memberId": "m3",
-      "memberName": "RA Raihan",
-      "date": "2026-09-02",
-      "mealType": "breakfast",
-      "plannedStatus": "ON",
-      "actualStatus": "attended",
-      "accountingStatus": "billed",
-      "updatedBy": "m3",
-      "updatedByName": "RA Raihan",
-      "updatedAt": "2026-09-02T05:30:00.000Z"
     },
     {
       "id": "mms-2026-09-02-m3-lunch",
@@ -1374,19 +1325,6 @@
       "updatedAt": "2026-09-02T14:30:00.000Z"
     },
     {
-      "id": "mms-2026-09-02-m4-breakfast",
-      "memberId": "m4",
-      "memberName": "Tanvir Patwary",
-      "date": "2026-09-02",
-      "mealType": "breakfast",
-      "plannedStatus": "OFF",
-      "actualStatus": "missed",
-      "accountingStatus": "exempt",
-      "updatedBy": "m4",
-      "updatedByName": "Tanvir Patwary",
-      "updatedAt": "2026-09-02T05:30:00.000Z"
-    },
-    {
       "id": "mms-2026-09-02-m4-lunch",
       "memberId": "m4",
       "memberName": "Tanvir Patwary",
@@ -1411,19 +1349,6 @@
       "updatedBy": "m4",
       "updatedByName": "Tanvir Patwary",
       "updatedAt": "2026-09-02T14:30:00.000Z"
-    },
-    {
-      "id": "mms-2026-09-02-m5-breakfast",
-      "memberId": "m5",
-      "memberName": "Tarek hossen",
-      "date": "2026-09-02",
-      "mealType": "breakfast",
-      "plannedStatus": "ON",
-      "actualStatus": "attended",
-      "accountingStatus": "billed",
-      "updatedBy": "m5",
-      "updatedByName": "Tarek hossen",
-      "updatedAt": "2026-09-02T05:30:00.000Z"
     },
     {
       "id": "mms-2026-09-02-m5-lunch",
@@ -1452,19 +1377,6 @@
       "updatedAt": "2026-09-02T14:30:00.000Z"
     },
     {
-      "id": "mms-2026-09-03-m1-breakfast",
-      "memberId": "m1",
-      "memberName": "Jahidul Islam",
-      "date": "2026-09-03",
-      "mealType": "breakfast",
-      "plannedStatus": "ON",
-      "actualStatus": "attended",
-      "accountingStatus": "billed",
-      "updatedBy": "m1",
-      "updatedByName": "Jahidul Islam",
-      "updatedAt": "2026-09-03T05:30:00.000Z"
-    },
-    {
       "id": "mms-2026-09-03-m1-lunch",
       "memberId": "m1",
       "memberName": "Jahidul Islam",
@@ -1489,19 +1401,6 @@
       "updatedBy": "m1",
       "updatedByName": "Jahidul Islam",
       "updatedAt": "2026-09-03T14:30:00.000Z"
-    },
-    {
-      "id": "mms-2026-09-03-m2-breakfast",
-      "memberId": "m2",
-      "memberName": "Fiaaz Ajmaeen",
-      "date": "2026-09-03",
-      "mealType": "breakfast",
-      "plannedStatus": "OFF",
-      "actualStatus": "missed",
-      "accountingStatus": "exempt",
-      "updatedBy": "m2",
-      "updatedByName": "Fiaaz Ajmaeen",
-      "updatedAt": "2026-09-03T05:30:00.000Z"
     },
     {
       "id": "mms-2026-09-03-m2-lunch",
@@ -1530,19 +1429,6 @@
       "updatedAt": "2026-09-03T14:30:00.000Z"
     },
     {
-      "id": "mms-2026-09-03-m3-breakfast",
-      "memberId": "m3",
-      "memberName": "RA Raihan",
-      "date": "2026-09-03",
-      "mealType": "breakfast",
-      "plannedStatus": "ON",
-      "actualStatus": "attended",
-      "accountingStatus": "billed",
-      "updatedBy": "m3",
-      "updatedByName": "RA Raihan",
-      "updatedAt": "2026-09-03T05:30:00.000Z"
-    },
-    {
       "id": "mms-2026-09-03-m3-lunch",
       "memberId": "m3",
       "memberName": "RA Raihan",
@@ -1567,19 +1453,6 @@
       "updatedBy": "m3",
       "updatedByName": "RA Raihan",
       "updatedAt": "2026-09-03T14:30:00.000Z"
-    },
-    {
-      "id": "mms-2026-09-03-m4-breakfast",
-      "memberId": "m4",
-      "memberName": "Tanvir Patwary",
-      "date": "2026-09-03",
-      "mealType": "breakfast",
-      "plannedStatus": "ON",
-      "actualStatus": "attended",
-      "accountingStatus": "billed",
-      "updatedBy": "m4",
-      "updatedByName": "Tanvir Patwary",
-      "updatedAt": "2026-09-03T05:30:00.000Z"
     },
     {
       "id": "mms-2026-09-03-m4-lunch",
@@ -1608,19 +1481,6 @@
       "updatedAt": "2026-09-03T14:30:00.000Z"
     },
     {
-      "id": "mms-2026-09-03-m5-breakfast",
-      "memberId": "m5",
-      "memberName": "Tarek hossen",
-      "date": "2026-09-03",
-      "mealType": "breakfast",
-      "plannedStatus": "ON",
-      "actualStatus": "attended",
-      "accountingStatus": "billed",
-      "updatedBy": "m5",
-      "updatedByName": "Tarek hossen",
-      "updatedAt": "2026-09-03T05:30:00.000Z"
-    },
-    {
       "id": "mms-2026-09-03-m5-lunch",
       "memberId": "m5",
       "memberName": "Tarek hossen",
@@ -1645,19 +1505,6 @@
       "updatedBy": "m5",
       "updatedByName": "Tarek hossen",
       "updatedAt": "2026-09-03T14:30:00.000Z"
-    },
-    {
-      "id": "mms-2026-09-04-m1-breakfast",
-      "memberId": "m1",
-      "memberName": "Jahidul Islam",
-      "date": "2026-09-04",
-      "mealType": "breakfast",
-      "plannedStatus": "ON",
-      "actualStatus": "attended",
-      "accountingStatus": "billed",
-      "updatedBy": "m1",
-      "updatedByName": "Jahidul Islam",
-      "updatedAt": "2026-09-04T05:30:00.000Z"
     },
     {
       "id": "mms-2026-09-04-m1-lunch",
@@ -1686,19 +1533,6 @@
       "updatedAt": "2026-09-04T14:30:00.000Z"
     },
     {
-      "id": "mms-2026-09-04-m2-breakfast",
-      "memberId": "m2",
-      "memberName": "Fiaaz Ajmaeen",
-      "date": "2026-09-04",
-      "mealType": "breakfast",
-      "plannedStatus": "OFF",
-      "actualStatus": "missed",
-      "accountingStatus": "exempt",
-      "updatedBy": "m2",
-      "updatedByName": "Fiaaz Ajmaeen",
-      "updatedAt": "2026-09-04T05:30:00.000Z"
-    },
-    {
       "id": "mms-2026-09-04-m2-lunch",
       "memberId": "m2",
       "memberName": "Fiaaz Ajmaeen",
@@ -1723,19 +1557,6 @@
       "updatedBy": "m2",
       "updatedByName": "Fiaaz Ajmaeen",
       "updatedAt": "2026-09-04T14:30:00.000Z"
-    },
-    {
-      "id": "mms-2026-09-04-m3-breakfast",
-      "memberId": "m3",
-      "memberName": "RA Raihan",
-      "date": "2026-09-04",
-      "mealType": "breakfast",
-      "plannedStatus": "ON",
-      "actualStatus": "attended",
-      "accountingStatus": "billed",
-      "updatedBy": "m3",
-      "updatedByName": "RA Raihan",
-      "updatedAt": "2026-09-04T05:30:00.000Z"
     },
     {
       "id": "mms-2026-09-04-m3-lunch",
@@ -1764,19 +1585,6 @@
       "updatedAt": "2026-09-04T14:30:00.000Z"
     },
     {
-      "id": "mms-2026-09-04-m4-breakfast",
-      "memberId": "m4",
-      "memberName": "Tanvir Patwary",
-      "date": "2026-09-04",
-      "mealType": "breakfast",
-      "plannedStatus": "OFF",
-      "actualStatus": "missed",
-      "accountingStatus": "exempt",
-      "updatedBy": "m4",
-      "updatedByName": "Tanvir Patwary",
-      "updatedAt": "2026-09-04T05:30:00.000Z"
-    },
-    {
       "id": "mms-2026-09-04-m4-lunch",
       "memberId": "m4",
       "memberName": "Tanvir Patwary",
@@ -1801,19 +1609,6 @@
       "updatedBy": "m4",
       "updatedByName": "Tanvir Patwary",
       "updatedAt": "2026-09-04T14:30:00.000Z"
-    },
-    {
-      "id": "mms-2026-09-04-m5-breakfast",
-      "memberId": "m5",
-      "memberName": "Tarek hossen",
-      "date": "2026-09-04",
-      "mealType": "breakfast",
-      "plannedStatus": "ON",
-      "actualStatus": "attended",
-      "accountingStatus": "billed",
-      "updatedBy": "m5",
-      "updatedByName": "Tarek hossen",
-      "updatedAt": "2026-09-04T05:30:00.000Z"
     },
     {
       "id": "mms-2026-09-04-m5-lunch",
@@ -1842,19 +1637,6 @@
       "updatedAt": "2026-09-04T14:30:00.000Z"
     },
     {
-      "id": "mms-2026-09-05-m1-breakfast",
-      "memberId": "m1",
-      "memberName": "Jahidul Islam",
-      "date": "2026-09-05",
-      "mealType": "breakfast",
-      "plannedStatus": "ON",
-      "actualStatus": "attended",
-      "accountingStatus": "billed",
-      "updatedBy": "m1",
-      "updatedByName": "Jahidul Islam",
-      "updatedAt": "2026-09-05T05:30:00.000Z"
-    },
-    {
       "id": "mms-2026-09-05-m1-lunch",
       "memberId": "m1",
       "memberName": "Jahidul Islam",
@@ -1879,19 +1661,6 @@
       "updatedBy": "m1",
       "updatedByName": "Jahidul Islam",
       "updatedAt": "2026-09-05T14:30:00.000Z"
-    },
-    {
-      "id": "mms-2026-09-05-m2-breakfast",
-      "memberId": "m2",
-      "memberName": "Fiaaz Ajmaeen",
-      "date": "2026-09-05",
-      "mealType": "breakfast",
-      "plannedStatus": "ON",
-      "actualStatus": "attended",
-      "accountingStatus": "billed",
-      "updatedBy": "m2",
-      "updatedByName": "Fiaaz Ajmaeen",
-      "updatedAt": "2026-09-05T05:30:00.000Z"
     },
     {
       "id": "mms-2026-09-05-m2-lunch",
@@ -1920,19 +1689,6 @@
       "updatedAt": "2026-09-05T14:30:00.000Z"
     },
     {
-      "id": "mms-2026-09-05-m3-breakfast",
-      "memberId": "m3",
-      "memberName": "RA Raihan",
-      "date": "2026-09-05",
-      "mealType": "breakfast",
-      "plannedStatus": "ON",
-      "actualStatus": "attended",
-      "accountingStatus": "billed",
-      "updatedBy": "m3",
-      "updatedByName": "RA Raihan",
-      "updatedAt": "2026-09-05T05:30:00.000Z"
-    },
-    {
       "id": "mms-2026-09-05-m3-lunch",
       "memberId": "m3",
       "memberName": "RA Raihan",
@@ -1957,19 +1713,6 @@
       "updatedBy": "m3",
       "updatedByName": "RA Raihan",
       "updatedAt": "2026-09-05T14:30:00.000Z"
-    },
-    {
-      "id": "mms-2026-09-05-m4-breakfast",
-      "memberId": "m4",
-      "memberName": "Tanvir Patwary",
-      "date": "2026-09-05",
-      "mealType": "breakfast",
-      "plannedStatus": "OFF",
-      "actualStatus": "missed",
-      "accountingStatus": "exempt",
-      "updatedBy": "m4",
-      "updatedByName": "Tanvir Patwary",
-      "updatedAt": "2026-09-05T05:30:00.000Z"
     },
     {
       "id": "mms-2026-09-05-m4-lunch",
@@ -1998,19 +1741,6 @@
       "updatedAt": "2026-09-05T14:30:00.000Z"
     },
     {
-      "id": "mms-2026-09-05-m5-breakfast",
-      "memberId": "m5",
-      "memberName": "Tarek hossen",
-      "date": "2026-09-05",
-      "mealType": "breakfast",
-      "plannedStatus": "ON",
-      "actualStatus": "attended",
-      "accountingStatus": "billed",
-      "updatedBy": "m5",
-      "updatedByName": "Tarek hossen",
-      "updatedAt": "2026-09-05T05:30:00.000Z"
-    },
-    {
       "id": "mms-2026-09-05-m5-lunch",
       "memberId": "m5",
       "memberName": "Tarek hossen",
@@ -2035,19 +1765,6 @@
       "updatedBy": "m5",
       "updatedByName": "Tarek hossen",
       "updatedAt": "2026-09-05T14:30:00.000Z"
-    },
-    {
-      "id": "mms-2026-09-06-m1-breakfast",
-      "memberId": "m1",
-      "memberName": "Jahidul Islam",
-      "date": "2026-09-06",
-      "mealType": "breakfast",
-      "plannedStatus": "ON",
-      "actualStatus": "attended",
-      "accountingStatus": "billed",
-      "updatedBy": "m1",
-      "updatedByName": "Jahidul Islam",
-      "updatedAt": "2026-09-06T05:30:00.000Z"
     },
     {
       "id": "mms-2026-09-06-m1-lunch",
@@ -2076,19 +1793,6 @@
       "updatedAt": "2026-09-06T14:30:00.000Z"
     },
     {
-      "id": "mms-2026-09-06-m2-breakfast",
-      "memberId": "m2",
-      "memberName": "Fiaaz Ajmaeen",
-      "date": "2026-09-06",
-      "mealType": "breakfast",
-      "plannedStatus": "OFF",
-      "actualStatus": "missed",
-      "accountingStatus": "exempt",
-      "updatedBy": "m2",
-      "updatedByName": "Fiaaz Ajmaeen",
-      "updatedAt": "2026-09-06T05:30:00.000Z"
-    },
-    {
       "id": "mms-2026-09-06-m2-lunch",
       "memberId": "m2",
       "memberName": "Fiaaz Ajmaeen",
@@ -2113,19 +1817,6 @@
       "updatedBy": "m2",
       "updatedByName": "Fiaaz Ajmaeen",
       "updatedAt": "2026-09-06T14:30:00.000Z"
-    },
-    {
-      "id": "mms-2026-09-06-m3-breakfast",
-      "memberId": "m3",
-      "memberName": "RA Raihan",
-      "date": "2026-09-06",
-      "mealType": "breakfast",
-      "plannedStatus": "ON",
-      "actualStatus": "attended",
-      "accountingStatus": "billed",
-      "updatedBy": "m3",
-      "updatedByName": "RA Raihan",
-      "updatedAt": "2026-09-06T05:30:00.000Z"
     },
     {
       "id": "mms-2026-09-06-m3-lunch",
@@ -2154,19 +1845,6 @@
       "updatedAt": "2026-09-06T14:30:00.000Z"
     },
     {
-      "id": "mms-2026-09-06-m4-breakfast",
-      "memberId": "m4",
-      "memberName": "Tanvir Patwary",
-      "date": "2026-09-06",
-      "mealType": "breakfast",
-      "plannedStatus": "ON",
-      "actualStatus": "attended",
-      "accountingStatus": "billed",
-      "updatedBy": "m4",
-      "updatedByName": "Tanvir Patwary",
-      "updatedAt": "2026-09-06T05:30:00.000Z"
-    },
-    {
       "id": "mms-2026-09-06-m4-lunch",
       "memberId": "m4",
       "memberName": "Tanvir Patwary",
@@ -2191,19 +1869,6 @@
       "updatedBy": "m4",
       "updatedByName": "Tanvir Patwary",
       "updatedAt": "2026-09-06T14:30:00.000Z"
-    },
-    {
-      "id": "mms-2026-09-06-m5-breakfast",
-      "memberId": "m5",
-      "memberName": "Tarek hossen",
-      "date": "2026-09-06",
-      "mealType": "breakfast",
-      "plannedStatus": "ON",
-      "actualStatus": "attended",
-      "accountingStatus": "billed",
-      "updatedBy": "m5",
-      "updatedByName": "Tarek hossen",
-      "updatedAt": "2026-09-06T05:30:00.000Z"
     },
     {
       "id": "mms-2026-09-06-m5-lunch",
@@ -2232,19 +1897,6 @@
       "updatedAt": "2026-09-06T14:30:00.000Z"
     },
     {
-      "id": "mms-2026-09-07-m1-breakfast",
-      "memberId": "m1",
-      "memberName": "Jahidul Islam",
-      "date": "2026-09-07",
-      "mealType": "breakfast",
-      "plannedStatus": "ON",
-      "actualStatus": "attended",
-      "accountingStatus": "billed",
-      "updatedBy": "m1",
-      "updatedByName": "Jahidul Islam",
-      "updatedAt": "2026-09-07T05:30:00.000Z"
-    },
-    {
       "id": "mms-2026-09-07-m1-lunch",
       "memberId": "m1",
       "memberName": "Jahidul Islam",
@@ -2269,19 +1921,6 @@
       "updatedBy": "m1",
       "updatedByName": "Jahidul Islam",
       "updatedAt": "2026-09-07T14:30:00.000Z"
-    },
-    {
-      "id": "mms-2026-09-07-m2-breakfast",
-      "memberId": "m2",
-      "memberName": "Fiaaz Ajmaeen",
-      "date": "2026-09-07",
-      "mealType": "breakfast",
-      "plannedStatus": "OFF",
-      "actualStatus": "missed",
-      "accountingStatus": "exempt",
-      "updatedBy": "m2",
-      "updatedByName": "Fiaaz Ajmaeen",
-      "updatedAt": "2026-09-07T05:30:00.000Z"
     },
     {
       "id": "mms-2026-09-07-m2-lunch",
@@ -2310,19 +1949,6 @@
       "updatedAt": "2026-09-07T14:30:00.000Z"
     },
     {
-      "id": "mms-2026-09-07-m3-breakfast",
-      "memberId": "m3",
-      "memberName": "RA Raihan",
-      "date": "2026-09-07",
-      "mealType": "breakfast",
-      "plannedStatus": "ON",
-      "actualStatus": "attended",
-      "accountingStatus": "billed",
-      "updatedBy": "m3",
-      "updatedByName": "RA Raihan",
-      "updatedAt": "2026-09-07T05:30:00.000Z"
-    },
-    {
       "id": "mms-2026-09-07-m3-lunch",
       "memberId": "m3",
       "memberName": "RA Raihan",
@@ -2347,19 +1973,6 @@
       "updatedBy": "m3",
       "updatedByName": "RA Raihan",
       "updatedAt": "2026-09-07T14:30:00.000Z"
-    },
-    {
-      "id": "mms-2026-09-07-m4-breakfast",
-      "memberId": "m4",
-      "memberName": "Tanvir Patwary",
-      "date": "2026-09-07",
-      "mealType": "breakfast",
-      "plannedStatus": "OFF",
-      "actualStatus": "missed",
-      "accountingStatus": "exempt",
-      "updatedBy": "m4",
-      "updatedByName": "Tanvir Patwary",
-      "updatedAt": "2026-09-07T05:30:00.000Z"
     },
     {
       "id": "mms-2026-09-07-m4-lunch",
@@ -2388,19 +2001,6 @@
       "updatedAt": "2026-09-07T14:30:00.000Z"
     },
     {
-      "id": "mms-2026-09-07-m5-breakfast",
-      "memberId": "m5",
-      "memberName": "Tarek hossen",
-      "date": "2026-09-07",
-      "mealType": "breakfast",
-      "plannedStatus": "ON",
-      "actualStatus": "attended",
-      "accountingStatus": "billed",
-      "updatedBy": "m5",
-      "updatedByName": "Tarek hossen",
-      "updatedAt": "2026-09-07T05:30:00.000Z"
-    },
-    {
       "id": "mms-2026-09-07-m5-lunch",
       "memberId": "m5",
       "memberName": "Tarek hossen",
@@ -2425,19 +2025,6 @@
       "updatedBy": "m5",
       "updatedByName": "Tarek hossen",
       "updatedAt": "2026-09-07T14:30:00.000Z"
-    },
-    {
-      "id": "mms-2026-09-08-m1-breakfast",
-      "memberId": "m1",
-      "memberName": "Jahidul Islam",
-      "date": "2026-09-08",
-      "mealType": "breakfast",
-      "plannedStatus": "ON",
-      "actualStatus": "attended",
-      "accountingStatus": "billed",
-      "updatedBy": "m1",
-      "updatedByName": "Jahidul Islam",
-      "updatedAt": "2026-09-08T05:30:00.000Z"
     },
     {
       "id": "mms-2026-09-08-m1-lunch",
@@ -2466,19 +2053,6 @@
       "updatedAt": "2026-09-08T14:30:00.000Z"
     },
     {
-      "id": "mms-2026-09-08-m2-breakfast",
-      "memberId": "m2",
-      "memberName": "Fiaaz Ajmaeen",
-      "date": "2026-09-08",
-      "mealType": "breakfast",
-      "plannedStatus": "ON",
-      "actualStatus": "attended",
-      "accountingStatus": "billed",
-      "updatedBy": "m2",
-      "updatedByName": "Fiaaz Ajmaeen",
-      "updatedAt": "2026-09-08T05:30:00.000Z"
-    },
-    {
       "id": "mms-2026-09-08-m2-lunch",
       "memberId": "m2",
       "memberName": "Fiaaz Ajmaeen",
@@ -2503,19 +2077,6 @@
       "updatedBy": "m2",
       "updatedByName": "Fiaaz Ajmaeen",
       "updatedAt": "2026-09-08T14:30:00.000Z"
-    },
-    {
-      "id": "mms-2026-09-08-m3-breakfast",
-      "memberId": "m3",
-      "memberName": "RA Raihan",
-      "date": "2026-09-08",
-      "mealType": "breakfast",
-      "plannedStatus": "ON",
-      "actualStatus": "attended",
-      "accountingStatus": "billed",
-      "updatedBy": "m3",
-      "updatedByName": "RA Raihan",
-      "updatedAt": "2026-09-08T05:30:00.000Z"
     },
     {
       "id": "mms-2026-09-08-m3-lunch",
@@ -2544,19 +2105,6 @@
       "updatedAt": "2026-09-08T14:30:00.000Z"
     },
     {
-      "id": "mms-2026-09-08-m4-breakfast",
-      "memberId": "m4",
-      "memberName": "Tanvir Patwary",
-      "date": "2026-09-08",
-      "mealType": "breakfast",
-      "plannedStatus": "OFF",
-      "actualStatus": "missed",
-      "accountingStatus": "exempt",
-      "updatedBy": "m4",
-      "updatedByName": "Tanvir Patwary",
-      "updatedAt": "2026-09-08T05:30:00.000Z"
-    },
-    {
       "id": "mms-2026-09-08-m4-lunch",
       "memberId": "m4",
       "memberName": "Tanvir Patwary",
@@ -2581,19 +2129,6 @@
       "updatedBy": "m4",
       "updatedByName": "Tanvir Patwary",
       "updatedAt": "2026-09-08T14:30:00.000Z"
-    },
-    {
-      "id": "mms-2026-09-08-m5-breakfast",
-      "memberId": "m5",
-      "memberName": "Tarek hossen",
-      "date": "2026-09-08",
-      "mealType": "breakfast",
-      "plannedStatus": "ON",
-      "actualStatus": "attended",
-      "accountingStatus": "billed",
-      "updatedBy": "m5",
-      "updatedByName": "Tarek hossen",
-      "updatedAt": "2026-09-08T05:30:00.000Z"
     },
     {
       "id": "mms-2026-09-08-m5-lunch",
@@ -2622,19 +2157,6 @@
       "updatedAt": "2026-09-08T14:30:00.000Z"
     },
     {
-      "id": "mms-2026-09-09-m1-breakfast",
-      "memberId": "m1",
-      "memberName": "Jahidul Islam",
-      "date": "2026-09-09",
-      "mealType": "breakfast",
-      "plannedStatus": "ON",
-      "actualStatus": "attended",
-      "accountingStatus": "billed",
-      "updatedBy": "m1",
-      "updatedByName": "Jahidul Islam",
-      "updatedAt": "2026-09-09T05:30:00.000Z"
-    },
-    {
       "id": "mms-2026-09-09-m1-lunch",
       "memberId": "m1",
       "memberName": "Jahidul Islam",
@@ -2659,19 +2181,6 @@
       "updatedBy": "m1",
       "updatedByName": "Jahidul Islam",
       "updatedAt": "2026-09-09T14:30:00.000Z"
-    },
-    {
-      "id": "mms-2026-09-09-m2-breakfast",
-      "memberId": "m2",
-      "memberName": "Fiaaz Ajmaeen",
-      "date": "2026-09-09",
-      "mealType": "breakfast",
-      "plannedStatus": "OFF",
-      "actualStatus": "missed",
-      "accountingStatus": "exempt",
-      "updatedBy": "m2",
-      "updatedByName": "Fiaaz Ajmaeen",
-      "updatedAt": "2026-09-09T05:30:00.000Z"
     },
     {
       "id": "mms-2026-09-09-m2-lunch",
@@ -2700,19 +2209,6 @@
       "updatedAt": "2026-09-09T14:30:00.000Z"
     },
     {
-      "id": "mms-2026-09-09-m3-breakfast",
-      "memberId": "m3",
-      "memberName": "RA Raihan",
-      "date": "2026-09-09",
-      "mealType": "breakfast",
-      "plannedStatus": "ON",
-      "actualStatus": "attended",
-      "accountingStatus": "billed",
-      "updatedBy": "m3",
-      "updatedByName": "RA Raihan",
-      "updatedAt": "2026-09-09T05:30:00.000Z"
-    },
-    {
       "id": "mms-2026-09-09-m3-lunch",
       "memberId": "m3",
       "memberName": "RA Raihan",
@@ -2737,19 +2233,6 @@
       "updatedBy": "m3",
       "updatedByName": "RA Raihan",
       "updatedAt": "2026-09-09T14:30:00.000Z"
-    },
-    {
-      "id": "mms-2026-09-09-m4-breakfast",
-      "memberId": "m4",
-      "memberName": "Tanvir Patwary",
-      "date": "2026-09-09",
-      "mealType": "breakfast",
-      "plannedStatus": "ON",
-      "actualStatus": "attended",
-      "accountingStatus": "billed",
-      "updatedBy": "m4",
-      "updatedByName": "Tanvir Patwary",
-      "updatedAt": "2026-09-09T05:30:00.000Z"
     },
     {
       "id": "mms-2026-09-09-m4-lunch",
@@ -2778,19 +2261,6 @@
       "updatedAt": "2026-09-09T14:30:00.000Z"
     },
     {
-      "id": "mms-2026-09-09-m5-breakfast",
-      "memberId": "m5",
-      "memberName": "Tarek hossen",
-      "date": "2026-09-09",
-      "mealType": "breakfast",
-      "plannedStatus": "ON",
-      "actualStatus": "attended",
-      "accountingStatus": "billed",
-      "updatedBy": "m5",
-      "updatedByName": "Tarek hossen",
-      "updatedAt": "2026-09-09T05:30:00.000Z"
-    },
-    {
       "id": "mms-2026-09-09-m5-lunch",
       "memberId": "m5",
       "memberName": "Tarek hossen",
@@ -2815,19 +2285,6 @@
       "updatedBy": "m5",
       "updatedByName": "Tarek hossen",
       "updatedAt": "2026-09-09T14:30:00.000Z"
-    },
-    {
-      "id": "mms-2026-09-10-m1-breakfast",
-      "memberId": "m1",
-      "memberName": "Jahidul Islam",
-      "date": "2026-09-10",
-      "mealType": "breakfast",
-      "plannedStatus": "ON",
-      "actualStatus": "attended",
-      "accountingStatus": "billed",
-      "updatedBy": "m1",
-      "updatedByName": "Jahidul Islam",
-      "updatedAt": "2026-09-10T05:30:00.000Z"
     },
     {
       "id": "mms-2026-09-10-m1-lunch",
@@ -2856,19 +2313,6 @@
       "updatedAt": "2026-09-10T14:30:00.000Z"
     },
     {
-      "id": "mms-2026-09-10-m2-breakfast",
-      "memberId": "m2",
-      "memberName": "Fiaaz Ajmaeen",
-      "date": "2026-09-10",
-      "mealType": "breakfast",
-      "plannedStatus": "OFF",
-      "actualStatus": "missed",
-      "accountingStatus": "exempt",
-      "updatedBy": "m2",
-      "updatedByName": "Fiaaz Ajmaeen",
-      "updatedAt": "2026-09-10T05:30:00.000Z"
-    },
-    {
       "id": "mms-2026-09-10-m2-lunch",
       "memberId": "m2",
       "memberName": "Fiaaz Ajmaeen",
@@ -2893,19 +2337,6 @@
       "updatedBy": "m2",
       "updatedByName": "Fiaaz Ajmaeen",
       "updatedAt": "2026-09-10T14:30:00.000Z"
-    },
-    {
-      "id": "mms-2026-09-10-m3-breakfast",
-      "memberId": "m3",
-      "memberName": "RA Raihan",
-      "date": "2026-09-10",
-      "mealType": "breakfast",
-      "plannedStatus": "ON",
-      "actualStatus": "attended",
-      "accountingStatus": "billed",
-      "updatedBy": "m3",
-      "updatedByName": "RA Raihan",
-      "updatedAt": "2026-09-10T05:30:00.000Z"
     },
     {
       "id": "mms-2026-09-10-m3-lunch",
@@ -2934,19 +2365,6 @@
       "updatedAt": "2026-09-10T14:30:00.000Z"
     },
     {
-      "id": "mms-2026-09-10-m4-breakfast",
-      "memberId": "m4",
-      "memberName": "Tanvir Patwary",
-      "date": "2026-09-10",
-      "mealType": "breakfast",
-      "plannedStatus": "OFF",
-      "actualStatus": "missed",
-      "accountingStatus": "exempt",
-      "updatedBy": "m4",
-      "updatedByName": "Tanvir Patwary",
-      "updatedAt": "2026-09-10T05:30:00.000Z"
-    },
-    {
       "id": "mms-2026-09-10-m4-lunch",
       "memberId": "m4",
       "memberName": "Tanvir Patwary",
@@ -2971,19 +2389,6 @@
       "updatedBy": "m4",
       "updatedByName": "Tanvir Patwary",
       "updatedAt": "2026-09-10T14:30:00.000Z"
-    },
-    {
-      "id": "mms-2026-09-10-m5-breakfast",
-      "memberId": "m5",
-      "memberName": "Tarek hossen",
-      "date": "2026-09-10",
-      "mealType": "breakfast",
-      "plannedStatus": "ON",
-      "actualStatus": "attended",
-      "accountingStatus": "billed",
-      "updatedBy": "m5",
-      "updatedByName": "Tarek hossen",
-      "updatedAt": "2026-09-10T05:30:00.000Z"
     },
     {
       "id": "mms-2026-09-10-m5-lunch",
@@ -3012,19 +2417,6 @@
       "updatedAt": "2026-09-10T14:30:00.000Z"
     },
     {
-      "id": "mms-2026-09-11-m1-breakfast",
-      "memberId": "m1",
-      "memberName": "Jahidul Islam",
-      "date": "2026-09-11",
-      "mealType": "breakfast",
-      "plannedStatus": "ON",
-      "actualStatus": "attended",
-      "accountingStatus": "billed",
-      "updatedBy": "m1",
-      "updatedByName": "Jahidul Islam",
-      "updatedAt": "2026-09-11T05:30:00.000Z"
-    },
-    {
       "id": "mms-2026-09-11-m1-lunch",
       "memberId": "m1",
       "memberName": "Jahidul Islam",
@@ -3049,19 +2441,6 @@
       "updatedBy": "m1",
       "updatedByName": "Jahidul Islam",
       "updatedAt": "2026-09-11T14:30:00.000Z"
-    },
-    {
-      "id": "mms-2026-09-11-m2-breakfast",
-      "memberId": "m2",
-      "memberName": "Fiaaz Ajmaeen",
-      "date": "2026-09-11",
-      "mealType": "breakfast",
-      "plannedStatus": "ON",
-      "actualStatus": "attended",
-      "accountingStatus": "billed",
-      "updatedBy": "m2",
-      "updatedByName": "Fiaaz Ajmaeen",
-      "updatedAt": "2026-09-11T05:30:00.000Z"
     },
     {
       "id": "mms-2026-09-11-m2-lunch",
@@ -3090,19 +2469,6 @@
       "updatedAt": "2026-09-11T14:30:00.000Z"
     },
     {
-      "id": "mms-2026-09-11-m3-breakfast",
-      "memberId": "m3",
-      "memberName": "RA Raihan",
-      "date": "2026-09-11",
-      "mealType": "breakfast",
-      "plannedStatus": "ON",
-      "actualStatus": "attended",
-      "accountingStatus": "billed",
-      "updatedBy": "m3",
-      "updatedByName": "RA Raihan",
-      "updatedAt": "2026-09-11T05:30:00.000Z"
-    },
-    {
       "id": "mms-2026-09-11-m3-lunch",
       "memberId": "m3",
       "memberName": "RA Raihan",
@@ -3127,19 +2493,6 @@
       "updatedBy": "m3",
       "updatedByName": "RA Raihan",
       "updatedAt": "2026-09-11T14:30:00.000Z"
-    },
-    {
-      "id": "mms-2026-09-11-m4-breakfast",
-      "memberId": "m4",
-      "memberName": "Tanvir Patwary",
-      "date": "2026-09-11",
-      "mealType": "breakfast",
-      "plannedStatus": "OFF",
-      "actualStatus": "missed",
-      "accountingStatus": "exempt",
-      "updatedBy": "m4",
-      "updatedByName": "Tanvir Patwary",
-      "updatedAt": "2026-09-11T05:30:00.000Z"
     },
     {
       "id": "mms-2026-09-11-m4-lunch",
@@ -3168,19 +2521,6 @@
       "updatedAt": "2026-09-11T14:30:00.000Z"
     },
     {
-      "id": "mms-2026-09-11-m5-breakfast",
-      "memberId": "m5",
-      "memberName": "Tarek hossen",
-      "date": "2026-09-11",
-      "mealType": "breakfast",
-      "plannedStatus": "ON",
-      "actualStatus": "attended",
-      "accountingStatus": "billed",
-      "updatedBy": "m5",
-      "updatedByName": "Tarek hossen",
-      "updatedAt": "2026-09-11T05:30:00.000Z"
-    },
-    {
       "id": "mms-2026-09-11-m5-lunch",
       "memberId": "m5",
       "memberName": "Tarek hossen",
@@ -3205,19 +2545,6 @@
       "updatedBy": "m5",
       "updatedByName": "Tarek hossen",
       "updatedAt": "2026-09-11T14:30:00.000Z"
-    },
-    {
-      "id": "mms-2026-09-12-m1-breakfast",
-      "memberId": "m1",
-      "memberName": "Jahidul Islam",
-      "date": "2026-09-12",
-      "mealType": "breakfast",
-      "plannedStatus": "ON",
-      "actualStatus": "attended",
-      "accountingStatus": "billed",
-      "updatedBy": "m1",
-      "updatedByName": "Jahidul Islam",
-      "updatedAt": "2026-09-12T05:30:00.000Z"
     },
     {
       "id": "mms-2026-09-12-m1-lunch",
@@ -3246,19 +2573,6 @@
       "updatedAt": "2026-09-12T14:30:00.000Z"
     },
     {
-      "id": "mms-2026-09-12-m2-breakfast",
-      "memberId": "m2",
-      "memberName": "Fiaaz Ajmaeen",
-      "date": "2026-09-12",
-      "mealType": "breakfast",
-      "plannedStatus": "OFF",
-      "actualStatus": "missed",
-      "accountingStatus": "exempt",
-      "updatedBy": "m2",
-      "updatedByName": "Fiaaz Ajmaeen",
-      "updatedAt": "2026-09-12T05:30:00.000Z"
-    },
-    {
       "id": "mms-2026-09-12-m2-lunch",
       "memberId": "m2",
       "memberName": "Fiaaz Ajmaeen",
@@ -3283,19 +2597,6 @@
       "updatedBy": "m2",
       "updatedByName": "Fiaaz Ajmaeen",
       "updatedAt": "2026-09-12T14:30:00.000Z"
-    },
-    {
-      "id": "mms-2026-09-12-m3-breakfast",
-      "memberId": "m3",
-      "memberName": "RA Raihan",
-      "date": "2026-09-12",
-      "mealType": "breakfast",
-      "plannedStatus": "ON",
-      "actualStatus": "attended",
-      "accountingStatus": "billed",
-      "updatedBy": "m3",
-      "updatedByName": "RA Raihan",
-      "updatedAt": "2026-09-12T05:30:00.000Z"
     },
     {
       "id": "mms-2026-09-12-m3-lunch",
@@ -3324,19 +2625,6 @@
       "updatedAt": "2026-09-12T14:30:00.000Z"
     },
     {
-      "id": "mms-2026-09-12-m4-breakfast",
-      "memberId": "m4",
-      "memberName": "Tanvir Patwary",
-      "date": "2026-09-12",
-      "mealType": "breakfast",
-      "plannedStatus": "ON",
-      "actualStatus": "attended",
-      "accountingStatus": "billed",
-      "updatedBy": "m4",
-      "updatedByName": "Tanvir Patwary",
-      "updatedAt": "2026-09-12T05:30:00.000Z"
-    },
-    {
       "id": "mms-2026-09-12-m4-lunch",
       "memberId": "m4",
       "memberName": "Tanvir Patwary",
@@ -3361,19 +2649,6 @@
       "updatedBy": "m4",
       "updatedByName": "Tanvir Patwary",
       "updatedAt": "2026-09-12T14:30:00.000Z"
-    },
-    {
-      "id": "mms-2026-09-12-m5-breakfast",
-      "memberId": "m5",
-      "memberName": "Tarek hossen",
-      "date": "2026-09-12",
-      "mealType": "breakfast",
-      "plannedStatus": "ON",
-      "actualStatus": "attended",
-      "accountingStatus": "billed",
-      "updatedBy": "m5",
-      "updatedByName": "Tarek hossen",
-      "updatedAt": "2026-09-12T05:30:00.000Z"
     },
     {
       "id": "mms-2026-09-12-m5-lunch",
@@ -3402,19 +2677,6 @@
       "updatedAt": "2026-09-12T14:30:00.000Z"
     },
     {
-      "id": "mms-2026-09-13-m1-breakfast",
-      "memberId": "m1",
-      "memberName": "Jahidul Islam",
-      "date": "2026-09-13",
-      "mealType": "breakfast",
-      "plannedStatus": "ON",
-      "actualStatus": "attended",
-      "accountingStatus": "billed",
-      "updatedBy": "m1",
-      "updatedByName": "Jahidul Islam",
-      "updatedAt": "2026-09-13T05:30:00.000Z"
-    },
-    {
       "id": "mms-2026-09-13-m1-lunch",
       "memberId": "m1",
       "memberName": "Jahidul Islam",
@@ -3439,19 +2701,6 @@
       "updatedBy": "m1",
       "updatedByName": "Jahidul Islam",
       "updatedAt": "2026-09-13T14:30:00.000Z"
-    },
-    {
-      "id": "mms-2026-09-13-m2-breakfast",
-      "memberId": "m2",
-      "memberName": "Fiaaz Ajmaeen",
-      "date": "2026-09-13",
-      "mealType": "breakfast",
-      "plannedStatus": "OFF",
-      "actualStatus": "missed",
-      "accountingStatus": "exempt",
-      "updatedBy": "m2",
-      "updatedByName": "Fiaaz Ajmaeen",
-      "updatedAt": "2026-09-13T05:30:00.000Z"
     },
     {
       "id": "mms-2026-09-13-m2-lunch",
@@ -3480,19 +2729,6 @@
       "updatedAt": "2026-09-13T14:30:00.000Z"
     },
     {
-      "id": "mms-2026-09-13-m3-breakfast",
-      "memberId": "m3",
-      "memberName": "RA Raihan",
-      "date": "2026-09-13",
-      "mealType": "breakfast",
-      "plannedStatus": "ON",
-      "actualStatus": "attended",
-      "accountingStatus": "billed",
-      "updatedBy": "m3",
-      "updatedByName": "RA Raihan",
-      "updatedAt": "2026-09-13T05:30:00.000Z"
-    },
-    {
       "id": "mms-2026-09-13-m3-lunch",
       "memberId": "m3",
       "memberName": "RA Raihan",
@@ -3517,19 +2753,6 @@
       "updatedBy": "m3",
       "updatedByName": "RA Raihan",
       "updatedAt": "2026-09-13T14:30:00.000Z"
-    },
-    {
-      "id": "mms-2026-09-13-m4-breakfast",
-      "memberId": "m4",
-      "memberName": "Tanvir Patwary",
-      "date": "2026-09-13",
-      "mealType": "breakfast",
-      "plannedStatus": "OFF",
-      "actualStatus": "missed",
-      "accountingStatus": "exempt",
-      "updatedBy": "m4",
-      "updatedByName": "Tanvir Patwary",
-      "updatedAt": "2026-09-13T05:30:00.000Z"
     },
     {
       "id": "mms-2026-09-13-m4-lunch",
@@ -3558,19 +2781,6 @@
       "updatedAt": "2026-09-13T14:30:00.000Z"
     },
     {
-      "id": "mms-2026-09-13-m5-breakfast",
-      "memberId": "m5",
-      "memberName": "Tarek hossen",
-      "date": "2026-09-13",
-      "mealType": "breakfast",
-      "plannedStatus": "ON",
-      "actualStatus": "attended",
-      "accountingStatus": "billed",
-      "updatedBy": "m5",
-      "updatedByName": "Tarek hossen",
-      "updatedAt": "2026-09-13T05:30:00.000Z"
-    },
-    {
       "id": "mms-2026-09-13-m5-lunch",
       "memberId": "m5",
       "memberName": "Tarek hossen",
@@ -3595,19 +2805,6 @@
       "updatedBy": "m5",
       "updatedByName": "Tarek hossen",
       "updatedAt": "2026-09-13T14:30:00.000Z"
-    },
-    {
-      "id": "mms-2026-09-14-m1-breakfast",
-      "memberId": "m1",
-      "memberName": "Jahidul Islam",
-      "date": "2026-09-14",
-      "mealType": "breakfast",
-      "plannedStatus": "ON",
-      "actualStatus": "attended",
-      "accountingStatus": "billed",
-      "updatedBy": "m1",
-      "updatedByName": "Jahidul Islam",
-      "updatedAt": "2026-09-14T05:30:00.000Z"
     },
     {
       "id": "mms-2026-09-14-m1-lunch",
@@ -3636,19 +2833,6 @@
       "updatedAt": "2026-09-14T14:30:00.000Z"
     },
     {
-      "id": "mms-2026-09-14-m2-breakfast",
-      "memberId": "m2",
-      "memberName": "Fiaaz Ajmaeen",
-      "date": "2026-09-14",
-      "mealType": "breakfast",
-      "plannedStatus": "ON",
-      "actualStatus": "attended",
-      "accountingStatus": "billed",
-      "updatedBy": "m2",
-      "updatedByName": "Fiaaz Ajmaeen",
-      "updatedAt": "2026-09-14T05:30:00.000Z"
-    },
-    {
       "id": "mms-2026-09-14-m2-lunch",
       "memberId": "m2",
       "memberName": "Fiaaz Ajmaeen",
@@ -3673,19 +2857,6 @@
       "updatedBy": "m2",
       "updatedByName": "Fiaaz Ajmaeen",
       "updatedAt": "2026-09-14T14:30:00.000Z"
-    },
-    {
-      "id": "mms-2026-09-14-m3-breakfast",
-      "memberId": "m3",
-      "memberName": "RA Raihan",
-      "date": "2026-09-14",
-      "mealType": "breakfast",
-      "plannedStatus": "ON",
-      "actualStatus": "attended",
-      "accountingStatus": "billed",
-      "updatedBy": "m3",
-      "updatedByName": "RA Raihan",
-      "updatedAt": "2026-09-14T05:30:00.000Z"
     },
     {
       "id": "mms-2026-09-14-m3-lunch",
@@ -3714,19 +2885,6 @@
       "updatedAt": "2026-09-14T14:30:00.000Z"
     },
     {
-      "id": "mms-2026-09-14-m4-breakfast",
-      "memberId": "m4",
-      "memberName": "Tanvir Patwary",
-      "date": "2026-09-14",
-      "mealType": "breakfast",
-      "plannedStatus": "OFF",
-      "actualStatus": "missed",
-      "accountingStatus": "exempt",
-      "updatedBy": "m4",
-      "updatedByName": "Tanvir Patwary",
-      "updatedAt": "2026-09-14T05:30:00.000Z"
-    },
-    {
       "id": "mms-2026-09-14-m4-lunch",
       "memberId": "m4",
       "memberName": "Tanvir Patwary",
@@ -3751,19 +2909,6 @@
       "updatedBy": "m4",
       "updatedByName": "Tanvir Patwary",
       "updatedAt": "2026-09-14T14:30:00.000Z"
-    },
-    {
-      "id": "mms-2026-09-14-m5-breakfast",
-      "memberId": "m5",
-      "memberName": "Tarek hossen",
-      "date": "2026-09-14",
-      "mealType": "breakfast",
-      "plannedStatus": "ON",
-      "actualStatus": "attended",
-      "accountingStatus": "billed",
-      "updatedBy": "m5",
-      "updatedByName": "Tarek hossen",
-      "updatedAt": "2026-09-14T05:30:00.000Z"
     },
     {
       "id": "mms-2026-09-14-m5-lunch",
@@ -3792,19 +2937,6 @@
       "updatedAt": "2026-09-14T14:30:00.000Z"
     },
     {
-      "id": "mms-2026-09-15-m1-breakfast",
-      "memberId": "m1",
-      "memberName": "Jahidul Islam",
-      "date": "2026-09-15",
-      "mealType": "breakfast",
-      "plannedStatus": "ON",
-      "actualStatus": "attended",
-      "accountingStatus": "billed",
-      "updatedBy": "m1",
-      "updatedByName": "Jahidul Islam",
-      "updatedAt": "2026-09-15T05:30:00.000Z"
-    },
-    {
       "id": "mms-2026-09-15-m1-lunch",
       "memberId": "m1",
       "memberName": "Jahidul Islam",
@@ -3829,19 +2961,6 @@
       "updatedBy": "m1",
       "updatedByName": "Jahidul Islam",
       "updatedAt": "2026-09-15T14:30:00.000Z"
-    },
-    {
-      "id": "mms-2026-09-15-m2-breakfast",
-      "memberId": "m2",
-      "memberName": "Fiaaz Ajmaeen",
-      "date": "2026-09-15",
-      "mealType": "breakfast",
-      "plannedStatus": "OFF",
-      "actualStatus": "missed",
-      "accountingStatus": "exempt",
-      "updatedBy": "m2",
-      "updatedByName": "Fiaaz Ajmaeen",
-      "updatedAt": "2026-09-15T05:30:00.000Z"
     },
     {
       "id": "mms-2026-09-15-m2-lunch",
@@ -3870,19 +2989,6 @@
       "updatedAt": "2026-09-15T14:30:00.000Z"
     },
     {
-      "id": "mms-2026-09-15-m3-breakfast",
-      "memberId": "m3",
-      "memberName": "RA Raihan",
-      "date": "2026-09-15",
-      "mealType": "breakfast",
-      "plannedStatus": "ON",
-      "actualStatus": "attended",
-      "accountingStatus": "billed",
-      "updatedBy": "m3",
-      "updatedByName": "RA Raihan",
-      "updatedAt": "2026-09-15T05:30:00.000Z"
-    },
-    {
       "id": "mms-2026-09-15-m3-lunch",
       "memberId": "m3",
       "memberName": "RA Raihan",
@@ -3907,19 +3013,6 @@
       "updatedBy": "m3",
       "updatedByName": "RA Raihan",
       "updatedAt": "2026-09-15T14:30:00.000Z"
-    },
-    {
-      "id": "mms-2026-09-15-m4-breakfast",
-      "memberId": "m4",
-      "memberName": "Tanvir Patwary",
-      "date": "2026-09-15",
-      "mealType": "breakfast",
-      "plannedStatus": "ON",
-      "actualStatus": "attended",
-      "accountingStatus": "billed",
-      "updatedBy": "m4",
-      "updatedByName": "Tanvir Patwary",
-      "updatedAt": "2026-09-15T05:30:00.000Z"
     },
     {
       "id": "mms-2026-09-15-m4-lunch",
@@ -3948,19 +3041,6 @@
       "updatedAt": "2026-09-15T14:30:00.000Z"
     },
     {
-      "id": "mms-2026-09-15-m5-breakfast",
-      "memberId": "m5",
-      "memberName": "Tarek hossen",
-      "date": "2026-09-15",
-      "mealType": "breakfast",
-      "plannedStatus": "ON",
-      "actualStatus": "attended",
-      "accountingStatus": "billed",
-      "updatedBy": "m5",
-      "updatedByName": "Tarek hossen",
-      "updatedAt": "2026-09-15T05:30:00.000Z"
-    },
-    {
       "id": "mms-2026-09-15-m5-lunch",
       "memberId": "m5",
       "memberName": "Tarek hossen",
@@ -3985,19 +3065,6 @@
       "updatedBy": "m5",
       "updatedByName": "Tarek hossen",
       "updatedAt": "2026-09-15T14:30:00.000Z"
-    },
-    {
-      "id": "mms-2026-09-16-m1-breakfast",
-      "memberId": "m1",
-      "memberName": "Jahidul Islam",
-      "date": "2026-09-16",
-      "mealType": "breakfast",
-      "plannedStatus": "ON",
-      "actualStatus": "attended",
-      "accountingStatus": "billed",
-      "updatedBy": "m1",
-      "updatedByName": "Jahidul Islam",
-      "updatedAt": "2026-09-16T05:30:00.000Z"
     },
     {
       "id": "mms-2026-09-16-m1-lunch",
@@ -4026,19 +3093,6 @@
       "updatedAt": "2026-09-16T14:30:00.000Z"
     },
     {
-      "id": "mms-2026-09-16-m2-breakfast",
-      "memberId": "m2",
-      "memberName": "Fiaaz Ajmaeen",
-      "date": "2026-09-16",
-      "mealType": "breakfast",
-      "plannedStatus": "OFF",
-      "actualStatus": "missed",
-      "accountingStatus": "exempt",
-      "updatedBy": "m2",
-      "updatedByName": "Fiaaz Ajmaeen",
-      "updatedAt": "2026-09-16T05:30:00.000Z"
-    },
-    {
       "id": "mms-2026-09-16-m2-lunch",
       "memberId": "m2",
       "memberName": "Fiaaz Ajmaeen",
@@ -4063,19 +3117,6 @@
       "updatedBy": "m2",
       "updatedByName": "Fiaaz Ajmaeen",
       "updatedAt": "2026-09-16T14:30:00.000Z"
-    },
-    {
-      "id": "mms-2026-09-16-m3-breakfast",
-      "memberId": "m3",
-      "memberName": "RA Raihan",
-      "date": "2026-09-16",
-      "mealType": "breakfast",
-      "plannedStatus": "ON",
-      "actualStatus": "attended",
-      "accountingStatus": "billed",
-      "updatedBy": "m3",
-      "updatedByName": "RA Raihan",
-      "updatedAt": "2026-09-16T05:30:00.000Z"
     },
     {
       "id": "mms-2026-09-16-m3-lunch",
@@ -4104,19 +3145,6 @@
       "updatedAt": "2026-09-16T14:30:00.000Z"
     },
     {
-      "id": "mms-2026-09-16-m4-breakfast",
-      "memberId": "m4",
-      "memberName": "Tanvir Patwary",
-      "date": "2026-09-16",
-      "mealType": "breakfast",
-      "plannedStatus": "OFF",
-      "actualStatus": "missed",
-      "accountingStatus": "exempt",
-      "updatedBy": "m4",
-      "updatedByName": "Tanvir Patwary",
-      "updatedAt": "2026-09-16T05:30:00.000Z"
-    },
-    {
       "id": "mms-2026-09-16-m4-lunch",
       "memberId": "m4",
       "memberName": "Tanvir Patwary",
@@ -4141,19 +3169,6 @@
       "updatedBy": "m4",
       "updatedByName": "Tanvir Patwary",
       "updatedAt": "2026-09-16T14:30:00.000Z"
-    },
-    {
-      "id": "mms-2026-09-16-m5-breakfast",
-      "memberId": "m5",
-      "memberName": "Tarek hossen",
-      "date": "2026-09-16",
-      "mealType": "breakfast",
-      "plannedStatus": "ON",
-      "actualStatus": "attended",
-      "accountingStatus": "billed",
-      "updatedBy": "m5",
-      "updatedByName": "Tarek hossen",
-      "updatedAt": "2026-09-16T05:30:00.000Z"
     },
     {
       "id": "mms-2026-09-16-m5-lunch",
@@ -4182,19 +3197,6 @@
       "updatedAt": "2026-09-16T14:30:00.000Z"
     },
     {
-      "id": "mms-2026-09-17-m1-breakfast",
-      "memberId": "m1",
-      "memberName": "Jahidul Islam",
-      "date": "2026-09-17",
-      "mealType": "breakfast",
-      "plannedStatus": "ON",
-      "actualStatus": "attended",
-      "accountingStatus": "billed",
-      "updatedBy": "m1",
-      "updatedByName": "Jahidul Islam",
-      "updatedAt": "2026-09-17T05:30:00.000Z"
-    },
-    {
       "id": "mms-2026-09-17-m1-lunch",
       "memberId": "m1",
       "memberName": "Jahidul Islam",
@@ -4219,19 +3221,6 @@
       "updatedBy": "m1",
       "updatedByName": "Jahidul Islam",
       "updatedAt": "2026-09-17T14:30:00.000Z"
-    },
-    {
-      "id": "mms-2026-09-17-m2-breakfast",
-      "memberId": "m2",
-      "memberName": "Fiaaz Ajmaeen",
-      "date": "2026-09-17",
-      "mealType": "breakfast",
-      "plannedStatus": "ON",
-      "actualStatus": "attended",
-      "accountingStatus": "billed",
-      "updatedBy": "m2",
-      "updatedByName": "Fiaaz Ajmaeen",
-      "updatedAt": "2026-09-17T05:30:00.000Z"
     },
     {
       "id": "mms-2026-09-17-m2-lunch",
@@ -4260,19 +3249,6 @@
       "updatedAt": "2026-09-17T14:30:00.000Z"
     },
     {
-      "id": "mms-2026-09-17-m3-breakfast",
-      "memberId": "m3",
-      "memberName": "RA Raihan",
-      "date": "2026-09-17",
-      "mealType": "breakfast",
-      "plannedStatus": "ON",
-      "actualStatus": "attended",
-      "accountingStatus": "billed",
-      "updatedBy": "m3",
-      "updatedByName": "RA Raihan",
-      "updatedAt": "2026-09-17T05:30:00.000Z"
-    },
-    {
       "id": "mms-2026-09-17-m3-lunch",
       "memberId": "m3",
       "memberName": "RA Raihan",
@@ -4297,19 +3273,6 @@
       "updatedBy": "m3",
       "updatedByName": "RA Raihan",
       "updatedAt": "2026-09-17T14:30:00.000Z"
-    },
-    {
-      "id": "mms-2026-09-17-m4-breakfast",
-      "memberId": "m4",
-      "memberName": "Tanvir Patwary",
-      "date": "2026-09-17",
-      "mealType": "breakfast",
-      "plannedStatus": "OFF",
-      "actualStatus": "missed",
-      "accountingStatus": "exempt",
-      "updatedBy": "m4",
-      "updatedByName": "Tanvir Patwary",
-      "updatedAt": "2026-09-17T05:30:00.000Z"
     },
     {
       "id": "mms-2026-09-17-m4-lunch",
@@ -4338,19 +3301,6 @@
       "updatedAt": "2026-09-17T14:30:00.000Z"
     },
     {
-      "id": "mms-2026-09-17-m5-breakfast",
-      "memberId": "m5",
-      "memberName": "Tarek hossen",
-      "date": "2026-09-17",
-      "mealType": "breakfast",
-      "plannedStatus": "ON",
-      "actualStatus": "attended",
-      "accountingStatus": "billed",
-      "updatedBy": "m5",
-      "updatedByName": "Tarek hossen",
-      "updatedAt": "2026-09-17T05:30:00.000Z"
-    },
-    {
       "id": "mms-2026-09-17-m5-lunch",
       "memberId": "m5",
       "memberName": "Tarek hossen",
@@ -4375,19 +3325,6 @@
       "updatedBy": "m5",
       "updatedByName": "Tarek hossen",
       "updatedAt": "2026-09-17T14:30:00.000Z"
-    },
-    {
-      "id": "mms-2026-09-18-m1-breakfast",
-      "memberId": "m1",
-      "memberName": "Jahidul Islam",
-      "date": "2026-09-18",
-      "mealType": "breakfast",
-      "plannedStatus": "ON",
-      "actualStatus": "attended",
-      "accountingStatus": "billed",
-      "updatedBy": "m1",
-      "updatedByName": "Jahidul Islam",
-      "updatedAt": "2026-09-18T05:30:00.000Z"
     },
     {
       "id": "mms-2026-09-18-m1-lunch",
@@ -4416,19 +3353,6 @@
       "updatedAt": "2026-09-18T14:30:00.000Z"
     },
     {
-      "id": "mms-2026-09-18-m2-breakfast",
-      "memberId": "m2",
-      "memberName": "Fiaaz Ajmaeen",
-      "date": "2026-09-18",
-      "mealType": "breakfast",
-      "plannedStatus": "OFF",
-      "actualStatus": "missed",
-      "accountingStatus": "exempt",
-      "updatedBy": "m2",
-      "updatedByName": "Fiaaz Ajmaeen",
-      "updatedAt": "2026-09-18T05:30:00.000Z"
-    },
-    {
       "id": "mms-2026-09-18-m2-lunch",
       "memberId": "m2",
       "memberName": "Fiaaz Ajmaeen",
@@ -4453,19 +3377,6 @@
       "updatedBy": "m2",
       "updatedByName": "Fiaaz Ajmaeen",
       "updatedAt": "2026-09-18T14:30:00.000Z"
-    },
-    {
-      "id": "mms-2026-09-18-m3-breakfast",
-      "memberId": "m3",
-      "memberName": "RA Raihan",
-      "date": "2026-09-18",
-      "mealType": "breakfast",
-      "plannedStatus": "ON",
-      "actualStatus": "attended",
-      "accountingStatus": "billed",
-      "updatedBy": "m3",
-      "updatedByName": "RA Raihan",
-      "updatedAt": "2026-09-18T05:30:00.000Z"
     },
     {
       "id": "mms-2026-09-18-m3-lunch",
@@ -4494,19 +3405,6 @@
       "updatedAt": "2026-09-18T14:30:00.000Z"
     },
     {
-      "id": "mms-2026-09-18-m4-breakfast",
-      "memberId": "m4",
-      "memberName": "Tanvir Patwary",
-      "date": "2026-09-18",
-      "mealType": "breakfast",
-      "plannedStatus": "ON",
-      "actualStatus": "attended",
-      "accountingStatus": "billed",
-      "updatedBy": "m4",
-      "updatedByName": "Tanvir Patwary",
-      "updatedAt": "2026-09-18T05:30:00.000Z"
-    },
-    {
       "id": "mms-2026-09-18-m4-lunch",
       "memberId": "m4",
       "memberName": "Tanvir Patwary",
@@ -4531,19 +3429,6 @@
       "updatedBy": "m4",
       "updatedByName": "Tanvir Patwary",
       "updatedAt": "2026-09-18T14:30:00.000Z"
-    },
-    {
-      "id": "mms-2026-09-18-m5-breakfast",
-      "memberId": "m5",
-      "memberName": "Tarek hossen",
-      "date": "2026-09-18",
-      "mealType": "breakfast",
-      "plannedStatus": "ON",
-      "actualStatus": "attended",
-      "accountingStatus": "billed",
-      "updatedBy": "m5",
-      "updatedByName": "Tarek hossen",
-      "updatedAt": "2026-09-18T05:30:00.000Z"
     },
     {
       "id": "mms-2026-09-18-m5-lunch",
@@ -4572,18 +3457,6 @@
       "updatedAt": "2026-09-18T14:30:00.000Z"
     },
     {
-      "id": "mms-2026-09-19-m1-breakfast",
-      "memberId": "m1",
-      "memberName": "Jahidul Islam",
-      "date": "2026-09-19",
-      "mealType": "breakfast",
-      "plannedStatus": "ON",
-      "accountingStatus": "billed",
-      "updatedBy": "m1",
-      "updatedByName": "Jahidul Islam",
-      "updatedAt": "2026-09-18T10:00:00.000Z"
-    },
-    {
       "id": "mms-2026-09-19-m1-lunch",
       "memberId": "m1",
       "memberName": "Jahidul Islam",
@@ -4605,18 +3478,6 @@
       "accountingStatus": "billed",
       "updatedBy": "m1",
       "updatedByName": "Jahidul Islam",
-      "updatedAt": "2026-09-18T10:00:00.000Z"
-    },
-    {
-      "id": "mms-2026-09-19-m2-breakfast",
-      "memberId": "m2",
-      "memberName": "Fiaaz Ajmaeen",
-      "date": "2026-09-19",
-      "mealType": "breakfast",
-      "plannedStatus": "OFF",
-      "accountingStatus": "exempt",
-      "updatedBy": "m2",
-      "updatedByName": "Fiaaz Ajmaeen",
       "updatedAt": "2026-09-18T10:00:00.000Z"
     },
     {
@@ -4644,18 +3505,6 @@
       "updatedAt": "2026-09-18T10:00:00.000Z"
     },
     {
-      "id": "mms-2026-09-19-m3-breakfast",
-      "memberId": "m3",
-      "memberName": "RA Raihan",
-      "date": "2026-09-19",
-      "mealType": "breakfast",
-      "plannedStatus": "ON",
-      "accountingStatus": "billed",
-      "updatedBy": "m3",
-      "updatedByName": "RA Raihan",
-      "updatedAt": "2026-09-18T10:00:00.000Z"
-    },
-    {
       "id": "mms-2026-09-19-m3-lunch",
       "memberId": "m3",
       "memberName": "RA Raihan",
@@ -4677,18 +3526,6 @@
       "accountingStatus": "billed",
       "updatedBy": "m3",
       "updatedByName": "RA Raihan",
-      "updatedAt": "2026-09-18T10:00:00.000Z"
-    },
-    {
-      "id": "mms-2026-09-19-m4-breakfast",
-      "memberId": "m4",
-      "memberName": "Tanvir Patwary",
-      "date": "2026-09-19",
-      "mealType": "breakfast",
-      "plannedStatus": "OFF",
-      "accountingStatus": "exempt",
-      "updatedBy": "m4",
-      "updatedByName": "Tanvir Patwary",
       "updatedAt": "2026-09-18T10:00:00.000Z"
     },
     {
@@ -4716,18 +3553,6 @@
       "updatedAt": "2026-09-18T10:00:00.000Z"
     },
     {
-      "id": "mms-2026-09-19-m5-breakfast",
-      "memberId": "m5",
-      "memberName": "Tarek hossen",
-      "date": "2026-09-19",
-      "mealType": "breakfast",
-      "plannedStatus": "ON",
-      "accountingStatus": "billed",
-      "updatedBy": "m5",
-      "updatedByName": "Tarek hossen",
-      "updatedAt": "2026-09-18T10:00:00.000Z"
-    },
-    {
       "id": "mms-2026-09-19-m5-lunch",
       "memberId": "m5",
       "memberName": "Tarek hossen",
@@ -4749,18 +3574,6 @@
       "accountingStatus": "exempt",
       "updatedBy": "m5",
       "updatedByName": "Tarek hossen",
-      "updatedAt": "2026-09-18T10:00:00.000Z"
-    },
-    {
-      "id": "mms-2026-09-20-m1-breakfast",
-      "memberId": "m1",
-      "memberName": "Jahidul Islam",
-      "date": "2026-09-20",
-      "mealType": "breakfast",
-      "plannedStatus": "ON",
-      "accountingStatus": "billed",
-      "updatedBy": "m1",
-      "updatedByName": "Jahidul Islam",
       "updatedAt": "2026-09-18T10:00:00.000Z"
     },
     {
@@ -4788,18 +3601,6 @@
       "updatedAt": "2026-09-18T10:00:00.000Z"
     },
     {
-      "id": "mms-2026-09-20-m2-breakfast",
-      "memberId": "m2",
-      "memberName": "Fiaaz Ajmaeen",
-      "date": "2026-09-20",
-      "mealType": "breakfast",
-      "plannedStatus": "OFF",
-      "accountingStatus": "exempt",
-      "updatedBy": "m2",
-      "updatedByName": "Fiaaz Ajmaeen",
-      "updatedAt": "2026-09-18T10:00:00.000Z"
-    },
-    {
       "id": "mms-2026-09-20-m2-lunch",
       "memberId": "m2",
       "memberName": "Fiaaz Ajmaeen",
@@ -4821,18 +3622,6 @@
       "accountingStatus": "billed",
       "updatedBy": "m2",
       "updatedByName": "Fiaaz Ajmaeen",
-      "updatedAt": "2026-09-18T10:00:00.000Z"
-    },
-    {
-      "id": "mms-2026-09-20-m3-breakfast",
-      "memberId": "m3",
-      "memberName": "RA Raihan",
-      "date": "2026-09-20",
-      "mealType": "breakfast",
-      "plannedStatus": "ON",
-      "accountingStatus": "billed",
-      "updatedBy": "m3",
-      "updatedByName": "RA Raihan",
       "updatedAt": "2026-09-18T10:00:00.000Z"
     },
     {
@@ -4860,18 +3649,6 @@
       "updatedAt": "2026-09-18T10:00:00.000Z"
     },
     {
-      "id": "mms-2026-09-20-m4-breakfast",
-      "memberId": "m4",
-      "memberName": "Tanvir Patwary",
-      "date": "2026-09-20",
-      "mealType": "breakfast",
-      "plannedStatus": "OFF",
-      "accountingStatus": "exempt",
-      "updatedBy": "m4",
-      "updatedByName": "Tanvir Patwary",
-      "updatedAt": "2026-09-18T10:00:00.000Z"
-    },
-    {
       "id": "mms-2026-09-20-m4-lunch",
       "memberId": "m4",
       "memberName": "Tanvir Patwary",
@@ -4893,18 +3670,6 @@
       "accountingStatus": "billed",
       "updatedBy": "m4",
       "updatedByName": "Tanvir Patwary",
-      "updatedAt": "2026-09-18T10:00:00.000Z"
-    },
-    {
-      "id": "mms-2026-09-20-m5-breakfast",
-      "memberId": "m5",
-      "memberName": "Tarek hossen",
-      "date": "2026-09-20",
-      "mealType": "breakfast",
-      "plannedStatus": "ON",
-      "accountingStatus": "billed",
-      "updatedBy": "m5",
-      "updatedByName": "Tarek hossen",
       "updatedAt": "2026-09-18T10:00:00.000Z"
     },
     {
@@ -4930,9 +3695,38 @@
       "updatedBy": "m5",
       "updatedByName": "Tarek hossen",
       "updatedAt": "2026-09-18T10:00:00.000Z"
+    },
+    {
+      "id": "mms-2026-10-01-m1-lunch",
+      "memberId": "m1",
+      "memberName": "Jahidul Islam",
+      "date": "2026-10-01",
+      "mealType": "lunch",
+      "plannedStatus": "ON",
+      "actualStatus": "attended",
+      "accountingStatus": "billed",
+      "updatedBy": "m1",
+      "updatedByName": "Jahidul Islam",
+      "updatedAt": "2026-10-01T08:21:34.564Z",
+      "isLockedOverride": true
     }
   ],
   "mealChangeLogs": [
+    {
+      "id": "mcl-1790842894564-ki3u",
+      "memberId": "m1",
+      "memberName": "Jahidul Islam",
+      "date": "2026-10-01",
+      "mealType": "lunch",
+      "previousStatus": "OFF",
+      "newStatus": "ON",
+      "changedBy": "m1",
+      "changedByName": "Jahidul Islam",
+      "changedByRole": "admin",
+      "changedAt": "2026-10-01T08:21:34.564Z",
+      "isOverride": true,
+      "reason": "এডমিন লক ওভাররাইড"
+    },
     {
       "id": "mcl-1",
       "memberId": "m1",
@@ -4952,7 +3746,7 @@
     {
       "id": "menu-1",
       "date": "2026-09-17",
-      "breakfast": "খিচুড়ি + ডিম ভুনা",
+      "breakfast": "",
       "lunch": "ভাত + রুই মাছ ঝোল + ডাল",
       "dinner": "ভাত + মুরগির মাংস + সবজি",
       "updatedBy": "Jahidul Islam"
@@ -4960,7 +3754,7 @@
     {
       "id": "menu-2",
       "date": "2026-09-18",
-      "breakfast": "পরোটা + ডালভাজি + চা",
+      "breakfast": "",
       "lunch": "ভাত + পাবদা মাছ + সালাদ",
       "dinner": "ভাত + ডিম তরকারি + আলুভর্তা",
       "updatedBy": "Jahidul Islam"
@@ -4968,7 +3762,7 @@
     {
       "id": "menu-3",
       "date": "2026-09-19",
-      "breakfast": "ভাত + আলুভর্তা + ডাল",
+      "breakfast": "",
       "lunch": "ভাত + গরুর মাংস ভুনা + লেবু",
       "dinner": "ভাত + ছোট মাছ চচ্চড়ি + ডাল",
       "updatedBy": "Jahidul Islam"
@@ -4976,7 +3770,7 @@
     {
       "id": "menu-4",
       "date": "2026-09-20",
-      "breakfast": "রুটি + ডিম পোজ + কলা",
+      "breakfast": "",
       "lunch": "ভাত + পাঙ্গাশ মাছ দো পেঁয়াজা",
       "dinner": "ভাত + মুরগি কারি + ডাল",
       "updatedBy": "Jahidul Islam"
@@ -4984,7 +3778,7 @@
     {
       "id": "menu-5",
       "date": "2026-09-21",
-      "breakfast": "ভুনা খিচুড়ি + বেগুন ভাজা",
+      "breakfast": "",
       "lunch": "ভাত + তেলাপিয়া ভুনা + শাকভাজি",
       "dinner": "ভাত + ডিম কারি + পাতলা ডাল",
       "updatedBy": "Jahidul Islam"
@@ -4992,7 +3786,7 @@
     {
       "id": "menu-6",
       "date": "2026-09-22",
-      "breakfast": "স্পেশাল পরাটা + হালুয়া + ডিম",
+      "breakfast": "",
       "lunch": "স্পেশাল বিফ তেহারি / পোলাও + সালাদ",
       "dinner": "ভাত + কাতল মাছ কালিয়া + ডাল",
       "updatedBy": "Jahidul Islam"
@@ -5000,7 +3794,7 @@
     {
       "id": "menu-7",
       "date": "2026-09-23",
-      "breakfast": "রুটি + সবজি ভাজি + ডিম",
+      "breakfast": "",
       "lunch": "ভাত + মুরগি ঝোল + লাবড়া সবজি",
       "dinner": "ভাত + ডিম ভুনা + মসুর ডাল",
       "updatedBy": "Jahidul Islam"
@@ -5620,7 +4414,7 @@
       "status": "open",
       "totalMembers": 6,
       "activeMembers": 6,
-      "totalMeals": 0,
+      "totalMeals": 1,
       "totalBazarExpense": 0,
       "totalMealRelatedExpense": 0,
       "mealRate": 0,
@@ -5635,7 +4429,7 @@
           "memberId": "m1",
           "memberName": "Jahidul Islam",
           "roomNo": "7D",
-          "totalMeals": 0,
+          "totalMeals": 1,
           "mealRate": 0,
           "mealCost": 0,
           "sharedCostsShare": 0,
@@ -5782,7 +4576,7 @@
           }
         }
       },
-      "formulaNote": "এখনও কোন মিল যুক্ত হয়নি। মোট মিল খরচ: ৳0। নতুন মাসের মিল চালু হলে স্বয়ংক্রিয় মিল রেট তৈরি হবে।"
+      "formulaNote": "মিল রেট = মোট মিল খরচ (৳0) ÷ মোট মিল (1 টি) = ৳0.00। ফিক্সড খরচাদি 6 জন সক্রিয় সদস্যের মাঝে সমবণ্টন।"
     },
     {
       "id": "acc_2026-09",
@@ -6054,6 +4848,20 @@
   ],
   "auditLogs": [
     {
+      "id": "audit-1790842894565-hl9r",
+      "timestamp": "2026-10-01T08:21:34.565Z",
+      "userId": "m1",
+      "userName": "Jahidul Islam",
+      "action": "ADMIN_OVERRIDE_MEAL",
+      "recordType": "MealSelection",
+      "recordId": "mms-2026-10-01-m1-lunch",
+      "module": "meals",
+      "details": "Jahidul Islam এর 2026-10-01 তারিখের দুপুরের খাবার (lunch) মিল OFF থেকে ON করা হয়েছে [লক ওভাররাইড]",
+      "previousValue": "পূর্বের স্ট্যাটাস: OFF",
+      "newValue": "নতুন স্ট্যাটাস: ON",
+      "ipAddress": "127.0.0.1"
+    },
+    {
       "id": "audit-1790834030155-muws",
       "timestamp": "2026-10-01T05:53:50.155Z",
       "userId": "m1",
@@ -6266,6 +5074,18 @@
   ],
   "smsLogs": [
     {
+      "id": "sms-1790842894569",
+      "timestamp": "2026-10-01T08:21:34.569Z",
+      "recipientId": "m1",
+      "recipientName": "Jahidul Islam",
+      "phone": "01516528497",
+      "type": "meal_status",
+      "message": "আপনার 2026-10-01 তারিখের দুপুরের খাবার মিল সফলভাবে ON করা হয়েছে।",
+      "status": "sent",
+      "provider": "Alpha SMS Gateway",
+      "refId": "MEAL-894569"
+    },
+    {
       "id": "sms-stmt-1790834030160-m_9837",
       "timestamp": "2026-10-01T05:53:50.160Z",
       "recipientId": "m_9837",
@@ -6473,7 +5293,7 @@
     "status": "open",
     "totalMembers": 6,
     "activeMembers": 6,
-    "totalMeals": 0,
+    "totalMeals": 1,
     "totalBazarExpense": 0,
     "totalMealRelatedExpense": 0,
     "mealRate": 0,
@@ -6488,7 +5308,7 @@
         "memberId": "m1",
         "memberName": "Jahidul Islam",
         "roomNo": "7D",
-        "totalMeals": 0,
+        "totalMeals": 1,
         "mealRate": 0,
         "mealCost": 0,
         "sharedCostsShare": 0,
@@ -6635,6 +5455,6 @@
         }
       }
     },
-    "formulaNote": "এখনও কোন মিল যুক্ত হয়নি। মোট মিল খরচ: ৳0। নতুন মাসের মিল চালু হলে স্বয়ংক্রিয় মিল রেট তৈরি হবে।"
+    "formulaNote": "মিল রেট = মোট মিল খরচ (৳0) ÷ মোট মিল (1 টি) = ৳0.00। ফিক্সড খরচাদি 6 জন সক্রিয় সদস্যের মাঝে সমবণ্টন।"
   }
 }

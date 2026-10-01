@@ -193,7 +193,7 @@ export function validateMonthRecords(month: string): { isValid: boolean; errors:
   // Check for negative meal counts or negative expenses
   mealsInMonth.forEach(day => {
     Object.values(day.records).forEach(rec => {
-      if (rec.breakfast < 0 || rec.lunch < 0 || rec.dinner < 0) {
+      if ((rec.lunch || 0) < 0 || (rec.dinner || 0) < 0) {
         errors.push(`${day.date} তারিখে সদস্য (${rec.memberId}) এর মিলের সংখ্যা নেগেটিভ হতে পারবে না।`);
       }
     });

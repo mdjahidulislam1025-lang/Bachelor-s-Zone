@@ -18,6 +18,7 @@ import { Member, BazarDuty, BazarRecord, MarketItem, BazarLineItem } from '../ty
 import { Language, translations } from '../utils/translations.js';
 import { ConfirmDeleteModal } from './ConfirmDeleteModal.js';
 import { ClosedMonthAlert } from './ClosedMonthAlert.js';
+import { getTodayDhakaDate, getTomorrowDhakaDate } from '../utils/monthlyPeriodUtils.js';
 
 interface BazarViewProps {
   members: Member[];
@@ -72,7 +73,7 @@ export const BazarView: React.FC<BazarViewProps> = ({
   const [isDeleting, setIsDeleting] = useState(false);
 
   // New/Edit Bazar form state
-  const [bazarDate, setBazarDate] = useState('2026-09-17');
+  const [bazarDate, setBazarDate] = useState(() => getTodayDhakaDate());
   const [bazarPersonId, setBazarPersonId] = useState(activeMembers[0]?.id || 'm1');
   const [bazarNotes, setBazarNotes] = useState('');
   const [bazarItems, setBazarItems] = useState<BazarLineItem[]>([
@@ -82,7 +83,7 @@ export const BazarView: React.FC<BazarViewProps> = ({
   ]);
 
   // Bazar Duty form state
-  const [dutyDate, setDutyDate] = useState('2026-09-18');
+  const [dutyDate, setDutyDate] = useState(() => getTomorrowDhakaDate());
   const [dutyMemberId, setDutyMemberId] = useState(activeMembers[1]?.id || 'm2');
   const [dutyBudget, setDutyBudget] = useState(1500);
 

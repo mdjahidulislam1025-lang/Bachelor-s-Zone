@@ -97,7 +97,7 @@ export function checkMealLock(
   const dhaka = forcedDhakaTime || getDhakaTime(cutoffConfig.timezone);
   const cutoffTime =
     mealType === 'breakfast'
-      ? cutoffConfig.breakfastCutoff
+      ? (cutoffConfig.breakfastCutoff || '06:00')
       : mealType === 'lunch'
       ? cutoffConfig.lunchCutoff
       : cutoffConfig.dinnerCutoff;
