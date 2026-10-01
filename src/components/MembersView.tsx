@@ -41,9 +41,6 @@ export function isPermanentAdminMember(m?: { id?: string; name?: string; phone?:
     m.id === 'admin_m1' ||
     name.includes('jahidul') ||
     name.includes('জাহিদুল') ||
-    phone === '8801711234567' ||
-    phone === '01711234567' ||
-    phone === '8801516528497' ||
     phone === '01516528497' ||
     email === 'mdjahidulislam1025@gmail.com'
   );
