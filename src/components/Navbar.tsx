@@ -14,6 +14,7 @@ import {
   LogOut,
   Database,
   ChevronDown,
+  UserPlus,
 } from 'lucide-react';
 import { Member, InAppNotification } from '../types.js';
 import { Language, translations } from '../utils/translations.js';
@@ -36,6 +37,7 @@ interface NavbarProps {
   onOpenAdminLogin: () => void;
   onOpenAdminProfile: () => void;
   onOpenDataManagement: () => void;
+  onOpenRegister?: () => void;
 }
 
 export const Navbar: React.FC<NavbarProps> = ({
@@ -54,6 +56,7 @@ export const Navbar: React.FC<NavbarProps> = ({
   onOpenAdminLogin,
   onOpenAdminProfile,
   onOpenDataManagement,
+  onOpenRegister,
 }) => {
   const [showNotifs, setShowNotifs] = useState(false);
   const [showAdminMenu, setShowAdminMenu] = useState(false);
@@ -230,14 +233,26 @@ export const Navbar: React.FC<NavbarProps> = ({
                 )}
               </div>
             ) : (
-              <button
-                onClick={onOpenAdminLogin}
-                className="flex items-center gap-1.5 px-3 py-1.5 bg-slate-900 hover:bg-slate-800 text-white rounded-xl text-xs font-bold shadow-xs hover:shadow-md transition-all cursor-pointer"
-                title="Admin Login"
-              >
-                <Lock className="h-3.5 w-3.5 text-emerald-400" />
-                <span>এডমিন লগইন</span>
-              </button>
+              <div className="flex items-center gap-1.5">
+                {onOpenRegister && (
+                  <button
+                    onClick={onOpenRegister}
+                    className="flex items-center gap-1.5 px-3 py-1.5 bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-200 rounded-xl text-xs font-bold transition-all cursor-pointer"
+                    title="নতুন সদস্য রেজিস্ট্রেশন"
+                  >
+                    <UserPlus className="h-3.5 w-3.5 text-emerald-600" />
+                    <span className="hidden sm:inline">রেজিস্ট্রেশন</span>
+                  </button>
+                )}
+                <button
+                  onClick={onOpenAdminLogin}
+                  className="flex items-center gap-1.5 px-3 py-1.5 bg-slate-900 hover:bg-slate-800 text-white rounded-xl text-xs font-bold shadow-xs hover:shadow-md transition-all cursor-pointer"
+                  title="Admin Login"
+                >
+                  <Lock className="h-3.5 w-3.5 text-emerald-400" />
+                  <span>এডমিন লগইন</span>
+                </button>
+              </div>
             )}
           </div>
 

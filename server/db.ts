@@ -45,6 +45,9 @@ export function initDatabase(): MessDatabaseState {
       if (!inMemoryState!.memberCredentials) {
         inMemoryState!.memberCredentials = initial.memberCredentials;
       }
+      if (!inMemoryState!.registrations) {
+        inMemoryState!.registrations = [];
+      }
     } else {
       inMemoryState = getInitialMessData();
       fs.writeFileSync(DATA_FILE, JSON.stringify(inMemoryState, null, 2), 'utf-8');
@@ -76,6 +79,9 @@ export function getDatabase(): MessDatabaseState {
   if (!inMemoryState!.settings?.paymentInfo) {
     if (!inMemoryState!.settings) inMemoryState!.settings = initial.settings;
     inMemoryState!.settings.paymentInfo = initial.settings.paymentInfo;
+  }
+  if (!inMemoryState!.registrations) {
+    inMemoryState!.registrations = [];
   }
   // Automatic new month detection and isolation
   ensureCurrentMonthPeriod(inMemoryState!);

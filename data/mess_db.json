@@ -75,6 +75,17 @@
       "status": "active",
       "joiningDate": "2026-10-01",
       "avatarColor": "bg-amber-600"
+    },
+    {
+      "id": "m_1791019023890",
+      "name": "Tareq Rahman",
+      "nickname": "Tareq",
+      "phone": "01855667788",
+      "roomNo": "402",
+      "role": "member",
+      "status": "active",
+      "joiningDate": "2026-10-03",
+      "avatarColor": "bg-emerald-600"
     }
   ],
   "adminProfile": {
@@ -88,7 +99,7 @@
     "role": "admin",
     "status": "active",
     "createdDate": "2026-01-01",
-    "lastLogin": "2026-09-18T08:00:00.000Z"
+    "lastLogin": "2026-10-03T09:17:03.980Z"
   },
   "memberCredentials": {
     "m1": {
@@ -120,6 +131,12 @@
       "phone": "01715678901",
       "passwordHash": "h_b8c08fb3",
       "isActive": true
+    },
+    "m_1791019023890": {
+      "memberId": "m_1791019023890",
+      "phone": "01855667788",
+      "passwordHash": "scrypt:69f22a6f77babc258861e97ecbfdf2c4:53630582f4c6f81382b3511d25841e5d553378538683d6cc8c9a6e24c8fdb6ce6f2e2db9df036a1a45a33b59da75acde20f599ec1b58bc7952ca96ffd9334d7f",
+      "isActive": true
     }
   },
   "dailyMeals": [
@@ -130,59 +147,59 @@
         "m1": {
           "memberId": "m1",
           "breakfast": 0,
-          "lunch": 1,
-          "dinner": 1,
-          "total": 2,
+          "lunch": 0,
+          "dinner": 0,
+          "total": 0,
           "notes": ""
         },
         "m2": {
           "memberId": "m2",
           "breakfast": 0,
-          "lunch": 1,
-          "dinner": 1,
-          "total": 2,
+          "lunch": 0,
+          "dinner": 0,
+          "total": 0,
           "notes": ""
         },
         "m3": {
           "memberId": "m3",
           "breakfast": 0,
-          "lunch": 1,
-          "dinner": 1,
-          "total": 2,
+          "lunch": 0,
+          "dinner": 0,
+          "total": 0,
           "notes": ""
         },
         "m4": {
           "memberId": "m4",
           "breakfast": 0,
-          "lunch": 1,
-          "dinner": 1,
-          "total": 2,
+          "lunch": 0,
+          "dinner": 0,
+          "total": 0,
           "notes": ""
         },
         "m5": {
           "memberId": "m5",
           "breakfast": 0,
-          "lunch": 1,
-          "dinner": 1,
-          "total": 2,
+          "lunch": 0,
+          "dinner": 0,
+          "total": 0,
           "notes": ""
         },
         "m_9837": {
           "memberId": "m_9837",
           "breakfast": 0,
-          "lunch": 1,
-          "dinner": 1,
-          "total": 2,
+          "lunch": 0,
+          "dinner": 0,
+          "total": 0,
           "notes": ""
         }
       },
       "totalBreakfast": 0,
-      "totalLunch": 6,
-      "totalDinner": 6,
-      "totalMeals": 12,
-      "notes": "নতুন মাসের আজকের মিল হিসাব চালু",
-      "updatedBy": "System",
-      "updatedAt": "2026-10-03T04:46:51.059Z"
+      "totalLunch": 0,
+      "totalDinner": 0,
+      "totalMeals": 0,
+      "notes": "",
+      "updatedBy": "Jahidul Islam",
+      "updatedAt": "2026-10-03T09:12:22.520Z"
     },
     {
       "id": "dm-2026-09-18",
@@ -5283,8 +5300,8 @@
       "accounting_period_id": "2026-10",
       "monthName": "অক্টোবর ২০২৬ (October 2026)",
       "status": "open",
-      "totalMembers": 6,
-      "activeMembers": 6,
+      "totalMembers": 7,
+      "activeMembers": 7,
       "totalMeals": 0,
       "totalBazarExpense": 0,
       "totalMealRelatedExpense": 0,
@@ -5425,6 +5442,31 @@
           "memberId": "m_9837",
           "memberName": "Saif",
           "roomNo": "7D",
+          "totalMeals": 0,
+          "mealRate": 0,
+          "mealCost": 0,
+          "sharedCostsShare": 0,
+          "individualCosts": 0,
+          "currentMonthCost": 0,
+          "previousBalance": 0,
+          "totalCost": 0,
+          "totalPaid": 0,
+          "currentMonthPaid": 0,
+          "netBalance": 0,
+          "breakdown": {
+            "rentShare": 0,
+            "gasShare": 0,
+            "electricityShare": 0,
+            "maidSalaryShare": 0,
+            "internetShare": 0,
+            "cleaningShare": 0,
+            "otherShared": 0
+          }
+        },
+        "m_1791019023890": {
+          "memberId": "m_1791019023890",
+          "memberName": "Tareq Rahman",
+          "roomNo": "402",
           "totalMeals": 0,
           "mealRate": 0,
           "mealCost": 0,
@@ -5719,6 +5761,143 @@
   ],
   "auditLogs": [
     {
+      "id": "audit-1791019023993-phqf",
+      "timestamp": "2026-10-03T09:17:03.993Z",
+      "userId": "m1",
+      "userName": "RA Raihan",
+      "action": "সদস্য লগইন",
+      "recordType": "members",
+      "recordId": "",
+      "module": "members",
+      "details": "RA Raihan অ্যাপে প্রবেশ করেছেন"
+    },
+    {
+      "id": "audit-1791019023983-l7yn",
+      "timestamp": "2026-10-03T09:17:03.983Z",
+      "userId": "m1",
+      "userName": "Jahidul Islam",
+      "action": "প্রধান এডমিন লগইন",
+      "recordType": "settings",
+      "recordId": "",
+      "module": "settings",
+      "details": "Jahidul Islam প্রধান এডমিন অ্যাকাউন্টে প্রবেশ করেছেন"
+    },
+    {
+      "id": "audit-1791019023968-czt9",
+      "timestamp": "2026-10-03T09:17:03.968Z",
+      "userId": "m1",
+      "userName": "Tareq Rahman",
+      "action": "সদস্য লগইন",
+      "recordType": "members",
+      "recordId": "",
+      "module": "members",
+      "details": "Tareq Rahman অ্যাপে প্রবেশ করেছেন"
+    },
+    {
+      "id": "audit-1791019023891-lzyx",
+      "timestamp": "2026-10-03T09:17:03.891Z",
+      "userId": "m1",
+      "userName": "Jahidul Islam",
+      "action": "রেজিস্ট্রেশন অনুমোদন",
+      "recordType": "members",
+      "recordId": "",
+      "module": "members",
+      "details": "স্থায়ী প্রধান এডমিন জাহিদুল ইসলাম কর্তৃক Tareq Rahman (01855667788) এর রেজিস্ট্রেশন অনুমোদন করা হয়েছে (রোল: সদস্য)"
+    },
+    {
+      "id": "audit-1791019023882-3hxt",
+      "timestamp": "2026-10-03T09:17:03.882Z",
+      "userId": "m1",
+      "userName": "Jahidul Islam",
+      "action": "প্রধান এডমিন লগইন",
+      "recordType": "settings",
+      "recordId": "",
+      "module": "settings",
+      "details": "Jahidul Islam প্রধান এডমিন অ্যাকাউন্টে প্রবেশ করেছেন"
+    },
+    {
+      "id": "audit-1791019023856-t34e",
+      "timestamp": "2026-10-03T09:17:03.856Z",
+      "userId": "m1",
+      "userName": "Jahidul Islam",
+      "action": "প্রধান এডমিন লগইন",
+      "recordType": "settings",
+      "recordId": "",
+      "module": "settings",
+      "details": "Jahidul Islam প্রধান এডমিন অ্যাকাউন্টে প্রবেশ করেছেন"
+    },
+    {
+      "id": "audit-1791019023811-szcf",
+      "timestamp": "2026-10-03T09:17:03.811Z",
+      "userId": "m1",
+      "userName": "Tareq Rahman",
+      "action": "নতুন রেজিস্ট্রেশন আবেদন",
+      "recordType": "members",
+      "recordId": "",
+      "module": "members",
+      "details": "নতুন সদস্য রেজিস্ট্রেশন আবেদন জমা: Tareq Rahman (01855667788)"
+    },
+    {
+      "id": "audit-1791019009613-tplq",
+      "timestamp": "2026-10-03T09:16:49.613Z",
+      "userId": "m1",
+      "userName": "Jahidul Islam",
+      "action": "এডমিন লগইন",
+      "recordType": "settings",
+      "recordId": "",
+      "module": "settings",
+      "details": "Jahidul Islam এডমিন অ্যাকাউন্টে প্রবেশ করেছেন"
+    },
+    {
+      "id": "audit-1791019009592-598j",
+      "timestamp": "2026-10-03T09:16:49.592Z",
+      "userId": "m1",
+      "userName": "Jahidul Islam",
+      "action": "এডমিন লগইন",
+      "recordType": "settings",
+      "recordId": "",
+      "module": "settings",
+      "details": "Jahidul Islam এডমিন অ্যাকাউন্টে প্রবেশ করেছেন"
+    },
+    {
+      "id": "audit-1791019009562-of9u",
+      "timestamp": "2026-10-03T09:16:49.562Z",
+      "userId": "m1",
+      "userName": "Jahidul Islam",
+      "action": "এডমিন লগইন",
+      "recordType": "settings",
+      "recordId": "",
+      "module": "settings",
+      "details": "Jahidul Islam এডমিন অ্যাকাউন্টে প্রবেশ করেছেন"
+    },
+    {
+      "id": "audit-1791018742521-l9v1",
+      "timestamp": "2026-10-03T09:12:22.521Z",
+      "userId": "m1",
+      "userName": "Jahidul Islam",
+      "action": "EDIT",
+      "recordType": "Meal",
+      "recordId": "dm-2026-10-03",
+      "module": "meals",
+      "details": "2026-10-03 তারিখের মিল আপডেট করা হয়েছে (মোট: 0 মিল)",
+      "previousValue": "পূর্বের মোট মিল: 12",
+      "newValue": "নতুন মোট মিল: 0",
+      "ipAddress": "103.229.85.192"
+    },
+    {
+      "id": "audit-1791018698204-nbs9",
+      "timestamp": "2026-10-03T09:11:38.204Z",
+      "userId": "m1",
+      "userName": "Jahidul Islam",
+      "action": "DELETE",
+      "recordType": "Meal",
+      "recordId": "dm-2026-10-03",
+      "module": "meals",
+      "details": "2026-10-03 তারিখের সম্পূর্ণ মিল রেকর্ড মুছে ফেলা হয়েছে (মোট: 12 মিল)",
+      "previousValue": "তারিখ: 2026-10-03, মোট মিল: 12",
+      "ipAddress": "103.229.85.192"
+    },
+    {
       "id": "audit-1791002256390-ypo9",
       "timestamp": "2026-10-03T04:37:36.390Z",
       "userId": "m1",
@@ -5958,6 +6137,18 @@
     }
   ],
   "smsLogs": [
+    {
+      "id": "sms-1791019023809",
+      "timestamp": "2026-10-03T09:17:03.809Z",
+      "recipientId": "reg-01855667788",
+      "recipientName": "Tareq Rahman",
+      "phone": "01855667788",
+      "type": "phone_verification",
+      "message": "Bachelor Zone: রেজিস্ট্রেশন ফোন ভেরিফিকেশন ওটিপি পাঠানো হয়েছে।",
+      "status": "sent",
+      "provider": "Alpha SMS Gateway",
+      "refId": "REG-023809"
+    },
     {
       "id": "sms-1791002256393",
       "timestamp": "2026-10-03T04:37:36.393Z",
@@ -6228,8 +6419,8 @@
     "accounting_period_id": "2026-10",
     "monthName": "অক্টোবর ২০২৬ (October 2026)",
     "status": "open",
-    "totalMembers": 6,
-    "activeMembers": 6,
+    "totalMembers": 7,
+    "activeMembers": 7,
     "totalMeals": 0,
     "totalBazarExpense": 0,
     "totalMealRelatedExpense": 0,
@@ -6390,8 +6581,55 @@
           "cleaningShare": 0,
           "otherShared": 0
         }
+      },
+      "m_1791019023890": {
+        "memberId": "m_1791019023890",
+        "memberName": "Tareq Rahman",
+        "roomNo": "402",
+        "totalMeals": 0,
+        "mealRate": 0,
+        "mealCost": 0,
+        "sharedCostsShare": 0,
+        "individualCosts": 0,
+        "currentMonthCost": 0,
+        "previousBalance": 0,
+        "totalCost": 0,
+        "totalPaid": 0,
+        "currentMonthPaid": 0,
+        "netBalance": 0,
+        "breakdown": {
+          "rentShare": 0,
+          "gasShare": 0,
+          "electricityShare": 0,
+          "maidSalaryShare": 0,
+          "internetShare": 0,
+          "cleaningShare": 0,
+          "otherShared": 0
+        }
       }
     },
     "formulaNote": "এখনও কোন মিল যুক্ত হয়নি। মোট মিল খরচ: ৳0। নতুন মাসের মিল চালু হলে স্বয়ংক্রিয় মিল রেট তৈরি হবে।"
-  }
+  },
+  "registrations": [
+    {
+      "id": "reg_1791019023809_sagqt",
+      "fullName": "Tareq Rahman",
+      "phone": "01855667788",
+      "studentId": "ST-2026-99",
+      "roomNo": "402",
+      "passwordHash": "scrypt:69f22a6f77babc258861e97ecbfdf2c4:53630582f4c6f81382b3511d25841e5d553378538683d6cc8c9a6e24c8fdb6ce6f2e2db9df036a1a45a33b59da75acde20f599ec1b58bc7952ca96ffd9334d7f",
+      "status": "APPROVED",
+      "isPhoneVerified": false,
+      "phoneOtp": {
+        "expiresAt": 1791019323809,
+        "attempts": 0
+      },
+      "registrationDate": "2026-10-03T09:17:03.809Z",
+      "ipAddress": "127.0.0.1",
+      "reviewedBy": "Jahidul Islam",
+      "reviewedAt": "2026-10-03T09:17:03.890Z",
+      "assignedRole": "MEMBER",
+      "memberId": "m_1791019023890"
+    }
+  ]
 }

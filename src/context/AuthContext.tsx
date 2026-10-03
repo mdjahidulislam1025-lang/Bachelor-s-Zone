@@ -13,7 +13,34 @@ interface AuthContextType {
   currentUserName: string;
   currentUserRole: UserRole;
   token: string | null;
-  login: (identifier: string, pass: string, remember?: boolean) => Promise<{ success: boolean; error?: string }>;
+  login: (identifier: string, pass: string, remember?: boolean) => Promise<{
+    success: boolean;
+    error?: string;
+    isPendingApproval?: boolean;
+    isRejected?: boolean;
+    registration?: any;
+  }>;
+  register: (data: {
+    fullName: string;
+    phone: string;
+    password: string;
+    confirmPassword: string;
+    studentId?: string;
+    roomNo?: string;
+  }) => Promise<{
+    success: boolean;
+    message?: string;
+    error?: string;
+    registration?: any;
+    smsGatewayConfigured?: boolean;
+    requiresPhoneVerification?: boolean;
+  }>;
+  verifyPhoneOtp: (phone: string, code: string) => Promise<{
+    success: boolean;
+    message?: string;
+    error?: string;
+    registration?: any;
+  }>;
   firstTimeSetup: (data: {
     name: string;
     phone: string;
@@ -96,9 +123,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode; initialAdminPro
         body: JSON.stringify({ identifier, password: pass, rememberMe: remember }),
       });
       const contentType = res.headers.get('content-type');
-      if (res.ok && contentType && contentType.includes('application/json')) {
+      if (contentType && contentType.includes('application/json')) {
         const data = await res.json();
-        if (data.success) {
+        if (res.ok && data.success) {
           const newSession: AuthSession = data.user;
           newSession.token = data.token;
           setSession(newSession);
@@ -110,7 +137,13 @@ export const AuthProvider: React.FC<{ children: React.ReactNode; initialAdminPro
           }
           return { success: true };
         } else {
-          return { success: false, error: data.error || 'লগইন ব্যর্থ হয়েছে' };
+          return {
+            success: false,
+            error: data.error || 'লগইন ব্যর্থ হয়েছে',
+            isPendingApproval: data.isPendingApproval,
+            isRejected: data.isRejected,
+            registration: data.registration,
+          };
         }
       }
     } catch (err: any) {
@@ -386,7 +419,62 @@ export const AuthProvider: React.FC<{ children: React.ReactNode; initialAdminPro
     };
   };
 
-  const isAdmin = session?.role === 'admin';
+  const register = async (regData: {
+    fullName: string;
+    phone: string;
+    password: string;
+    confirmPassword: string;
+    studentId?: string;
+    roomNo?: string;
+  }) => {
+    try {
+      const res = await fetch('/api/auth/register', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(regData),
+      });
+      const contentType = res.headers.get('content-type');
+      if (contentType && contentType.includes('application/json')) {
+        const data = await res.json();
+        return {
+          success: res.ok && data.success,
+          message: data.message,
+          error: data.error,
+          registration: data.registration,
+          smsGatewayConfigured: data.smsGatewayConfigured,
+          requiresPhoneVerification: data.requiresPhoneVerification,
+        };
+      }
+      return { success: false, error: 'সার্ভার থেকে সঠিক সাড়া পাওয়া যায়নি' };
+    } catch (err: any) {
+      return { success: false, error: err.message || 'নেটওয়ার্ক সংযোগ সমস্যা' };
+    }
+  };
+
+  const verifyPhoneOtp = async (phone: string, code: string) => {
+    try {
+      const res = await fetch('/api/auth/verify-phone-otp', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ phone, code }),
+      });
+      const contentType = res.headers.get('content-type');
+      if (contentType && contentType.includes('application/json')) {
+        const data = await res.json();
+        return {
+          success: res.ok && data.success,
+          message: data.message,
+          error: data.error,
+          registration: data.registration,
+        };
+      }
+      return { success: false, error: 'ওটিপি ভেরিফিকেশন ব্যর্থ হয়েছে' };
+    } catch (err: any) {
+      return { success: false, error: err.message || 'নেটওয়ার্ক সংযোগ সমস্যা' };
+    }
+  };
+
+  const isAdmin = session?.role === 'admin' || session?.role === 'PRIMARY_ADMIN';
   const isTreasurer = session?.role === 'treasurer';
   const isLoggedIn = !!session?.token;
 
@@ -403,6 +491,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode; initialAdminPro
         currentUserRole: session?.role || 'member',
         token: session?.token || null,
         login,
+        register,
+        verifyPhoneOtp,
         firstTimeSetup,
         logout,
         updateProfile,

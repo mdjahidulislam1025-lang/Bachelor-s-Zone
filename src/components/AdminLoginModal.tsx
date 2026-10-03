@@ -30,6 +30,7 @@ interface AdminLoginModalProps {
   currentMemberId?: string;
   onSelectMember?: (memberId: string) => void;
   initialRole?: 'admin' | 'member';
+  onOpenRegister?: () => void;
 }
 
 export const AdminLoginModal: React.FC<AdminLoginModalProps> = ({
@@ -40,6 +41,7 @@ export const AdminLoginModal: React.FC<AdminLoginModalProps> = ({
   currentMemberId,
   onSelectMember,
   initialRole = 'admin',
+  onOpenRegister,
 }) => {
   const { login, firstTimeSetup, forgotPassword, adminProfile, currentUserName, isAdmin, logout } = useAuth();
 
@@ -505,6 +507,24 @@ export const AdminLoginModal: React.FC<AdminLoginModalProps> = ({
                   <div className="font-semibold">মেম্বার (RA Raihan)</div>
                   <div className="text-[10px] text-slate-500">01913456789 / member123</div>
                 </button>
+              </div>
+
+              {/* Registration Link */}
+              <div className="pt-3 mt-2 border-t border-slate-100 dark:border-slate-800 text-center">
+                <p className="text-xs text-slate-600 dark:text-slate-400">
+                  নতুন সদস্য? একাউন্ট নেই?{' '}
+                  <button
+                    type="button"
+                    onClick={() => {
+                      onClose();
+                      if (onOpenRegister) onOpenRegister();
+                    }}
+                    className="text-emerald-600 dark:text-emerald-400 font-bold hover:underline cursor-pointer inline-flex items-center gap-1"
+                  >
+                    <UserPlus className="w-3.5 h-3.5" />
+                    <span>নতুন একাউন্ট রেজিস্টার করুন (Register)</span>
+                  </button>
+                </p>
               </div>
             </div>
           </form>

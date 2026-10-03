@@ -1,4 +1,5 @@
 import { AuthSession, UserRole, AdminProfile } from '../types.js';
+import { normalizeBangladeshPhone } from './phoneUtils.js';
 
 export const AUTH_STORAGE_KEY = 'mess_manager_auth_session_v1';
 export const LOCAL_DB_STORAGE_KEY = 'mess_manager_local_cache_v1';
@@ -9,24 +10,18 @@ export const LOCAL_DB_STORAGE_KEY = 'mess_manager_local_cache_v1';
 export async function hashPassword(plainText: string): Promise<string> {
   const encoder = new TextEncoder();
   const data = encoder.encode(plainText.trim() + '_mess_salt_2026');
-  if (typeof window !== 'undefined' && window.crypto && window.crypto.subtle) {
-    const hashBuffer = await window.crypto.subtle.digest('SHA-256', data);
+  if (typeof crypto !== 'undefined' && crypto.subtle) {
+    const hashBuffer = await crypto.subtle.digest('SHA-256', data);
     const hashArray = Array.from(new Uint8Array(hashBuffer));
     return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
   } else {
-    // Node.js fallback
-    try {
-      const crypto = await import('crypto');
-      return crypto.createHash('sha256').update(data).digest('hex');
-    } catch {
-      // Basic fallback
-      let hash = 0;
-      for (let i = 0; i < plainText.length; i++) {
-        hash = (hash << 5) - hash + plainText.charCodeAt(i);
-        hash |= 0;
-      }
-      return 'fb_' + Math.abs(hash).toString(16);
+    // Pure fallback
+    let hash = 0;
+    for (let i = 0; i < plainText.length; i++) {
+      hash = (hash << 5) - hash + plainText.charCodeAt(i);
+      hash |= 0;
     }
+    return 'fb_' + Math.abs(hash).toString(16);
   }
 }
 
@@ -76,21 +71,19 @@ export function clearAuthSession(): void {
 /**
  * Checks if a member/user is the Permanent Primary Admin (Jahidul Islam)
  */
-export function isPermanentAdminUser(user?: { id?: string; name?: string; phone?: string; email?: string } | null): boolean {
+export function isPermanentAdminUser(user?: { id?: string; name?: string; phone?: string; email?: string; role?: string } | null): boolean {
   if (!user) return false;
   const name = (user.name || '').toLowerCase();
-  const phone = (user.phone || '').replace(/[\s\-\+]/g, '');
+  const normalizedPhone = normalizeBangladeshPhone(user.phone);
   const email = (user.email || '').toLowerCase();
-  return (
-    user.id === 'm1' ||
-    user.id === 'admin_m1' ||
-    name.includes('jahidul') ||
-    name.includes('জাহিদুল') ||
-    phone === '8801711234567' ||
-    phone === '01711234567' ||
-    phone === '8801516528497' ||
-    phone === '01516528497' ||
-    email === 'mdjahidulislam1025@gmail.com'
-  );
+  const role = (user.role || '').toUpperCase();
+
+  const isPrimaryRole = role === 'PRIMARY_ADMIN';
+  const isJahidulPhone = normalizedPhone === '01516528497' || normalizedPhone === '01711234567';
+  const isJahidulEmail = email === 'mdjahidulislam1025@gmail.com';
+  const isJahidulName = name.includes('jahidul') || name.includes('জাহিদুল');
+  const isJahidulId = user.id === 'm1' || user.id === 'admin_m1';
+
+  return isPrimaryRole || ((isJahidulPhone || isJahidulEmail || isJahidulId) && (isJahidulName || isJahidulPhone));
 }
 

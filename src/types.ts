@@ -1,4 +1,11 @@
-export type UserRole = 'admin' | 'treasurer' | 'member';
+export type UserRole =
+  | 'PRIMARY_ADMIN'
+  | 'ADMIN'
+  | 'MEMBER'
+  | 'primary_admin'
+  | 'admin'
+  | 'treasurer'
+  | 'member';
 export type MemberRole = UserRole;
 
 export type MemberStatus = 'active' | 'inactive' | 'left';
@@ -182,6 +189,7 @@ export interface ExpenseRecord {
   description: string;
   distributionRule?: string;
   receiptUrl?: string;
+  notes?: string;
   createdBy: string;
   createdAt: string;
 }
@@ -352,6 +360,8 @@ export type SmsType =
   | 'monthly_account'
   | 'meal_cutoff_reminder'
   | 'meal_status'
+  | 'phone_verification'
+  | 'registration_status'
   | 'reminder'
   | 'custom';
 
@@ -461,10 +471,36 @@ export interface MemberCredentials {
   mustChangePassword?: boolean;
 }
 
+export type RegistrationStatus = 'PENDING_APPROVAL' | 'APPROVED' | 'REJECTED';
+
+export interface RegistrationRequest {
+  id: string;
+  fullName: string;
+  phone: string; // Normalized 11-digit phone '01XXXXXXXXX'
+  studentId?: string; // Optional student or member ID
+  roomNo?: string;
+  passwordHash: string; // Salted cryptographic hash
+  status: RegistrationStatus;
+  isPhoneVerified: boolean;
+  phoneOtp?: {
+    codeHash: string;
+    expiresAt: number; // timestamp
+    attempts: number;
+  };
+  registrationDate: string; // ISO
+  reviewedBy?: string;
+  reviewedAt?: string;
+  assignedRole?: 'MEMBER' | 'ADMIN';
+  rejectionReason?: string;
+  memberId?: string; // Created member ID upon approval
+  ipAddress?: string;
+}
+
 export interface MessDatabaseState {
   members: Member[];
   adminProfile?: AdminProfile;
   memberCredentials?: Record<string, MemberCredentials>;
+  registrations?: RegistrationRequest[];
   dailyMeals: DailyMealEntry[];
   memberMealSelections?: MemberMealSelection[];
   mealChangeLogs?: MealChangeLog[];

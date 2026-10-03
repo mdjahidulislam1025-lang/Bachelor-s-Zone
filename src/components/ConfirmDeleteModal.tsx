@@ -12,7 +12,8 @@ interface ConfirmDeleteModalProps {
   cancelText?: string;
   isDeleting?: boolean;
   onConfirm: () => void | Promise<void>;
-  onClose: () => void;
+  onClose?: () => void;
+  onCancel?: () => void;
 }
 
 export const ConfirmDeleteModal: React.FC<ConfirmDeleteModalProps> = ({
@@ -27,7 +28,9 @@ export const ConfirmDeleteModal: React.FC<ConfirmDeleteModalProps> = ({
   isDeleting = false,
   onConfirm,
   onClose,
+  onCancel,
 }) => {
+  const handleClose = onClose || onCancel || (() => {});
   if (!isOpen) return null;
 
   return (
@@ -44,7 +47,7 @@ export const ConfirmDeleteModal: React.FC<ConfirmDeleteModalProps> = ({
             </div>
           </div>
           <button
-            onClick={onClose}
+            onClick={handleClose}
             disabled={isDeleting}
             className="p-1 rounded-lg text-slate-400 hover:text-slate-600 hover:bg-slate-100 cursor-pointer disabled:opacity-50"
           >
@@ -75,7 +78,7 @@ export const ConfirmDeleteModal: React.FC<ConfirmDeleteModalProps> = ({
         <div className="mt-6 flex items-center justify-end gap-2.5">
           <button
             type="button"
-            onClick={onClose}
+            onClick={handleClose}
             disabled={isDeleting}
             className="px-4 py-2 text-xs font-semibold text-slate-700 bg-slate-100 hover:bg-slate-200 rounded-xl transition-colors cursor-pointer disabled:opacity-50"
           >

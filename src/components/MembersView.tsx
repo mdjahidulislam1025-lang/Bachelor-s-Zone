@@ -30,6 +30,7 @@ import {
 } from 'lucide-react';
 import { Member, MemberRole, MemberStatus } from '../types.js';
 import { Language, translations } from '../utils/translations.js';
+import { RegistrationManagement } from './RegistrationManagement.js';
 
 export function isPermanentAdminMember(m?: { id?: string; name?: string; phone?: string; email?: string } | null): boolean {
   if (!m) return false;
@@ -76,6 +77,7 @@ export const MembersView: React.FC<MembersViewProps> = ({
   onNavigateToTab,
 }) => {
   const t = translations[language];
+  const [membersSubTab, setMembersSubTab] = useState<'directory' | 'registrations'>('directory');
   const [viewMode, setViewMode] = useState<'table' | 'grid'>('table');
   const [showAddModal, setShowAddModal] = useState(false);
   const [editingMember, setEditingMember] = useState<Member | null>(null);
@@ -297,7 +299,39 @@ export const MembersView: React.FC<MembersViewProps> = ({
 
   return (
     <div className="space-y-6">
-      {/* Top Banner & Statistics */}
+      {/* Sub Tabs: Directory vs Registrations */}
+      {isAdmin && (
+        <div className="flex items-center gap-2 p-1.5 bg-slate-100 rounded-2xl w-fit border border-slate-200">
+          <button
+            onClick={() => setMembersSubTab('directory')}
+            className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+              membersSubTab === 'directory'
+                ? 'bg-emerald-600 text-white shadow-xs'
+                : 'text-slate-600 hover:text-slate-900'
+            }`}
+          >
+            <Users className="h-4 w-4" />
+            <span>সদস্য তালিকা ও রোল (Members Directory)</span>
+          </button>
+          <button
+            onClick={() => setMembersSubTab('registrations')}
+            className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+              membersSubTab === 'registrations'
+                ? 'bg-amber-500 text-white shadow-xs'
+                : 'text-slate-600 hover:text-slate-900'
+            }`}
+          >
+            <Clock className="h-4 w-4" />
+            <span>নতুন রেজিস্ট্রেশন আবেদন (Registrations)</span>
+          </button>
+        </div>
+      )}
+
+      {membersSubTab === 'registrations' ? (
+        <RegistrationManagement onRefreshData={() => {}} />
+      ) : (
+        <>
+          {/* Top Banner & Statistics */}
       <div className="bg-gradient-to-r from-emerald-800 via-teal-900 to-slate-900 text-white rounded-2xl p-6 shadow-md border border-emerald-700/40">
         <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-5">
           <div>
@@ -1453,6 +1487,8 @@ export const MembersView: React.FC<MembersViewProps> = ({
             </form>
           </div>
         </div>
+      )}
+        </>
       )}
     </div>
   );

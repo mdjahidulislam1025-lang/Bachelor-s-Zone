@@ -26,6 +26,7 @@ import { AiAssistantModal } from './components/AiAssistantModal.js';
 import { StatementVoucherModal } from './components/StatementVoucherModal.js';
 import { SendSmsModal } from './components/SendSmsModal.js';
 import { AdminLoginModal } from './components/AdminLoginModal.js';
+import { RegistrationModal } from './components/RegistrationModal.js';
 import { AdminProfileModal } from './components/AdminProfileModal.js';
 import { AdminDataManagementModal } from './components/AdminDataManagementModal.js';
 import { BachelorZoneLogo } from './components/BachelorZoneLogo.js';
@@ -77,6 +78,7 @@ export function App() {
   // Auth context
   const { session, isAdmin, adminProfile } = useAuth();
   const [showAdminLoginModal, setShowAdminLoginModal] = useState(false);
+  const [showRegisterModal, setShowRegisterModal] = useState(false);
   const [showAdminProfileModal, setShowAdminProfileModal] = useState(false);
   const [showDataManagementModal, setShowDataManagementModal] = useState(false);
 
@@ -1155,6 +1157,7 @@ export function App() {
         onOpenAdminLogin={() => setShowAdminLoginModal(true)}
         onOpenAdminProfile={() => setShowAdminProfileModal(true)}
         onOpenDataManagement={() => setShowDataManagementModal(true)}
+        onOpenRegister={() => setShowRegisterModal(true)}
       />
 
       {/* Main Layout Body */}
@@ -1521,6 +1524,20 @@ export function App() {
         onLoginSuccess={async () => {
           await fetchData();
           showToast('সফলভাবে লগইন সম্পন্ন হয়েছে', 'success');
+        }}
+        onOpenRegister={() => {
+          setShowAdminLoginModal(false);
+          setShowRegisterModal(true);
+        }}
+      />
+
+      {/* Member Registration Modal */}
+      <RegistrationModal
+        isOpen={showRegisterModal}
+        onClose={() => setShowRegisterModal(false)}
+        onSwitchToLogin={() => {
+          setShowRegisterModal(false);
+          setShowAdminLoginModal(true);
         }}
       />
 

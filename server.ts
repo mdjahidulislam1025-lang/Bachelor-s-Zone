@@ -1,5 +1,6 @@
 import express from 'express';
 import path from 'path';
+import crypto from 'crypto';
 import { createServer as createViteServer } from 'vite';
 import {
   initDatabase,
@@ -23,6 +24,17 @@ import { answerMessQuery } from './server/ai.js';
 import { SmsLog, MemberRole, AdminProfile, AuthSession } from './src/types.js';
 import { checkMealLock, getDhakaTime } from './src/utils/cutoffUtils.js';
 import { simpleHashSync } from './src/utils/authUtils.js';
+import {
+  hashPasswordSecure,
+  verifyPasswordSecure,
+  isPrimaryAdmin,
+  PRIMARY_ADMIN_PHONE,
+  PRIMARY_ADMIN_NAME,
+  PRIMARY_ADMIN_EMAIL,
+  normalizeRole,
+  activeSessions,
+} from './server/auth.js';
+import { normalizeBangladeshPhone, isValidBangladeshPhone } from './src/utils/phoneUtils.js';
 
 interface RequestUserInfo {
   id: string;
@@ -32,8 +44,8 @@ interface RequestUserInfo {
   ipAddress: string;
 }
 
-const activeSessions = new Map<string, AuthSession>();
 const loginAttempts = new Map<string, { count: number; lastTime: number }>();
+const registrationAttempts = new Map<string, { count: number; lastTime: number }>();
 
 function getRequestUser(req: express.Request): RequestUserInfo {
   const db = getDatabase();
@@ -254,6 +266,7 @@ async function startServer() {
       }
 
       const cleanId = identifier.toString().trim().toLowerCase();
+      const normalizedPhoneInput = normalizeBangladeshPhone(cleanId);
       const ip = (req.headers['x-forwarded-for'] as string)?.split(',')[0]?.trim() || req.socket.remoteAddress || '127.0.0.1';
 
       // Rate limiting: 5 attempts per 5 minutes
@@ -267,20 +280,61 @@ async function startServer() {
         });
       }
 
+      // 1. Check Pending or Rejected Registration status first!
+      const matchingReg = (db.registrations || []).find(r =>
+        (normalizedPhoneInput && r.phone === normalizedPhoneInput) ||
+        r.phone === cleanId ||
+        r.phone.replace(/\D/g, '').endsWith(cleanId.replace(/\D/g, ''))
+      );
+
+      if (matchingReg) {
+        if (matchingReg.status === 'PENDING_APPROVAL') {
+          return res.status(403).json({
+            success: false,
+            isPendingApproval: true,
+            error: 'আপনার রেজিস্ট্রেশনটি প্রধান এডমিন (Jahidul Islam) এর অনুমোদনের অপেক্ষায় রয়েছে। অনুমোদন পাওয়ার পর আপনি লগইন করতে পারবেন।',
+            registration: {
+              id: matchingReg.id,
+              fullName: matchingReg.fullName,
+              phone: matchingReg.phone,
+              status: matchingReg.status,
+              isPhoneVerified: matchingReg.isPhoneVerified,
+              registrationDate: matchingReg.registrationDate,
+            },
+          });
+        } else if (matchingReg.status === 'REJECTED') {
+          return res.status(403).json({
+            success: false,
+            isRejected: true,
+            error: `আপনার রেজিস্ট্রেশন আবেদনটি বাতিল করা হয়েছে${matchingReg.rejectionReason ? ': ' + matchingReg.rejectionReason : ''}। বিস্তারিত জানতে মেস প্রধান এডমিনের সাথে যোগাযোগ করুন।`,
+          });
+        }
+      }
+
       const inputHash = simpleHashSync(password);
 
-      // Check Admin Profile
+      // 2. Check Permanent Primary Admin (Jahidul Islam)
       const admin = db.adminProfile;
+      const adminPhoneNorm = normalizeBangladeshPhone(admin?.phone);
+      const isJahidulPhone =
+        (normalizedPhoneInput && (normalizedPhoneInput === PRIMARY_ADMIN_PHONE || normalizedPhoneInput === '01711234567')) ||
+        cleanId === '01516528497' ||
+        cleanId === '01711234567';
+
       const isAdminMatch =
         admin &&
-        (admin.phone.replace(/[^0-9]/g, '').endsWith(cleanId.replace(/[^0-9]/g, '')) ||
+        (isJahidulPhone ||
+          (adminPhoneNorm && normalizedPhoneInput && adminPhoneNorm === normalizedPhoneInput) ||
+          admin.phone.replace(/[^0-9]/g, '').endsWith(cleanId.replace(/[^0-9]/g, '')) ||
           admin.email.toLowerCase() === cleanId ||
-          cleanId === 'admin' ||
-          cleanId === '01711234567');
+          cleanId === 'admin');
 
       if (isAdminMatch) {
-        // Verify password
-        const validPassword = admin.passwordHash ? admin.passwordHash === inputHash : password === 'admin123';
+        // Verify password with secure scrypt, legacy hash, or defaults
+        const validPassword = admin.passwordHash
+          ? (verifyPasswordSecure(password, admin.passwordHash) || admin.passwordHash === inputHash)
+          : (password === 'admin123' || password === 'admin@mess2026');
+
         if (!validPassword) {
           const currentCount = (attempt ? attempt.count : 0) + 1;
           loginAttempts.set(ip, { count: currentCount, lastTime: now });
@@ -293,10 +347,10 @@ async function startServer() {
         const session: AuthSession = {
           token,
           userId: admin.id,
-          role: 'admin',
-          name: admin.name,
-          phone: admin.phone,
-          email: admin.email,
+          role: 'PRIMARY_ADMIN',
+          name: admin.name || 'Jahidul Islam',
+          phone: admin.phone || '01516528497',
+          email: admin.email || 'mdjahidulislam1025@gmail.com',
           avatarColor: 'bg-emerald-600',
           loginTime: new Date().toISOString(),
         };
@@ -305,7 +359,7 @@ async function startServer() {
         admin.lastLogin = new Date().toISOString();
         saveDatabase(db);
 
-        logAudit(admin.name, 'এডমিন লগইন', 'settings', `${admin.name} এডমিন অ্যাকাউন্টে প্রবেশ করেছেন`);
+        logAudit(admin.name, 'প্রধান এডমিন লগইন', 'settings', `${admin.name} প্রধান এডমিন অ্যাকাউন্টে প্রবেশ করেছেন`);
 
         return res.json({
           success: true,
@@ -316,23 +370,40 @@ async function startServer() {
         });
       }
 
-      // Check Normal Members credentials
-      const matchingMember = db.members.find(
-        m =>
+      // 3. Check Normal Members credentials
+      const matchingMember = db.members.find(m => {
+        const mNorm = normalizeBangladeshPhone(m.phone);
+        return (
+          (normalizedPhoneInput && mNorm === normalizedPhoneInput) ||
           m.phone.replace(/[^0-9]/g, '').endsWith(cleanId.replace(/[^0-9]/g, '')) ||
           (m.email && m.email.toLowerCase() === cleanId)
-      );
+        );
+      });
 
       if (matchingMember) {
+        if (matchingMember.status !== 'active') {
+          return res.status(403).json({
+            success: false,
+            error: 'আপনার মেস একাউন্টটি বর্তমানে নিষ্ক্রিয় (Inactive)। মেস এডমিনের সাথে যোগাযোগ করুন।',
+          });
+        }
+
         const creds = db.memberCredentials?.[matchingMember.id];
         const memberValidPass = creds?.passwordHash
-          ? creds.passwordHash === inputHash
-          : password === 'member123' || (matchingMember.role === 'admin' && password === 'admin123');
+          ? (verifyPasswordSecure(password, creds.passwordHash) || creds.passwordHash === inputHash)
+          : (password === 'member123' || (matchingMember.role === 'admin' && password === 'admin123'));
 
         if (!memberValidPass) {
           const currentCount = (attempt ? attempt.count : 0) + 1;
           loginAttempts.set(ip, { count: currentCount, lastTime: now });
-          return res.status(401).json({ success: false, error: 'ভুল ফোন নম্বর/ইমেইল অথবা পাসওয়ার্ড' });
+          return res.status(401).json({ success: false, error: 'ভুল ফোন নম্বর অথবা পাসওয়ার্ড' });
+        }
+
+        if (creds && creds.isActive === false) {
+          return res.status(403).json({
+            success: false,
+            error: 'আপনার মেস একাউন্ট সাময়িকভাবে স্থগিত করা হয়েছে। মেস ম্যানেজারের সাথে যোগাযোগ করুন।',
+          });
         }
 
         loginAttempts.delete(ip);
@@ -363,6 +434,406 @@ async function startServer() {
       const currentCount = (attempt ? attempt.count : 0) + 1;
       loginAttempts.set(ip, { count: currentCount, lastTime: now });
       return res.status(401).json({ success: false, error: 'ব্যবহারকারী খুঁজে পাওয়া যায়নি অথবা পাসওয়ার্ড ভুল' });
+    } catch (err: any) {
+      res.status(500).json({ success: false, error: err.message });
+    }
+  });
+
+  // User Registration Endpoint
+  app.post('/api/auth/register', (req, res) => {
+    try {
+      const db = getDatabase();
+      const { fullName, phone, password, confirmPassword, studentId, roomNo } = req.body;
+
+      const ip = (req.headers['x-forwarded-for'] as string)?.split(',')[0]?.trim() || req.socket.remoteAddress || '127.0.0.1';
+      const now = Date.now();
+
+      // Rate limiting: 5 registration submissions per 10 minutes
+      const regAttempt = registrationAttempts.get(ip);
+      if (regAttempt && regAttempt.count >= 5 && now - regAttempt.lastTime < 10 * 60 * 1000) {
+        const remainingMinutes = Math.ceil((10 * 60 * 1000 - (now - regAttempt.lastTime)) / 60000);
+        return res.status(429).json({
+          success: false,
+          error: `অতিরিক্ত রেজিস্ট্রেশন চেষ্টার কারণে সাময়িক স্থগিত। অনুগ্রহ করে ${remainingMinutes} মিনিট পর চেষ্টা করুন।`,
+        });
+      }
+
+      // 1. Required field validations
+      if (!fullName || !fullName.trim()) {
+        return res.status(400).json({ success: false, error: 'আপনার পুরো নাম আবশ্যক (Full name is required)' });
+      }
+      if (!phone || !phone.trim()) {
+        return res.status(400).json({ success: false, error: 'সঠিক বাংলাদেশি মোবাইল নম্বর আবশ্যক (Phone number is required)' });
+      }
+      if (!password) {
+        return res.status(400).json({ success: false, error: 'পাসওয়ার্ড প্রদান করুন (Password is required)' });
+      }
+      if (!confirmPassword) {
+        return res.status(400).json({ success: false, error: 'কনফার্ম পাসওয়ার্ড প্রদান করুন (Confirm password is required)' });
+      }
+
+      // 2. Password matching and strength validation
+      if (password !== confirmPassword) {
+        return res.status(400).json({ success: false, error: 'পাসওয়ার্ড এবং কনফার্ম পাসওয়ার্ড মিলছে না (Passwords do not match)' });
+      }
+      if (password.length < 6) {
+        return res.status(400).json({ success: false, error: 'পাসওয়ার্ড ন্যূনতম ৬ অক্ষরের হতে হবে (Password must be at least 6 characters)' });
+      }
+
+      // 3. Bangladesh Phone validation and normalization
+      const normalizedPhone = normalizeBangladeshPhone(phone);
+      if (!isValidBangladeshPhone(normalizedPhone)) {
+        return res.status(400).json({
+          success: false,
+          error: 'অনুগ্রহ করে সঠিক ১১ ডিজিটের বাংলাদেশি মোবাইল নম্বর দিন (যেমন: 01712345678 বা +8801712345678)',
+        });
+      }
+
+      // 4. Primary Admin phone protection (Jahidul Islam)
+      if (normalizedPhone === PRIMARY_ADMIN_PHONE || normalizedPhone === '01711234567') {
+        return res.status(400).json({
+          success: false,
+          error: 'এই ফোন নম্বরটি মেসের প্রধান এডমিনের জন্য সংরক্ষিত। রেজিস্ট্রেশন করা যাবে না।',
+        });
+      }
+
+      // 5. Existing member phone uniqueness check
+      const existingMember = db.members.find(m => normalizeBangladeshPhone(m.phone) === normalizedPhone);
+      if (existingMember) {
+        return res.status(400).json({
+          success: false,
+          error: 'এই ফোন নম্বর দিয়ে ইতিমধ্যে একটি সক্রিয় মেস সদস্য একাউন্ট রয়েছে। অনুগ্রহ করে লগইন করুন।',
+        });
+      }
+
+      // 6. Existing registration check
+      if (!db.registrations) db.registrations = [];
+      const existingReg = db.registrations.find(r => r.phone === normalizedPhone);
+      if (existingReg) {
+        if (existingReg.status === 'PENDING_APPROVAL') {
+          return res.status(400).json({
+            success: false,
+            error: 'এই ফোন নম্বর দিয়ে ইতিমধ্যে একটি রেজিস্ট্রেশন আবেদন প্রধান এডমিনের অনুমোদনের অপেক্ষায় রয়েছে।',
+            status: 'PENDING_APPROVAL',
+          });
+        } else if (existingReg.status === 'APPROVED') {
+          return res.status(400).json({
+            success: false,
+            error: 'এই ফোন নম্বর দিয়ে একাউন্ট ইতিমধ্যে অনুমোদিত হয়েছে। অনুগ্রহ করে লগইন করুন।',
+          });
+        }
+      }
+
+      // Update rate limiter
+      const currentCount = (regAttempt ? regAttempt.count : 0) + 1;
+      registrationAttempts.set(ip, { count: currentCount, lastTime: now });
+
+      // 7. Cryptographic salted password hash (scrypt)
+      const passwordHash = hashPasswordSecure(password);
+
+      // 8. SMS Gateway Check: Genuine configuration vs inactive notice
+      const smsGateway = db.settings?.smsGateway;
+      const isSmsConfigured = Boolean(
+        smsGateway?.apiKeyConfigured &&
+        smsGateway?.apiUrl &&
+        smsGateway?.apiUrl.trim() !== '' &&
+        !smsGateway?.providerName?.includes('Mock')
+      );
+
+      let phoneOtpData: any = undefined;
+      if (isSmsConfigured) {
+        // Generate random 6-digit OTP
+        const rawOtp = Math.floor(100000 + Math.random() * 900000).toString();
+        const codeHash = crypto.createHash('sha256').update(rawOtp + '_otp_salt_2026').digest('hex');
+        phoneOtpData = {
+          codeHash,
+          expiresAt: Date.now() + 5 * 60 * 1000, // 5 minutes
+          attempts: 0,
+        };
+
+        // Record SMS log without exposing OTP in logs
+        db.smsLogs.unshift({
+          id: `sms-${Date.now()}`,
+          timestamp: new Date().toISOString(),
+          recipientId: `reg-${normalizedPhone}`,
+          recipientName: fullName.trim(),
+          phone: normalizedPhone,
+          type: 'phone_verification',
+          message: 'Bachelor Zone: রেজিস্ট্রেশন ফোন ভেরিফিকেশন ওটিপি পাঠানো হয়েছে।',
+          status: 'sent',
+          provider: smsGateway?.providerName || 'SMS Gateway',
+          refId: `REG-${Date.now().toString().slice(-6)}`,
+        });
+      }
+
+      // 9. Create registration record
+      const regId = `reg_${Date.now()}_${Math.random().toString(36).slice(2, 7)}`;
+      const newReg: any = {
+        id: regId,
+        fullName: fullName.trim(),
+        phone: normalizedPhone,
+        studentId: studentId?.trim() || undefined,
+        roomNo: roomNo?.trim() || undefined,
+        passwordHash,
+        status: 'PENDING_APPROVAL',
+        isPhoneVerified: false,
+        phoneOtp: phoneOtpData,
+        registrationDate: new Date().toISOString(),
+        ipAddress: ip,
+      };
+
+      if (existingReg && existingReg.status === 'REJECTED') {
+        const idx = db.registrations.indexOf(existingReg);
+        db.registrations[idx] = newReg;
+      } else {
+        db.registrations.unshift(newReg);
+      }
+
+      // 10. Audit log
+      logAudit(fullName.trim(), 'নতুন রেজিস্ট্রেশন আবেদন', 'members', `নতুন সদস্য রেজিস্ট্রেশন আবেদন জমা: ${fullName.trim()} (${normalizedPhone})`);
+
+      saveDatabase(db);
+
+      return res.json({
+        success: true,
+        message: isSmsConfigured
+          ? 'রেজিস্ট্রেশন সফলভাবে জমা হয়েছে। আপনার ফোনে ভেরিফিকেশন কোড পাঠানো হয়েছে।'
+          : 'রেজিস্ট্রেশন সফলভাবে জমা হয়েছে। বর্তমানে সরাসরি SMS গেটওয়ে সক্রিয় না থাকায় ফোন ভেরিফিকেশন আপাতত কার্যকর নয়। আপনার আবেদনটি প্রধান এডমিন (Jahidul Islam) এর অনুমোদনের অপেক্ষায় রয়েছে।',
+        registration: {
+          id: newReg.id,
+          fullName: newReg.fullName,
+          phone: newReg.phone,
+          studentId: newReg.studentId,
+          status: newReg.status,
+          isPhoneVerified: newReg.isPhoneVerified,
+          registrationDate: newReg.registrationDate,
+        },
+        smsGatewayConfigured: isSmsConfigured,
+        requiresPhoneVerification: isSmsConfigured,
+      });
+    } catch (err: any) {
+      res.status(500).json({ success: false, error: err.message });
+    }
+  });
+
+  // Verify Phone OTP (if SMS gateway is configured)
+  app.post('/api/auth/verify-phone-otp', (req, res) => {
+    try {
+      const db = getDatabase();
+      const { phone, code } = req.body;
+      if (!phone || !code) {
+        return res.status(400).json({ success: false, error: 'ফোন নম্বর এবং ওটিপি কোড আবশ্যক' });
+      }
+
+      const normalizedPhone = normalizeBangladeshPhone(phone);
+      const reg = (db.registrations || []).find(r => r.phone === normalizedPhone && r.status === 'PENDING_APPROVAL');
+      if (!reg) {
+        return res.status(404).json({ success: false, error: 'কোনো পেন্ডিং রেজিস্ট্রেশন আবেদন খুঁজে পাওয়া যায়নি' });
+      }
+
+      if (!reg.phoneOtp) {
+        return res.status(400).json({ success: false, error: 'এই আবেদনের জন্য কোনো সক্রিয় ওটিপি নেই' });
+      }
+
+      if (Date.now() > reg.phoneOtp.expiresAt) {
+        return res.status(400).json({ success: false, error: 'ওটিপির মেয়াদ শেষ হয়ে গেছে। পুনরায় ওটিপি পাঠান।' });
+      }
+
+      if (reg.phoneOtp.attempts >= 5) {
+        return res.status(429).json({ success: false, error: 'সর্বোচ্চ বার ভুল কোড দেওয়া হয়েছে। অনুগ্রহ করে নতুন ওটিপি চেয়ে নিন।' });
+      }
+
+      const enteredHash = crypto.createHash('sha256').update(code.trim() + '_otp_salt_2026').digest('hex');
+      if (enteredHash !== reg.phoneOtp.codeHash) {
+        reg.phoneOtp.attempts += 1;
+        saveDatabase(db);
+        return res.status(400).json({
+          success: false,
+          error: `ভুল ওটিপি কোড। বাকি সুযোগ: ${5 - reg.phoneOtp.attempts} বার`,
+        });
+      }
+
+      // OTP Verified
+      reg.isPhoneVerified = true;
+      delete reg.phoneOtp;
+      saveDatabase(db);
+
+      logAudit(reg.fullName, 'ফোন নম্বর ভেরিফিকেশন', 'members', `${reg.fullName} (${reg.phone}) এর ফোন নম্বর ওটিপির মাধ্যমে ভেরিফাইড হয়েছে`);
+
+      return res.json({
+        success: true,
+        message: 'ফোন নম্বর সফলভাবে ভেরিফাই হয়েছে! এখন প্রধান এডমিন (Jahidul Islam) এর অনুমোদনের অপেক্ষা করুন।',
+        registration: {
+          id: reg.id,
+          fullName: reg.fullName,
+          phone: reg.phone,
+          status: reg.status,
+          isPhoneVerified: true,
+        },
+      });
+    } catch (err: any) {
+      res.status(500).json({ success: false, error: err.message });
+    }
+  });
+
+  // Get Registrations List (Admin Only)
+  app.get('/api/admin/registrations', (req, res) => {
+    try {
+      const db = getDatabase();
+      const reqUser = getRequestUser(req);
+      const isSuper = isPrimaryAdmin({ id: reqUser.id, name: reqUser.name, role: reqUser.role });
+      if (!isSuper && reqUser.role !== 'admin' && reqUser.role !== 'PRIMARY_ADMIN') {
+        return res.status(403).json({ success: false, error: 'শুধুমাত্র এডমিন রেজিস্ট্রেশন তালিকা দেখতে পারেন (403 Forbidden)' });
+      }
+
+      const list = (db.registrations || []).map(r => {
+        const copy: any = { ...r };
+        delete copy.passwordHash;
+        if (copy.phoneOtp) {
+          delete copy.phoneOtp.codeHash;
+        }
+        return copy;
+      });
+
+      res.json({
+        success: true,
+        registrations: list,
+        pendingCount: list.filter((r: any) => r.status === 'PENDING_APPROVAL').length,
+      });
+    } catch (err: any) {
+      res.status(500).json({ success: false, error: err.message });
+    }
+  });
+
+  // Approve Registration (Permanent Primary Admin Jahidul Islam Only)
+  app.post('/api/admin/registrations/:id/approve', (req, res) => {
+    try {
+      const db = getDatabase();
+      const reqUser = getRequestUser(req);
+      const isSuper = isPrimaryAdmin({ id: reqUser.id, name: reqUser.name, role: reqUser.role });
+
+      // Strict enforcement: Only Permanent Primary Admin (Jahidul Islam) can approve registrations and assign roles!
+      if (!isSuper) {
+        return res.status(403).json({
+          success: false,
+          error: 'শুধুমাত্র স্থায়ী প্রধান এডমিন (Jahidul Islam) রেজিস্ট্রেশন আবেদন অনুমোদন ও রোল প্রদান করতে পারেন (403 Forbidden)',
+        });
+      }
+
+      const { id } = req.params;
+      const { role = 'MEMBER', roomNo } = req.body;
+      const assignedRole = role === 'ADMIN' ? 'admin' : 'member';
+
+      const reg = (db.registrations || []).find(r => r.id === id);
+      if (!reg) {
+        return res.status(404).json({ success: false, error: 'রেজিস্ট্রেশন আবেদনটি খুঁজে পাওয়া যায়নি' });
+      }
+
+      if (reg.status === 'APPROVED') {
+        return res.status(400).json({ success: false, error: 'এই আবেদনটি ইতিমধ্যে অনুমোদিত হয়েছে' });
+      }
+
+      // Check if phone already belongs to an existing member
+      let existingMember = db.members.find(m => normalizeBangladeshPhone(m.phone) === reg.phone);
+      let memberId = existingMember ? existingMember.id : `m_${Date.now()}`;
+
+      if (!existingMember) {
+        const newMember: any = {
+          id: memberId,
+          name: reg.fullName,
+          nickname: reg.fullName.split(' ')[0] || reg.fullName,
+          phone: reg.phone,
+          roomNo: roomNo || reg.roomNo || 'TBD',
+          role: assignedRole,
+          status: 'active',
+          joiningDate: new Date().toISOString().slice(0, 10),
+          avatarColor: ['bg-emerald-600', 'bg-blue-600', 'bg-indigo-600', 'bg-purple-600', 'bg-rose-600', 'bg-teal-600'][db.members.length % 6],
+        };
+        db.members.push(newMember);
+        existingMember = newMember;
+      } else {
+        existingMember.role = assignedRole;
+        existingMember.status = 'active';
+        if (roomNo) existingMember.roomNo = roomNo;
+      }
+
+      // Set credentials in memberCredentials
+      if (!db.memberCredentials) db.memberCredentials = {};
+      db.memberCredentials[memberId] = {
+        memberId,
+        phone: reg.phone,
+        passwordHash: reg.passwordHash,
+        isActive: true,
+      };
+
+      // Update registration record
+      reg.status = 'APPROVED';
+      reg.reviewedBy = 'Jahidul Islam';
+      reg.reviewedAt = new Date().toISOString();
+      reg.assignedRole = role === 'ADMIN' ? 'ADMIN' : 'MEMBER';
+      reg.memberId = memberId;
+
+      logAudit(
+        'Jahidul Islam',
+        'রেজিস্ট্রেশন অনুমোদন',
+        'members',
+        `স্থায়ী প্রধান এডমিন জাহিদুল ইসলাম কর্তৃক ${reg.fullName} (${reg.phone}) এর রেজিস্ট্রেশন অনুমোদন করা হয়েছে (রোল: ${assignedRole === 'admin' ? 'এডমিন' : 'সদস্য'})`
+      );
+
+      saveDatabase(db);
+
+      return res.json({
+        success: true,
+        message: `${reg.fullName} এর রেজিস্ট্রেশন সফলভাবে অনুমোদন করা হয়েছে (${assignedRole === 'admin' ? 'এডমিন' : 'সদস্য'})।`,
+        member: existingMember,
+        registration: reg,
+      });
+    } catch (err: any) {
+      res.status(500).json({ success: false, error: err.message });
+    }
+  });
+
+  // Reject Registration (Permanent Primary Admin Jahidul Islam Only)
+  app.post('/api/admin/registrations/:id/reject', (req, res) => {
+    try {
+      const db = getDatabase();
+      const reqUser = getRequestUser(req);
+      const isSuper = isPrimaryAdmin({ id: reqUser.id, name: reqUser.name, role: reqUser.role });
+
+      if (!isSuper) {
+        return res.status(403).json({
+          success: false,
+          error: 'শুধুমাত্র স্থায়ী প্রধান এডমিন (Jahidul Islam) রেজিস্ট্রেশন বাতিল করতে পারেন (403 Forbidden)',
+        });
+      }
+
+      const { id } = req.params;
+      const { reason } = req.body;
+
+      const reg = (db.registrations || []).find(r => r.id === id);
+      if (!reg) {
+        return res.status(404).json({ success: false, error: 'রেজিস্ট্রেশন আবেদনটি খুঁজে পাওয়া যায়নি' });
+      }
+
+      reg.status = 'REJECTED';
+      reg.rejectionReason = reason?.trim() || 'প্রধান এডমিন কর্তৃক আবেদনটি গ্রহণযোগ্য নয় মর্মে বাতিল করা হয়েছে';
+      reg.reviewedBy = 'Jahidul Islam';
+      reg.reviewedAt = new Date().toISOString();
+
+      logAudit(
+        'Jahidul Islam',
+        'রেজিস্ট্রেশন বাতিল',
+        'members',
+        `স্থায়ী প্রধান এডমিন জাহিদুল ইসলাম কর্তৃক ${reg.fullName} (${reg.phone}) এর আবেদন বাতিল করা হয়েছে (${reg.rejectionReason})`
+      );
+
+      saveDatabase(db);
+
+      return res.json({
+        success: true,
+        message: 'রেজিস্ট্রেশন আবেদনটি বাতিল করা হয়েছে',
+        registration: reg,
+      });
     } catch (err: any) {
       res.status(500).json({ success: false, error: err.message });
     }
