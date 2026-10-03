@@ -141,6 +141,75 @@
   },
   "dailyMeals": [
     {
+      "id": "dm-2026-10-04",
+      "date": "2026-10-04",
+      "records": {
+        "m1": {
+          "memberId": "m1",
+          "breakfast": 0,
+          "lunch": 1,
+          "dinner": 1,
+          "total": 2,
+          "notes": ""
+        },
+        "m2": {
+          "memberId": "m2",
+          "breakfast": 0,
+          "lunch": 1,
+          "dinner": 1,
+          "total": 2,
+          "notes": ""
+        },
+        "m3": {
+          "memberId": "m3",
+          "breakfast": 0,
+          "lunch": 1,
+          "dinner": 1,
+          "total": 2,
+          "notes": ""
+        },
+        "m4": {
+          "memberId": "m4",
+          "breakfast": 0,
+          "lunch": 1,
+          "dinner": 1,
+          "total": 2,
+          "notes": ""
+        },
+        "m5": {
+          "memberId": "m5",
+          "breakfast": 0,
+          "lunch": 1,
+          "dinner": 1,
+          "total": 2,
+          "notes": ""
+        },
+        "m_9837": {
+          "memberId": "m_9837",
+          "breakfast": 0,
+          "lunch": 1,
+          "dinner": 1,
+          "total": 2,
+          "notes": ""
+        },
+        "m_1791019023890": {
+          "memberId": "m_1791019023890",
+          "breakfast": 0,
+          "lunch": 1,
+          "dinner": 1,
+          "total": 2,
+          "notes": ""
+        }
+      },
+      "totalBreakfast": 0,
+      "totalLunch": 7,
+      "totalDinner": 7,
+      "totalMeals": 14,
+      "notes": "নতুন মাসের আজকের মিল হিসাব চালু",
+      "updatedBy": "System",
+      "updatedAt": "2026-10-03T19:16:38.065Z"
+    },
+    {
       "id": "dm-2026-10-03",
       "date": "2026-10-03",
       "records": {
@@ -5302,7 +5371,7 @@
       "status": "open",
       "totalMembers": 7,
       "activeMembers": 7,
-      "totalMeals": 0,
+      "totalMeals": 14,
       "totalBazarExpense": 0,
       "totalMealRelatedExpense": 0,
       "mealRate": 0,
@@ -5317,7 +5386,7 @@
           "memberId": "m1",
           "memberName": "Jahidul Islam",
           "roomNo": "7D",
-          "totalMeals": 0,
+          "totalMeals": 2,
           "mealRate": 0,
           "mealCost": 0,
           "sharedCostsShare": 0,
@@ -5342,7 +5411,7 @@
           "memberId": "m2",
           "memberName": "Fiaaz Ajmaeen",
           "roomNo": "7D",
-          "totalMeals": 0,
+          "totalMeals": 2,
           "mealRate": 0,
           "mealCost": 0,
           "sharedCostsShare": 0,
@@ -5367,7 +5436,7 @@
           "memberId": "m3",
           "memberName": "RA Raihan",
           "roomNo": "102",
-          "totalMeals": 0,
+          "totalMeals": 2,
           "mealRate": 0,
           "mealCost": 0,
           "sharedCostsShare": 0,
@@ -5392,7 +5461,7 @@
           "memberId": "m4",
           "memberName": "Tanvir Patwary",
           "roomNo": "102",
-          "totalMeals": 0,
+          "totalMeals": 2,
           "mealRate": 0,
           "mealCost": 0,
           "sharedCostsShare": 0,
@@ -5417,7 +5486,7 @@
           "memberId": "m5",
           "memberName": "Tarek hossen",
           "roomNo": "103",
-          "totalMeals": 0,
+          "totalMeals": 2,
           "mealRate": 0,
           "mealCost": 0,
           "sharedCostsShare": 0,
@@ -5442,7 +5511,7 @@
           "memberId": "m_9837",
           "memberName": "Saif",
           "roomNo": "7D",
-          "totalMeals": 0,
+          "totalMeals": 2,
           "mealRate": 0,
           "mealCost": 0,
           "sharedCostsShare": 0,
@@ -5467,7 +5536,7 @@
           "memberId": "m_1791019023890",
           "memberName": "Tareq Rahman",
           "roomNo": "402",
-          "totalMeals": 0,
+          "totalMeals": 2,
           "mealRate": 0,
           "mealCost": 0,
           "sharedCostsShare": 0,
@@ -5489,7 +5558,7 @@
           }
         }
       },
-      "formulaNote": "এখনও কোন মিল যুক্ত হয়নি। মোট মিল খরচ: ৳0। নতুন মাসের মিল চালু হলে স্বয়ংক্রিয় মিল রেট তৈরি হবে।"
+      "formulaNote": "মিল রেট = মোট মিল খরচ (৳0) ÷ মোট মিল (14 টি) = ৳0.00। ফিক্সড খরচাদি 7 জন সক্রিয় সদস্যের মাঝে সমবণ্টন।"
     },
     {
       "id": "acc_2026-09",
@@ -5760,6 +5829,28 @@
     }
   ],
   "auditLogs": [
+    {
+      "id": "audit-1791055233656-i422",
+      "timestamp": "2026-10-03T19:20:33.656Z",
+      "userId": "m1",
+      "userName": "RA Raihan",
+      "action": "সদস্য লগইন",
+      "recordType": "members",
+      "recordId": "",
+      "module": "members",
+      "details": "RA Raihan অ্যাপে প্রবেশ করেছেন"
+    },
+    {
+      "id": "audit-1791055230717-py0s",
+      "timestamp": "2026-10-03T19:20:30.717Z",
+      "userId": "m1",
+      "userName": "Fiaaz Ajmaeen",
+      "action": "সদস্য লগইন",
+      "recordType": "members",
+      "recordId": "",
+      "module": "members",
+      "details": "Fiaaz Ajmaeen অ্যাপে প্রবেশ করেছেন"
+    },
     {
       "id": "audit-1791019023993-phqf",
       "timestamp": "2026-10-03T09:17:03.993Z",
@@ -6421,7 +6512,7 @@
     "status": "open",
     "totalMembers": 7,
     "activeMembers": 7,
-    "totalMeals": 0,
+    "totalMeals": 14,
     "totalBazarExpense": 0,
     "totalMealRelatedExpense": 0,
     "mealRate": 0,
@@ -6436,7 +6527,7 @@
         "memberId": "m1",
         "memberName": "Jahidul Islam",
         "roomNo": "7D",
-        "totalMeals": 0,
+        "totalMeals": 2,
         "mealRate": 0,
         "mealCost": 0,
         "sharedCostsShare": 0,
@@ -6461,7 +6552,7 @@
         "memberId": "m2",
         "memberName": "Fiaaz Ajmaeen",
         "roomNo": "7D",
-        "totalMeals": 0,
+        "totalMeals": 2,
         "mealRate": 0,
         "mealCost": 0,
         "sharedCostsShare": 0,
@@ -6486,7 +6577,7 @@
         "memberId": "m3",
         "memberName": "RA Raihan",
         "roomNo": "102",
-        "totalMeals": 0,
+        "totalMeals": 2,
         "mealRate": 0,
         "mealCost": 0,
         "sharedCostsShare": 0,
@@ -6511,7 +6602,7 @@
         "memberId": "m4",
         "memberName": "Tanvir Patwary",
         "roomNo": "102",
-        "totalMeals": 0,
+        "totalMeals": 2,
         "mealRate": 0,
         "mealCost": 0,
         "sharedCostsShare": 0,
@@ -6536,7 +6627,7 @@
         "memberId": "m5",
         "memberName": "Tarek hossen",
         "roomNo": "103",
-        "totalMeals": 0,
+        "totalMeals": 2,
         "mealRate": 0,
         "mealCost": 0,
         "sharedCostsShare": 0,
@@ -6561,7 +6652,7 @@
         "memberId": "m_9837",
         "memberName": "Saif",
         "roomNo": "7D",
-        "totalMeals": 0,
+        "totalMeals": 2,
         "mealRate": 0,
         "mealCost": 0,
         "sharedCostsShare": 0,
@@ -6586,7 +6677,7 @@
         "memberId": "m_1791019023890",
         "memberName": "Tareq Rahman",
         "roomNo": "402",
-        "totalMeals": 0,
+        "totalMeals": 2,
         "mealRate": 0,
         "mealCost": 0,
         "sharedCostsShare": 0,
@@ -6608,7 +6699,7 @@
         }
       }
     },
-    "formulaNote": "এখনও কোন মিল যুক্ত হয়নি। মোট মিল খরচ: ৳0। নতুন মাসের মিল চালু হলে স্বয়ংক্রিয় মিল রেট তৈরি হবে।"
+    "formulaNote": "মিল রেট = মোট মিল খরচ (৳0) ÷ মোট মিল (14 টি) = ৳0.00। ফিক্সড খরচাদি 7 জন সক্রিয় সদস্যের মাঝে সমবণ্টন।"
   },
   "registrations": [
     {

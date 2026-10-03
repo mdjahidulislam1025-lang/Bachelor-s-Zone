@@ -233,7 +233,10 @@ export interface PaymentRecord {
   transactionRef?: string;
   receivedBy: string;
   notes?: string;
-  status: 'verified' | 'pending';
+  status: 'verified' | 'pending' | 'rejected';
+  verifiedBy?: string;
+  verifiedAt?: string;
+  rejectionReason?: string;
   createdAt: string;
 
   // bKash specific details
@@ -517,4 +520,80 @@ export interface MessDatabaseState {
   smsLogs: SmsLog[];
   notifications: InAppNotification[];
   settings: MessSettings;
+}
+
+export interface MemberFinancialProfile {
+  personalInfo: {
+    id: string;
+    memberId: string;
+    name: string;
+    fullName?: string;
+    nickname?: string;
+    phone: string;
+    registeredPhoneNumber?: string;
+    roomNo?: string;
+    role: UserRole;
+    status: MemberStatus;
+    accountStatus: string;
+    joiningDate: string;
+    accountCreationDate: string;
+    avatarColor: string;
+    profilePhoto?: string;
+    email?: string;
+  };
+  currentMonth: string;
+  paymentSummary: {
+    depositedThisMonth: number;
+    verifiedPaymentsThisMonth: number;
+    pendingPaymentsThisMonth: number;
+    rejectedPaymentsThisMonth: number;
+    totalMealsThisMonth: number;
+    currentMealRate: number;
+    mealExpensesThisMonth: number;
+    totalMealExpensesThisMonth: number;
+    otherAllocatedExpensesThisMonth: number;
+    totalExpensesThisMonth: number;
+    previousMonthBalance: number;
+    currentMonthBalance: number;
+    totalOutstandingBalance: number;
+    advanceBalance: number;
+  };
+  paymentHistory: Array<{
+    id: string;
+    date: string;
+    paymentDate?: string;
+    amount: number;
+    paymentMethod: PaymentMethod;
+    transactionRef?: string;
+    periodId: string;
+    accountingMonth?: string;
+    monthName?: string;
+    status: 'verified' | 'pending' | 'rejected';
+    verifiedBy?: string;
+    verifiedAt?: string;
+    verificationDate?: string;
+    rejectionReason?: string;
+    receivedBy?: string;
+    cashReceivedBy?: string;
+    cashNotes?: string;
+    receiptUrl?: string;
+    createdAt: string;
+  }>;
+  statements: Array<{
+    month: string;
+    monthName: string;
+    status: string;
+    openingBalance: number;
+    totalMeals: number;
+    mealRate: number;
+    mealCost: number;
+    sharedCostsShare: number;
+    individualCosts: number;
+    totalCost: number;
+    totalPaid: number;
+    netBalance: number;
+    outstandingAmount: number;
+    advanceAmount: number;
+    calculationBreakdown: string;
+  }>;
 }

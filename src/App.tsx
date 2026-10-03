@@ -1422,6 +1422,8 @@ export function App() {
               currentStatement={currentMonthCalc?.statements[currentMember.id] || null}
               dailyMeals={dbState.dailyMeals}
               language={language}
+              payments={dbState.payments}
+              monthlyAccounts={dbState.monthlyAccounts}
               onOpenStatementVoucher={stmt => setStatementVoucher(stmt)}
               onUpdateMemberInfo={handleSaveMember}
               onTabSelect={setActiveTab}

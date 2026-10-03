@@ -20,6 +20,7 @@ import {
   ExternalLink,
   Receipt,
   FileText,
+  XCircle,
 } from 'lucide-react';
 import { PaymentRecord, Member, PaymentMethod, MessPaymentInfo } from '../types.js';
 import { Language, translations } from '../utils/translations.js';
@@ -391,26 +392,54 @@ export const PaymentsView: React.FC<PaymentsViewProps> = ({
                         </td>
                         <td className="py-3.5 px-4 text-slate-600">{p.receivedBy}</td>
                         <td className="py-3.5 px-4">
-                          {p.status === 'verified' ? (
+                          {p.status === 'verified' && (
                             <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-bold bg-emerald-100 text-emerald-800">
                               <CheckCircle2 className="h-3 w-3" />
                               <span>অনুমোদিত</span>
                             </span>
-                          ) : (
-                            <div className="flex items-center gap-1.5">
+                          )}
+                          {p.status === 'rejected' && (
+                            <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-bold bg-rose-100 text-rose-800" title={p.rejectionReason}>
+                              <XCircle className="h-3 w-3" />
+                              <span>বাতিলকৃত</span>
+                            </span>
+                          )}
+                          {p.status === 'pending' && (
+                            <div className="flex items-center gap-1.5 flex-wrap">
                               <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-bold bg-amber-100 text-amber-800">
                                 <Clock className="h-3 w-3" />
                                 <span>অপেক্ষমান</span>
                               </span>
                               {canManage && (
-                                <button
-                                  type="button"
-                                  onClick={() => onSavePayment({ ...p, status: 'verified' })}
-                                  className="px-2 py-0.5 rounded bg-emerald-600 hover:bg-emerald-700 text-white text-[10px] font-bold cursor-pointer transition-colors shadow-2xs"
-                                  title="অনুমোদন করুন"
-                                >
-                                  অনুমোদন
-                                </button>
+                                <>
+                                  <button
+                                    type="button"
+                                    onClick={() => onSavePayment({ ...p, status: 'verified', verifiedBy: currentMember.name, verifiedAt: new Date().toISOString() })}
+                                    className="px-2 py-0.5 rounded bg-emerald-600 hover:bg-emerald-700 text-white text-[10px] font-bold cursor-pointer transition-colors shadow-2xs"
+                                    title="অনুমোদন করুন"
+                                  >
+                                    অনুমোদন
+                                  </button>
+                                  <button
+                                    type="button"
+                                    onClick={() => {
+                                      const reason = window.prompt('জমা বাতিলের কারণ লিখুন:', 'পেমেন্ট তথ্যে অসঙ্গতি');
+                                      if (reason !== null) {
+                                        onSavePayment({
+                                          ...p,
+                                          status: 'rejected',
+                                          rejectionReason: reason || 'এডমিন কর্তৃক বাতিল',
+                                          verifiedBy: currentMember.name,
+                                          verifiedAt: new Date().toISOString(),
+                                        });
+                                      }
+                                    }}
+                                    className="px-2 py-0.5 rounded bg-rose-600 hover:bg-rose-700 text-white text-[10px] font-bold cursor-pointer transition-colors shadow-2xs"
+                                    title="বাতিল করুন"
+                                  >
+                                    বাতিল
+                                  </button>
+                                </>
                               )}
                             </div>
                           )}

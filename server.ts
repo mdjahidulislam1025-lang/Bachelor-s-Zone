@@ -18,7 +18,12 @@ import {
   closeMonthAccount,
   reopenMonthAccount,
 } from './server/monthlyAccounting.js';
-import { getCurrentDhakaPeriod, getTodayDhakaDate } from './src/utils/monthlyPeriodUtils.js';
+import {
+  getCurrentDhakaPeriod,
+  getTodayDhakaDate,
+  getPreviousMonthPeriod,
+  getMonthNameBengali,
+} from './src/utils/monthlyPeriodUtils.js';
 import { getInitialMessData } from './server/demoData.js';
 import { answerMessQuery } from './server/ai.js';
 import { SmsLog, MemberRole, AdminProfile, AuthSession } from './src/types.js';
@@ -1550,6 +1555,202 @@ async function startServer() {
     }
   });
 
+  // Helper to compute a member's complete financial profile
+  function buildMemberFinancialProfile(memberId: string) {
+    const db = getDatabase();
+    const member = db.members.find(m => m.id === memberId);
+    if (!member) return null;
+
+    const currentPeriod = getCurrentDhakaPeriod().periodId; // e.g. "2026-10"
+    const currentCalculation = calculateMonthlyAccount(db, currentPeriod);
+    const prevPeriod = getPreviousMonthPeriod(currentPeriod);
+    const prevCalculation = db.monthlyAccounts.find(a => a.month === prevPeriod);
+
+    // Current Month Statement
+    const currentStatement = currentCalculation.statements?.[memberId];
+    const prevStatement = prevCalculation?.statements?.[memberId];
+
+    // Current Month Payments for this member
+    const currentMonthPayments = (db.payments || []).filter(
+      p => p.memberId === memberId && (p.date.startsWith(currentPeriod) || p.periodId === currentPeriod)
+    );
+
+    const depositedThisMonth = currentMonthPayments.reduce((sum, p) => sum + (Number(p.amount) || 0), 0);
+    const verifiedPaymentsThisMonth = currentMonthPayments
+      .filter(p => p.status === 'verified')
+      .reduce((sum, p) => sum + (Number(p.amount) || 0), 0);
+    const pendingPaymentsThisMonth = currentMonthPayments
+      .filter(p => p.status === 'pending')
+      .reduce((sum, p) => sum + (Number(p.amount) || 0), 0);
+    const rejectedPaymentsThisMonth = currentMonthPayments
+      .filter(p => p.status === 'rejected')
+      .reduce((sum, p) => sum + (Number(p.amount) || 0), 0);
+
+    const mealExpensesThisMonth = currentStatement?.mealCost || 0;
+    const otherAllocatedExpensesThisMonth =
+      (currentStatement?.sharedCostsShare || 0) + (currentStatement?.individualCosts || 0);
+    const totalExpensesThisMonth =
+      currentStatement?.totalCost || mealExpensesThisMonth + otherAllocatedExpensesThisMonth;
+
+    // Carry-forward previous month balance
+    const shouldCarryForward = db.settings?.accountingConfig?.carryForwardPreviousBalance !== false;
+    const previousMonthBalance = shouldCarryForward && prevStatement?.netBalance ? prevStatement.netBalance : 0;
+
+    // Current Month's balance: expenses - verified payments
+    const currentMonthBalance = totalExpensesThisMonth - verifiedPaymentsThisMonth;
+
+    // Total net balance = previous balance + current expenses - verified payments
+    const netTotalBalance = previousMonthBalance + totalExpensesThisMonth - verifiedPaymentsThisMonth;
+    const totalOutstandingBalance = Math.max(0, netTotalBalance);
+    const advanceBalance = Math.max(0, -netTotalBalance);
+
+    // Member Payment History (All payments for this member, sorted descending)
+    const paymentHistory = (db.payments || [])
+      .filter(p => p.memberId === memberId)
+      .map(p => ({
+        id: p.id,
+        date: p.date,
+        amount: Number(p.amount) || 0,
+        paymentMethod: p.paymentMethod,
+        transactionRef: p.transactionRef || undefined,
+        periodId: p.periodId || p.date.slice(0, 7),
+        status: p.status || 'verified',
+        verifiedBy: p.verifiedBy || undefined,
+        verifiedAt: p.verifiedAt || undefined,
+        rejectionReason: p.rejectionReason || undefined,
+        receivedBy: p.receivedBy || undefined,
+        cashReceivedBy: p.cashReceivedBy || undefined,
+        cashNotes: p.cashNotes || undefined,
+        receiptUrl: p.receiptUrl || undefined,
+        createdAt: p.createdAt || p.date,
+      }))
+      .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+
+    // Month-wise Statements (Available months for this member)
+    const allMonths = [
+      currentCalculation,
+      ...(db.monthlyAccounts || []).filter(a => a.month !== currentPeriod),
+    ];
+
+    const statements = allMonths
+      .map(monthAcc => {
+        const stmt = monthAcc.statements?.[memberId];
+        if (!stmt) return null;
+        const prevMonth = getPreviousMonthPeriod(monthAcc.month);
+        const prevAcc = (db.monthlyAccounts || []).find(a => a.month === prevMonth);
+        const openingBalance = (shouldCarryForward && prevAcc?.statements?.[memberId]?.netBalance) || 0;
+
+        return {
+          month: monthAcc.month,
+          monthName: getMonthNameBengali(monthAcc.month),
+          status: monthAcc.status || 'open',
+          openingBalance,
+          totalMeals: stmt.totalMeals || 0,
+          mealRate: stmt.mealRate || 0,
+          mealCost: stmt.mealCost || 0,
+          sharedCostsShare: stmt.sharedCostsShare || 0,
+          individualCosts: stmt.individualCosts || 0,
+          totalCost: stmt.totalCost || 0,
+          totalPaid: stmt.totalPaid || 0,
+          netBalance: stmt.netBalance || 0,
+          outstandingAmount: Math.max(0, stmt.netBalance || 0),
+          advanceAmount: Math.max(0, -(stmt.netBalance || 0)),
+          calculationBreakdown: `পূর্ববর্তী ব্যালেন্স (৳${openingBalance.toLocaleString()}) + মিল খরচ (৳${stmt.mealCost.toLocaleString()}) + শেয়ার খরচ (৳${stmt.sharedCostsShare.toLocaleString()}) - মোট জমা (৳${stmt.totalPaid.toLocaleString()}) = ${stmt.netBalance > 0 ? 'বকেয়া' : 'উদ্বৃত্ত'} ৳${Math.abs(stmt.netBalance).toLocaleString()}`,
+        };
+      })
+      .filter(Boolean);
+
+    return {
+      personalInfo: {
+        id: member.id,
+        memberId: member.id,
+        name: member.name,
+        fullName: member.name,
+        nickname: member.nickname,
+        phone: member.phone,
+        registeredPhoneNumber: member.phone,
+        roomNo: member.roomNo,
+        role: member.role,
+        status: member.status,
+        accountStatus: member.status === 'active' ? 'সক্রিয় (Active)' : 'নিষ্ক্রিয় (Inactive)',
+        joiningDate: member.joiningDate,
+        accountCreationDate: member.joiningDate || '2026-01-01',
+        avatarColor: member.avatarColor || 'bg-emerald-600',
+        profilePhoto: member.avatarColor,
+        email: member.email,
+      },
+      currentMonth: currentPeriod,
+      paymentSummary: {
+        depositedThisMonth,
+        verifiedPaymentsThisMonth,
+        pendingPaymentsThisMonth,
+        rejectedPaymentsThisMonth,
+        totalMealsThisMonth: currentStatement?.totalMeals || 0,
+        currentMealRate: currentCalculation.mealRate || 0,
+        mealExpensesThisMonth,
+        totalMealExpensesThisMonth: mealExpensesThisMonth,
+        otherAllocatedExpensesThisMonth,
+        totalExpensesThisMonth,
+        previousMonthBalance,
+        currentMonthBalance,
+        totalOutstandingBalance,
+        advanceBalance,
+      },
+      paymentHistory,
+      statements,
+    };
+  }
+
+  // Get Authenticated Member's Own Financial Profile (Strict Privacy)
+  app.get('/api/members/me/financial-profile', (req, res) => {
+    try {
+      const reqUser = getRequestUser(req);
+      if (!reqUser || reqUser.id === 'unauthenticated') {
+        return res.status(401).json({ success: false, error: 'অনুগ্রহ করে প্রথমে লগইন করুন (Unauthorized)' });
+      }
+
+      const profile = buildMemberFinancialProfile(reqUser.id);
+      if (!profile) {
+        return res.status(404).json({ success: false, error: 'সদস্য তথ্য খুঁজে পাওয়া যায়নি' });
+      }
+
+      res.json({ success: true, profile });
+    } catch (err: any) {
+      res.status(500).json({ success: false, error: err.message });
+    }
+  });
+
+  // Get Member Financial Profile by ID (Strict Privacy: Own record or Admin only)
+  app.get('/api/members/:id/financial-profile', (req, res) => {
+    try {
+      const { id } = req.params;
+      const reqUser = getRequestUser(req);
+      if (!reqUser || reqUser.id === 'unauthenticated') {
+        return res.status(401).json({ success: false, error: 'লগইন আবশ্যক' });
+      }
+
+      const isOwnProfile = reqUser.id === id;
+      const isSuper = isPrimaryAdmin({ id: reqUser.id, name: reqUser.name, role: reqUser.role });
+      const isAdminUser = isSuper || reqUser.role === 'admin' || reqUser.role === 'PRIMARY_ADMIN';
+
+      if (!isOwnProfile && !isAdminUser) {
+        return res.status(403).json({
+          success: false,
+          error: 'নিরাপত্তা নিষেধাজ্ঞা: আপনি শুধুমাত্র আপনার নিজের আর্থিক হিসাব ও পেমেন্ট রেকর্ড দেখতে পারেন। অন্য সদস্যের হিসাব দেখার অনুমতি নেই (403 Forbidden)',
+        });
+      }
+
+      const profile = buildMemberFinancialProfile(id);
+      if (!profile) {
+        return res.status(404).json({ success: false, error: 'সদস্য তথ্য খুঁজে পাওয়া যায়নি' });
+      }
+
+      res.json({ success: true, profile });
+    } catch (err: any) {
+      res.status(500).json({ success: false, error: err.message });
+    }
+  });
+
   // 4. Batch save daily meals (Admin only, closed month protection, auto recalculate)
   app.post('/api/meals/batch', (req, res) => {
     try {
@@ -2825,9 +3026,11 @@ async function startServer() {
           ...payment,
           id: newId,
           amount: amt,
-          status: payment.status || 'verified',
+          status: isSelfSubmission ? 'pending' : (payment.status || 'verified'),
+          verifiedBy: isSelfSubmission ? undefined : (payment.verifiedBy || user.name),
+          verifiedAt: isSelfSubmission ? undefined : (payment.verifiedAt || new Date().toISOString()),
           createdAt: new Date().toISOString(),
-          receivedBy: payment.receivedBy || user.name,
+          receivedBy: payment.receivedBy || (isSelfSubmission ? 'অপেক্ষমান (Pending Verification)' : user.name),
         };
         db.payments.unshift(newPayment);
         logAudit(
@@ -2897,6 +3100,92 @@ async function startServer() {
       saveDatabase(db);
 
       res.json({ success: true, message: 'জমার রেকর্ড সফলভাবে মুছে ফেলা হয়েছে', data: db.payments });
+    } catch (err: any) {
+      res.status(500).json({ success: false, error: err.message });
+    }
+  });
+
+  // 19b. Verify Pending Payment (Admin only / Configured Treasurer)
+  app.post('/api/payments/:id/verify', (req, res) => {
+    try {
+      const db = getDatabase();
+      const { id } = req.params;
+      const target = db.payments.find(p => p.id === id);
+
+      if (!target) {
+        return res.status(404).json({ success: false, error: 'জমার রেকর্ড পাওয়া যায়নি' });
+      }
+
+      const user = checkAdminAuth(req, res, { recordDate: target.date, allowTreasurerFor: 'payments' });
+      if (!user) return;
+
+      target.status = 'verified';
+      target.verifiedBy = user.name;
+      target.verifiedAt = new Date().toISOString();
+
+      logAudit(
+        user.name,
+        'VERIFY',
+        'payments',
+        `${target.memberName} এর ৳${target.amount.toLocaleString()} জমার আবেদন অনুমোদন/ভেরিফাই করা হয়েছে (${target.paymentMethod})`,
+        'স্ট্যাটাস: pending -> verified',
+        `৳${target.amount} (${target.paymentMethod})`,
+        user.id,
+        'Payment',
+        id,
+        user.ipAddress
+      );
+
+      // Recalculate affected month
+      const affectedMonth = target.date.slice(0, 7);
+      recalculateMonthlyAccount(affectedMonth);
+      saveDatabase(db);
+
+      res.json({ success: true, message: 'পেমেন্ট সফলভাবে অনুমোদিত ও হিসাবভুক্ত হয়েছে', payment: target, data: db.payments });
+    } catch (err: any) {
+      res.status(500).json({ success: false, error: err.message });
+    }
+  });
+
+  // 19c. Reject Pending Payment (Admin only / Configured Treasurer)
+  app.post('/api/payments/:id/reject', (req, res) => {
+    try {
+      const db = getDatabase();
+      const { id } = req.params;
+      const { reason } = req.body;
+      const target = db.payments.find(p => p.id === id);
+
+      if (!target) {
+        return res.status(404).json({ success: false, error: 'জমার রেকর্ড পাওয়া যায়নি' });
+      }
+
+      const user = checkAdminAuth(req, res, { recordDate: target.date, allowTreasurerFor: 'payments' });
+      if (!user) return;
+
+      target.status = 'rejected';
+      target.rejectionReason = reason || 'মেস এডমিন কর্তৃক বাতিল করা হয়েছে';
+      target.verifiedBy = user.name;
+      target.verifiedAt = new Date().toISOString();
+
+      logAudit(
+        user.name,
+        'REJECT',
+        'payments',
+        `${target.memberName} এর ৳${target.amount.toLocaleString()} জমার আবেদন বাতিল করা হয়েছে`,
+        'স্ট্যাটাস: pending -> rejected',
+        `কারণ: ${target.rejectionReason}`,
+        user.id,
+        'Payment',
+        id,
+        user.ipAddress
+      );
+
+      // Recalculate affected month
+      const affectedMonth = target.date.slice(0, 7);
+      recalculateMonthlyAccount(affectedMonth);
+      saveDatabase(db);
+
+      res.json({ success: true, message: 'পেমেন্ট বাতিল করা হয়েছে', payment: target, data: db.payments });
     } catch (err: any) {
       res.status(500).json({ success: false, error: err.message });
     }
