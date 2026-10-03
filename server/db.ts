@@ -35,6 +35,10 @@ export function initDatabase(): MessDatabaseState {
         if (!inMemoryState!.settings) inMemoryState!.settings = initial.settings;
         inMemoryState!.settings.mealCutoffSettings = initial.settings.mealCutoffSettings;
       }
+      if (!inMemoryState!.settings?.paymentInfo) {
+        if (!inMemoryState!.settings) inMemoryState!.settings = initial.settings;
+        inMemoryState!.settings.paymentInfo = initial.settings.paymentInfo;
+      }
       if (!inMemoryState!.adminProfile) {
         inMemoryState!.adminProfile = initial.adminProfile;
       }
@@ -68,6 +72,10 @@ export function getDatabase(): MessDatabaseState {
   if (!inMemoryState!.settings?.mealCutoffSettings) {
     if (!inMemoryState!.settings) inMemoryState!.settings = initial.settings;
     inMemoryState!.settings.mealCutoffSettings = initial.settings.mealCutoffSettings;
+  }
+  if (!inMemoryState!.settings?.paymentInfo) {
+    if (!inMemoryState!.settings) inMemoryState!.settings = initial.settings;
+    inMemoryState!.settings.paymentInfo = initial.settings.paymentInfo;
   }
   // Automatic new month detection and isolation
   ensureCurrentMonthPeriod(inMemoryState!);

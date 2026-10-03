@@ -10,9 +10,11 @@ import {
   History,
   AlertTriangle,
   RefreshCw,
+  CreditCard,
 } from 'lucide-react';
 import { MessSettings, SmsLog, AuditLog, Member } from '../types.js';
 import { Language, translations } from '../utils/translations.js';
+import { AdminPaymentSettings } from './AdminPaymentSettings.js';
 
 interface SmsAndSettingsViewProps {
   settings: MessSettings;
@@ -38,7 +40,7 @@ export const SmsAndSettingsView: React.FC<SmsAndSettingsViewProps> = ({
   onResetDemo,
 }) => {
   const t = translations[language];
-  const [activeTab, setActiveTab] = useState<'gateway' | 'logs' | 'audit'>('gateway');
+  const [activeTab, setActiveTab] = useState<'payment-info' | 'gateway' | 'logs' | 'audit'>('payment-info');
 
   // Gateway form states
   const [providerName, setProviderName] = useState(settings.smsGateway.providerName);
@@ -132,20 +134,32 @@ export const SmsAndSettingsView: React.FC<SmsAndSettingsViewProps> = ({
       </div>
 
       {/* Tabs */}
-      <div className="flex items-center gap-2 border-b border-slate-200 pb-2">
+      <div className="flex items-center gap-2 border-b border-slate-200 pb-2 overflow-x-auto">
+        <button
+          onClick={() => setActiveTab('payment-info')}
+          className={`px-4 py-2 text-xs font-bold rounded-xl transition-all cursor-pointer flex items-center gap-1.5 shrink-0 ${
+            activeTab === 'payment-info'
+              ? 'bg-emerald-600 text-white shadow-xs'
+              : 'text-slate-600 hover:bg-slate-100'
+          }`}
+        >
+          <CreditCard className="h-3.5 w-3.5" />
+          <span>পেমেন্ট ইনফরমেশন (Payment Info)</span>
+        </button>
         <button
           onClick={() => setActiveTab('gateway')}
-          className={`px-4 py-2 text-xs font-bold rounded-xl transition-all cursor-pointer ${
+          className={`px-4 py-2 text-xs font-bold rounded-xl transition-all cursor-pointer flex items-center gap-1.5 shrink-0 ${
             activeTab === 'gateway'
               ? 'bg-emerald-600 text-white shadow-xs'
               : 'text-slate-600 hover:bg-slate-100'
           }`}
         >
-          এসএমএস গেটওয়ে ও সেটিংস
+          <MessageSquare className="h-3.5 w-3.5" />
+          <span>এসএমএস গেটওয়ে ও মেস সেটিংস</span>
         </button>
         <button
           onClick={() => setActiveTab('logs')}
-          className={`px-4 py-2 text-xs font-bold rounded-xl transition-all cursor-pointer ${
+          className={`px-4 py-2 text-xs font-bold rounded-xl transition-all cursor-pointer shrink-0 ${
             activeTab === 'logs'
               ? 'bg-emerald-600 text-white shadow-xs'
               : 'text-slate-600 hover:bg-slate-100'
@@ -155,7 +169,7 @@ export const SmsAndSettingsView: React.FC<SmsAndSettingsViewProps> = ({
         </button>
         <button
           onClick={() => setActiveTab('audit')}
-          className={`px-4 py-2 text-xs font-bold rounded-xl transition-all cursor-pointer ${
+          className={`px-4 py-2 text-xs font-bold rounded-xl transition-all cursor-pointer shrink-0 ${
             activeTab === 'audit'
               ? 'bg-emerald-600 text-white shadow-xs'
               : 'text-slate-600 hover:bg-slate-100'
@@ -170,6 +184,16 @@ export const SmsAndSettingsView: React.FC<SmsAndSettingsViewProps> = ({
           <CheckCircle2 className="h-4 w-4 text-emerald-600" />
           <span>{feedback}</span>
         </div>
+      )}
+
+      {/* Tab 0: Admin Payment Receiving Configuration */}
+      {activeTab === 'payment-info' && (
+        <AdminPaymentSettings
+          settings={settings}
+          currentMember={currentMember}
+          language={language}
+          onSaveSettings={onSaveSettings}
+        />
       )}
 
       {/* Tab 1: SMS Gateway Settings & Quick Sender */}

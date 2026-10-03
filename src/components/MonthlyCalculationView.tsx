@@ -22,6 +22,7 @@ import {
   ArrowUpRight,
   ArrowDownLeft,
   Sparkles,
+  RotateCcw,
 } from 'lucide-react';
 import { MonthlyAccount, MemberMonthlyStatement, Member } from '../types.js';
 import { Language, translations } from '../utils/translations.js';
@@ -38,6 +39,7 @@ interface MonthlyCalculationViewProps {
   onCloseMonth: (month: string, sendSms: boolean) => Promise<void>;
   onReopenMonth: (month: string) => Promise<void>;
   onRecalculateMonth?: (month: string) => Promise<void>;
+  onResetCurrentMonth?: () => Promise<void>;
   onOpenStatementVoucher: (statement: MemberMonthlyStatement) => void;
   onTriggerMemberSms: (statement: MemberMonthlyStatement) => void;
   onSendNewMonthAnnouncement?: (monthName: string) => Promise<void>;
@@ -53,6 +55,7 @@ export const MonthlyCalculationView: React.FC<MonthlyCalculationViewProps> = ({
   onCloseMonth,
   onReopenMonth,
   onRecalculateMonth,
+  onResetCurrentMonth,
   onOpenStatementVoucher,
   onTriggerMemberSms,
   onSendNewMonthAnnouncement,
@@ -253,6 +256,26 @@ export const MonthlyCalculationView: React.FC<MonthlyCalculationViewProps> = ({
                   >
                     <RefreshCw className={`h-4 w-4 ${isProcessing ? 'animate-spin' : ''}`} />
                     <span>পুনর্গণনা</span>
+                  </button>
+                )}
+
+                {!isClosed && onResetCurrentMonth && (
+                  <button
+                    onClick={async () => {
+                      if (
+                        window.confirm(
+                          'আপনি কি নিশ্চিত যে চলতি মাসের সকল মিল, খরচ ও জমার হিসাব শূন্য (০) তে রিসেট করতে চান? সদস্য, লগইন ও সেটিংস অক্ষুণ্ণ থাকবে এবং নতুন করে এন্ট্রি দেওয়া যাবে।'
+                        )
+                      ) {
+                        await onResetCurrentMonth();
+                      }
+                    }}
+                    disabled={isProcessing}
+                    title="চলতি মাসের সকল মিল, খরচ ও জমা শূন্য (০) করুন"
+                    className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-rose-600/80 hover:bg-rose-600 text-white text-xs font-bold shadow-xs transition-colors cursor-pointer"
+                  >
+                    <RotateCcw className="h-4 w-4" />
+                    <span>হিসাব শূন্য (০) করুন</span>
                   </button>
                 )}
 

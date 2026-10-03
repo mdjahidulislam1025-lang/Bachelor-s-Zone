@@ -23,6 +23,7 @@ import {
   ToggleLeft,
   ToggleRight,
   BookOpen,
+  CreditCard,
 } from 'lucide-react';
 import {
   Member,
@@ -34,10 +35,12 @@ import {
   ExpenseRecord,
   PaymentRecord,
   MonthlyAccount,
+  MessPaymentInfo,
 } from '../types.js';
 import { Language, translations } from '../utils/translations.js';
 import { useAuth } from '../context/AuthContext.js';
 import { BachelorZoneLogo } from './BachelorZoneLogo.js';
+import { MemberPaymentInfoCard } from './MemberPaymentInfoCard.js';
 import {
   getTodayDhakaDate,
   getTomorrowDhakaDate,
@@ -53,6 +56,7 @@ interface DashboardViewProps {
   bazarRecords: BazarRecord[];
   expenses: ExpenseRecord[];
   payments: PaymentRecord[];
+  paymentInfo?: MessPaymentInfo;
   currentMonthCalc: MonthlyAccount;
   currentMember: Member;
   language: Language;
@@ -73,6 +77,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
   bazarRecords,
   expenses,
   payments,
+  paymentInfo,
   currentMonthCalc,
   currentMember,
   language,
@@ -100,6 +105,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
   const todayCook = cookingDuties.find(c => c.date === todayStr);
   const tomorrowCook = cookingDuties.find(c => c.date === tomorrowStr);
   const todayMenu = mealMenus.find(m => m.date === todayStr);
+  const tomorrowMenu = mealMenus.find(m => m.date === tomorrowStr);
   const todayBazarDuty = bazarDuties.find(b => b.date === todayStr);
   const todayBazarRecord = bazarRecords.find(b => b.date === todayStr);
 
@@ -287,6 +293,10 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                 <Receipt className="h-4 w-4 text-emerald-600 shrink-0" />
                 <span className="truncate">Mess Expenses</span>
               </button>
+              <button onClick={() => onSelectTab('payments')} className="flex items-center gap-2 p-2.5 rounded-xl bg-pink-50/80 border border-pink-200 hover:bg-pink-100 text-pink-900 text-xs font-bold transition-all cursor-pointer">
+                <CreditCard className="h-4 w-4 text-pink-600 shrink-0" />
+                <span className="truncate">Pay Mess Bill</span>
+              </button>
               <button onClick={() => onSelectTab('monthly')} className="flex items-center gap-2 p-2.5 rounded-xl bg-emerald-50/70 border border-emerald-200 hover:bg-emerald-100/70 text-emerald-900 text-xs font-bold transition-all cursor-pointer">
                 <Calculator className="h-4 w-4 text-emerald-600 shrink-0" />
                 <span className="truncate">Monthly হিসাব</span>
@@ -332,10 +342,10 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
               <div className="bg-white/10 backdrop-blur-xs rounded-xl p-3 border border-white/10">
                 <div className="flex items-center gap-2 text-emerald-200 text-xs font-medium mb-1">
                   <ChefHat className="h-4 w-4 text-amber-300" />
-                  <span>আজকের রাঁধুনি</span>
+                  <span>আজ রান্না করবে ({formatBengaliFullDate(todayStr).split('(')[1]?.replace(')', '') || 'আজ'})</span>
                 </div>
                 <p className="text-sm font-bold truncate text-white">
-                  {todayCook ? todayCook.memberName : 'জাহিদুল ইসলাম'}
+                  {todayCook ? todayCook.memberName : (activeMembers[0]?.name || 'জাহিদুল ইসলাম')}
                 </p>
                 <span className="text-[11px] text-emerald-300">
                   {todayCook?.status === 'completed' ? '✓ রান্না সম্পন্ন' : 'দুপুর ও রাতের দায়িত্ব'}
@@ -577,6 +587,14 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
         </div>
       </div>
 
+      {/* Pay Your Mess Bill Information (Visible to all active members) */}
+      <MemberPaymentInfoCard
+        paymentInfo={paymentInfo}
+        currentMember={currentMember}
+        language={language}
+        onOpenPaymentForm={() => onSelectTab('payments')}
+      />
+
       {/* Two Column Section: Upcoming Duties & Recent Financial Transactions */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
         {/* Upcoming Duties & Menus */}
@@ -597,38 +615,38 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
           <div className="space-y-2.5">
             <div className="p-3 rounded-xl bg-slate-50 border border-slate-200 flex items-center justify-between">
               <div className="flex items-center gap-3">
-                <div className="h-8 w-8 rounded-lg bg-emerald-100 text-emerald-700 flex items-center justify-center font-bold text-xs">
+                <div className="h-8 w-8 rounded-lg bg-emerald-100 text-emerald-700 flex items-center justify-center font-bold text-xs shrink-0">
                   আজ
                 </div>
                 <div>
                   <p className="text-xs font-bold text-slate-800">
-                    আজকের রাঁধুনি: {todayCook?.memberName || 'রহিম উদ্দিন'}
+                    আজ রান্না করবে ({formatBengaliFullDate(todayStr)}): <span className="text-emerald-700">{todayCook?.memberName || (activeMembers[0]?.name || 'নির্ধারিত হয়নি')}</span>
                   </p>
                   <p className="text-[11px] text-slate-500">
-                    বাজারের দায়িত্বে: {todayBazarDuty?.memberName || 'ফয়সাল হোসেন'}
+                    বাজারের দায়িত্বে: {todayBazarDuty?.memberName || 'ফয়সাল হোসেন'} • মেনু: {todayMenu?.lunch || 'সাদা ভাত + রুই মাছ ভুনা'}
                   </p>
                 </div>
               </div>
-              <span className="px-2 py-0.5 rounded text-[11px] font-semibold bg-emerald-100 text-emerald-800">
+              <span className="px-2 py-0.5 rounded text-[11px] font-semibold bg-emerald-100 text-emerald-800 shrink-0">
                 চলমান
               </span>
             </div>
 
             <div className="p-3 rounded-xl bg-slate-50 border border-slate-200 flex items-center justify-between">
               <div className="flex items-center gap-3">
-                <div className="h-8 w-8 rounded-lg bg-amber-100 text-amber-800 flex items-center justify-center font-bold text-xs">
+                <div className="h-8 w-8 rounded-lg bg-amber-100 text-amber-800 flex items-center justify-center font-bold text-xs shrink-0">
                   কাল
                 </div>
                 <div>
                   <p className="text-xs font-bold text-slate-800">
-                    আগামীকাল রান্না করবে: {tomorrowCook?.memberName || 'সাকিব আল আমিন'}
+                    আগামীকাল রান্না করবে ({formatBengaliFullDate(tomorrowStr)}): <span className="text-amber-700">{tomorrowCook?.memberName || (activeMembers[1]?.name || 'নির্ধারিত হয়নি')}</span>
                   </p>
                   <p className="text-[11px] text-slate-500">
-                    শুক্রবার জুম্মা স্পেশাল মেনু: খিচুড়ি + গরুর মাংস ভুনা
+                    মেনু: {tomorrowMenu?.lunch || 'সাদা ভাত + সোনালী মুরগির কারি + ডাল'}
                   </p>
                 </div>
               </div>
-              <span className="px-2 py-0.5 rounded text-[11px] font-semibold bg-amber-100 text-amber-800">
+              <span className="px-2 py-0.5 rounded text-[11px] font-semibold bg-amber-100 text-amber-800 shrink-0">
                 নির্ধারিত
               </span>
             </div>

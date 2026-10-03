@@ -124,59 +124,65 @@
   },
   "dailyMeals": [
     {
-      "id": "dm-2026-10-01",
-      "date": "2026-10-01",
+      "id": "dm-2026-10-03",
+      "date": "2026-10-03",
       "records": {
         "m1": {
           "memberId": "m1",
           "breakfast": 0,
           "lunch": 1,
-          "dinner": 0,
-          "total": 1
+          "dinner": 1,
+          "total": 2,
+          "notes": ""
         },
         "m2": {
           "memberId": "m2",
           "breakfast": 0,
-          "lunch": 0,
-          "dinner": 0,
-          "total": 0
+          "lunch": 1,
+          "dinner": 1,
+          "total": 2,
+          "notes": ""
         },
         "m3": {
           "memberId": "m3",
           "breakfast": 0,
-          "lunch": 0,
-          "dinner": 0,
-          "total": 0
+          "lunch": 1,
+          "dinner": 1,
+          "total": 2,
+          "notes": ""
         },
         "m4": {
           "memberId": "m4",
           "breakfast": 0,
-          "lunch": 0,
-          "dinner": 0,
-          "total": 0
+          "lunch": 1,
+          "dinner": 1,
+          "total": 2,
+          "notes": ""
         },
         "m5": {
           "memberId": "m5",
           "breakfast": 0,
-          "lunch": 0,
-          "dinner": 0,
-          "total": 0
+          "lunch": 1,
+          "dinner": 1,
+          "total": 2,
+          "notes": ""
         },
         "m_9837": {
           "memberId": "m_9837",
           "breakfast": 0,
-          "lunch": 0,
-          "dinner": 0,
-          "total": 0
+          "lunch": 1,
+          "dinner": 1,
+          "total": 2,
+          "notes": ""
         }
       },
       "totalBreakfast": 0,
-      "totalLunch": 1,
-      "totalDinner": 0,
-      "totalMeals": 1,
-      "notes": "",
-      "updatedBy": "Jahidul Islam",
-      "updatedAt": "2026-10-01T08:21:34.566Z"
+      "totalLunch": 6,
+      "totalDinner": 6,
+      "totalMeals": 12,
+      "notes": "নতুন মাসের আজকের মিল হিসাব চালু",
+      "updatedBy": "System",
+      "updatedAt": "2026-10-03T04:46:51.059Z"
     },
     {
       "id": "dm-2026-09-18",
@@ -3709,9 +3715,67 @@
       "updatedByName": "Jahidul Islam",
       "updatedAt": "2026-10-01T08:21:34.564Z",
       "isLockedOverride": true
+    },
+    {
+      "id": "mms-2026-10-03-m1-dinner",
+      "memberId": "m1",
+      "memberName": "Jahidul Islam",
+      "date": "2026-10-03",
+      "mealType": "dinner",
+      "plannedStatus": "OFF",
+      "actualStatus": "missed",
+      "accountingStatus": "exempt",
+      "updatedBy": "m1",
+      "updatedByName": "Jahidul Islam",
+      "updatedAt": "2026-10-03T04:37:32.853Z",
+      "isLockedOverride": false
+    },
+    {
+      "id": "mms-2026-10-03-m1-lunch",
+      "memberId": "m1",
+      "memberName": "Jahidul Islam",
+      "date": "2026-10-03",
+      "mealType": "lunch",
+      "plannedStatus": "OFF",
+      "actualStatus": "missed",
+      "accountingStatus": "exempt",
+      "updatedBy": "m1",
+      "updatedByName": "Jahidul Islam",
+      "updatedAt": "2026-10-03T04:37:36.388Z",
+      "isLockedOverride": true
     }
   ],
   "mealChangeLogs": [
+    {
+      "id": "mcl-1791002256388-ewyd",
+      "memberId": "m1",
+      "memberName": "Jahidul Islam",
+      "date": "2026-10-03",
+      "mealType": "lunch",
+      "previousStatus": "OFF",
+      "newStatus": "OFF",
+      "changedBy": "m1",
+      "changedByName": "Jahidul Islam",
+      "changedByRole": "admin",
+      "changedAt": "2026-10-03T04:37:36.388Z",
+      "isOverride": true,
+      "reason": "এডমিন জরুরি সমন্বয়"
+    },
+    {
+      "id": "mcl-1791002252853-stzw",
+      "memberId": "m1",
+      "memberName": "Jahidul Islam",
+      "date": "2026-10-03",
+      "mealType": "dinner",
+      "previousStatus": "OFF",
+      "newStatus": "OFF",
+      "changedBy": "m1",
+      "changedByName": "Jahidul Islam",
+      "changedByRole": "admin",
+      "changedAt": "2026-10-03T04:37:32.853Z",
+      "isOverride": false,
+      "reason": "সদস্য কর্তৃক পরিবর্তন"
+    },
     {
       "id": "mcl-1790842894564-ki3u",
       "memberId": "m1",
@@ -3797,6 +3861,255 @@
       "breakfast": "",
       "lunch": "ভাত + মুরগি ঝোল + লাবড়া সবজি",
       "dinner": "ভাত + ডিম ভুনা + মসুর ডাল",
+      "updatedBy": "Jahidul Islam"
+    },
+    {
+      "id": "menu-2026-10-01",
+      "date": "2026-10-01",
+      "breakfast": "",
+      "lunch": "সাদা ভাত + রুই মাছ ভুনা + মসুর ডাল + সালাদ",
+      "dinner": "ভাত + সোনালী মুরগির কারি + লাবড়া সবজি",
+      "updatedBy": "Jahidul Islam",
+      "specialEvent": "নতুন মাস শুরু - স্পেশাল মেনু"
+    },
+    {
+      "id": "menu-2026-10-02",
+      "date": "2026-10-02",
+      "breakfast": "",
+      "lunch": "ভাত + পাবদা মাছ ভুনা + বেগুন ভাজা + ডাল",
+      "dinner": "ভাত + ডিম ভুনা + আলুভর্তা + ডাল",
+      "updatedBy": "Jahidul Islam"
+    },
+    {
+      "id": "menu-2026-10-03",
+      "date": "2026-10-03",
+      "breakfast": "",
+      "lunch": "ভাত + গরুর মাংস ভুনা + লেবু + সালাদ",
+      "dinner": "ভাত + ছোট মাছ চচ্চড়ি + ঘন ডাল",
+      "updatedBy": "Jahidul Islam"
+    },
+    {
+      "id": "menu-2026-10-04",
+      "date": "2026-10-04",
+      "breakfast": "",
+      "lunch": "ভাত + কাতল মাছ ঝোল + শাকভাজি + ডাল",
+      "dinner": "ভাত + মুরগি ভুনা + সালাদ",
+      "updatedBy": "Jahidul Islam"
+    },
+    {
+      "id": "menu-2026-10-05",
+      "date": "2026-10-05",
+      "breakfast": "",
+      "lunch": "ভাত + পাঙ্গাশ মাছ দো পেঁয়াজা + ডাল",
+      "dinner": "ভুনা খিচুড়ি + বেগুন ভাজা + ডিম ভুনা",
+      "updatedBy": "Jahidul Islam"
+    },
+    {
+      "id": "menu-2026-10-06",
+      "date": "2026-10-06",
+      "breakfast": "",
+      "lunch": "স্পেশাল বিফ তেহারি / পোলাও + সালাদ",
+      "dinner": "ভাত + রুই মাছ কালিয়া + ঘন ডাল",
+      "updatedBy": "Jahidul Islam"
+    },
+    {
+      "id": "menu-2026-10-07",
+      "date": "2026-10-07",
+      "breakfast": "",
+      "lunch": "ভাত + মুরগি ভুনা + লাবড়া সবজি + ডাল",
+      "dinner": "ভাত + ডিম তরকারি + পাতলা ডাল",
+      "updatedBy": "Jahidul Islam"
+    },
+    {
+      "id": "menu-2026-10-08",
+      "date": "2026-10-08",
+      "breakfast": "",
+      "lunch": "সাদা ভাত + রুই মাছ ভুনা + মসুর ডাল + সালাদ",
+      "dinner": "ভাত + সোনালী মুরগির কারি + লাবড়া সবজি",
+      "updatedBy": "Jahidul Islam"
+    },
+    {
+      "id": "menu-2026-10-09",
+      "date": "2026-10-09",
+      "breakfast": "",
+      "lunch": "ভাত + পাবদা মাছ ভুনা + বেগুন ভাজা + ডাল",
+      "dinner": "ভাত + ডিম ভুনা + আলুভর্তা + ডাল",
+      "updatedBy": "Jahidul Islam"
+    },
+    {
+      "id": "menu-2026-10-10",
+      "date": "2026-10-10",
+      "breakfast": "",
+      "lunch": "ভাত + গরুর মাংস ভুনা + লেবু + সালাদ",
+      "dinner": "ভাত + ছোট মাছ চচ্চড়ি + ঘন ডাল",
+      "updatedBy": "Jahidul Islam"
+    },
+    {
+      "id": "menu-2026-10-11",
+      "date": "2026-10-11",
+      "breakfast": "",
+      "lunch": "ভাত + কাতল মাছ ঝোল + শাকভাজি + ডাল",
+      "dinner": "ভাত + মুরগি ভুনা + সালাদ",
+      "updatedBy": "Jahidul Islam"
+    },
+    {
+      "id": "menu-2026-10-12",
+      "date": "2026-10-12",
+      "breakfast": "",
+      "lunch": "ভাত + পাঙ্গাশ মাছ দো পেঁয়াজা + ডাল",
+      "dinner": "ভুনা খিচুড়ি + বেগুন ভাজা + ডিম ভুনা",
+      "updatedBy": "Jahidul Islam"
+    },
+    {
+      "id": "menu-2026-10-13",
+      "date": "2026-10-13",
+      "breakfast": "",
+      "lunch": "স্পেশাল বিফ তেহারি / পোলাও + সালাদ",
+      "dinner": "ভাত + রুই মাছ কালিয়া + ঘন ডাল",
+      "updatedBy": "Jahidul Islam"
+    },
+    {
+      "id": "menu-2026-10-14",
+      "date": "2026-10-14",
+      "breakfast": "",
+      "lunch": "ভাত + মুরগি ভুনা + লাবড়া সবজি + ডাল",
+      "dinner": "ভাত + ডিম তরকারি + পাতলা ডাল",
+      "updatedBy": "Jahidul Islam"
+    },
+    {
+      "id": "menu-2026-10-15",
+      "date": "2026-10-15",
+      "breakfast": "",
+      "lunch": "সাদা ভাত + রুই মাছ ভুনা + মসুর ডাল + সালাদ",
+      "dinner": "ভাত + সোনালী মুরগির কারি + লাবড়া সবজি",
+      "updatedBy": "Jahidul Islam"
+    },
+    {
+      "id": "menu-2026-10-16",
+      "date": "2026-10-16",
+      "breakfast": "",
+      "lunch": "ভাত + পাবদা মাছ ভুনা + বেগুন ভাজা + ডাল",
+      "dinner": "ভাত + ডিম ভুনা + আলুভর্তা + ডাল",
+      "updatedBy": "Jahidul Islam"
+    },
+    {
+      "id": "menu-2026-10-17",
+      "date": "2026-10-17",
+      "breakfast": "",
+      "lunch": "ভাত + গরুর মাংস ভুনা + লেবু + সালাদ",
+      "dinner": "ভাত + ছোট মাছ চচ্চড়ি + ঘন ডাল",
+      "updatedBy": "Jahidul Islam"
+    },
+    {
+      "id": "menu-2026-10-18",
+      "date": "2026-10-18",
+      "breakfast": "",
+      "lunch": "ভাত + কাতল মাছ ঝোল + শাকভাজি + ডাল",
+      "dinner": "ভাত + মুরগি ভুনা + সালাদ",
+      "updatedBy": "Jahidul Islam"
+    },
+    {
+      "id": "menu-2026-10-19",
+      "date": "2026-10-19",
+      "breakfast": "",
+      "lunch": "ভাত + পাঙ্গাশ মাছ দো পেঁয়াজা + ডাল",
+      "dinner": "ভুনা খিচুড়ি + বেগুন ভাজা + ডিম ভুনা",
+      "updatedBy": "Jahidul Islam"
+    },
+    {
+      "id": "menu-2026-10-20",
+      "date": "2026-10-20",
+      "breakfast": "",
+      "lunch": "স্পেশাল বিফ তেহারি / পোলাও + সালাদ",
+      "dinner": "ভাত + রুই মাছ কালিয়া + ঘন ডাল",
+      "updatedBy": "Jahidul Islam"
+    },
+    {
+      "id": "menu-2026-10-21",
+      "date": "2026-10-21",
+      "breakfast": "",
+      "lunch": "ভাত + মুরগি ভুনা + লাবড়া সবজি + ডাল",
+      "dinner": "ভাত + ডিম তরকারি + পাতলা ডাল",
+      "updatedBy": "Jahidul Islam"
+    },
+    {
+      "id": "menu-2026-10-22",
+      "date": "2026-10-22",
+      "breakfast": "",
+      "lunch": "সাদা ভাত + রুই মাছ ভুনা + মসুর ডাল + সালাদ",
+      "dinner": "ভাত + সোনালী মুরগির কারি + লাবড়া সবজি",
+      "updatedBy": "Jahidul Islam"
+    },
+    {
+      "id": "menu-2026-10-23",
+      "date": "2026-10-23",
+      "breakfast": "",
+      "lunch": "ভাত + পাবদা মাছ ভুনা + বেগুন ভাজা + ডাল",
+      "dinner": "ভাত + ডিম ভুনা + আলুভর্তা + ডাল",
+      "updatedBy": "Jahidul Islam"
+    },
+    {
+      "id": "menu-2026-10-24",
+      "date": "2026-10-24",
+      "breakfast": "",
+      "lunch": "ভাত + গরুর মাংস ভুনা + লেবু + সালাদ",
+      "dinner": "ভাত + ছোট মাছ চচ্চড়ি + ঘন ডাল",
+      "updatedBy": "Jahidul Islam"
+    },
+    {
+      "id": "menu-2026-10-25",
+      "date": "2026-10-25",
+      "breakfast": "",
+      "lunch": "ভাত + কাতল মাছ ঝোল + শাকভাজি + ডাল",
+      "dinner": "ভাত + মুরগি ভুনা + সালাদ",
+      "updatedBy": "Jahidul Islam"
+    },
+    {
+      "id": "menu-2026-10-26",
+      "date": "2026-10-26",
+      "breakfast": "",
+      "lunch": "ভাত + পাঙ্গাশ মাছ দো পেঁয়াজা + ডাল",
+      "dinner": "ভুনা খিচুড়ি + বেগুন ভাজা + ডিম ভুনা",
+      "updatedBy": "Jahidul Islam"
+    },
+    {
+      "id": "menu-2026-10-27",
+      "date": "2026-10-27",
+      "breakfast": "",
+      "lunch": "স্পেশাল বিফ তেহারি / পোলাও + সালাদ",
+      "dinner": "ভাত + রুই মাছ কালিয়া + ঘন ডাল",
+      "updatedBy": "Jahidul Islam"
+    },
+    {
+      "id": "menu-2026-10-28",
+      "date": "2026-10-28",
+      "breakfast": "",
+      "lunch": "ভাত + মুরগি ভুনা + লাবড়া সবজি + ডাল",
+      "dinner": "ভাত + ডিম তরকারি + পাতলা ডাল",
+      "updatedBy": "Jahidul Islam"
+    },
+    {
+      "id": "menu-2026-10-29",
+      "date": "2026-10-29",
+      "breakfast": "",
+      "lunch": "সাদা ভাত + রুই মাছ ভুনা + মসুর ডাল + সালাদ",
+      "dinner": "ভাত + সোনালী মুরগির কারি + লাবড়া সবজি",
+      "updatedBy": "Jahidul Islam"
+    },
+    {
+      "id": "menu-2026-10-30",
+      "date": "2026-10-30",
+      "breakfast": "",
+      "lunch": "ভাত + পাবদা মাছ ভুনা + বেগুন ভাজা + ডাল",
+      "dinner": "ভাত + ডিম ভুনা + আলুভর্তা + ডাল",
+      "updatedBy": "Jahidul Islam"
+    },
+    {
+      "id": "menu-2026-10-31",
+      "date": "2026-10-31",
+      "breakfast": "",
+      "lunch": "ভাত + গরুর মাংস ভুনা + লেবু + সালাদ",
+      "dinner": "ভাত + ছোট মাছ চচ্চড়ি + ঘন ডাল",
       "updatedBy": "Jahidul Islam"
     }
   ],
@@ -4007,6 +4320,285 @@
       "status": "swapped",
       "notes": "",
       "id": "cook-1790834012554"
+    },
+    {
+      "id": "cd-2026-10-01",
+      "date": "2026-10-01",
+      "memberId": "m1",
+      "memberName": "Jahidul Islam",
+      "shift": "both",
+      "status": "completed",
+      "notes": ""
+    },
+    {
+      "id": "cd-2026-10-02",
+      "date": "2026-10-02",
+      "memberId": "m2",
+      "memberName": "Fiaaz Ajmaeen",
+      "shift": "both",
+      "status": "completed",
+      "notes": ""
+    },
+    {
+      "id": "cd-2026-10-03",
+      "date": "2026-10-03",
+      "memberId": "m3",
+      "memberName": "RA Raihan",
+      "shift": "both",
+      "status": "scheduled",
+      "notes": "আজকের রাঁধুনির দায়িত্ব"
+    },
+    {
+      "id": "cd-2026-10-04",
+      "date": "2026-10-04",
+      "memberId": "m4",
+      "memberName": "Tanvir Patwary",
+      "shift": "both",
+      "status": "scheduled",
+      "notes": ""
+    },
+    {
+      "id": "cd-2026-10-05",
+      "date": "2026-10-05",
+      "memberId": "m5",
+      "memberName": "Tarek hossen",
+      "shift": "both",
+      "status": "scheduled",
+      "notes": ""
+    },
+    {
+      "id": "cd-2026-10-06",
+      "date": "2026-10-06",
+      "memberId": "m_9837",
+      "memberName": "Saif",
+      "shift": "both",
+      "status": "scheduled",
+      "notes": ""
+    },
+    {
+      "id": "cd-2026-10-07",
+      "date": "2026-10-07",
+      "memberId": "m1",
+      "memberName": "Jahidul Islam",
+      "shift": "both",
+      "status": "scheduled",
+      "notes": ""
+    },
+    {
+      "id": "cd-2026-10-08",
+      "date": "2026-10-08",
+      "memberId": "m2",
+      "memberName": "Fiaaz Ajmaeen",
+      "shift": "both",
+      "status": "scheduled",
+      "notes": ""
+    },
+    {
+      "id": "cd-2026-10-09",
+      "date": "2026-10-09",
+      "memberId": "m3",
+      "memberName": "RA Raihan",
+      "shift": "both",
+      "status": "scheduled",
+      "notes": ""
+    },
+    {
+      "id": "cd-2026-10-10",
+      "date": "2026-10-10",
+      "memberId": "m4",
+      "memberName": "Tanvir Patwary",
+      "shift": "both",
+      "status": "scheduled",
+      "notes": ""
+    },
+    {
+      "id": "cd-2026-10-11",
+      "date": "2026-10-11",
+      "memberId": "m5",
+      "memberName": "Tarek hossen",
+      "shift": "both",
+      "status": "scheduled",
+      "notes": ""
+    },
+    {
+      "id": "cd-2026-10-12",
+      "date": "2026-10-12",
+      "memberId": "m_9837",
+      "memberName": "Saif",
+      "shift": "both",
+      "status": "scheduled",
+      "notes": ""
+    },
+    {
+      "id": "cd-2026-10-13",
+      "date": "2026-10-13",
+      "memberId": "m1",
+      "memberName": "Jahidul Islam",
+      "shift": "both",
+      "status": "scheduled",
+      "notes": ""
+    },
+    {
+      "id": "cd-2026-10-14",
+      "date": "2026-10-14",
+      "memberId": "m2",
+      "memberName": "Fiaaz Ajmaeen",
+      "shift": "both",
+      "status": "scheduled",
+      "notes": ""
+    },
+    {
+      "id": "cd-2026-10-15",
+      "date": "2026-10-15",
+      "memberId": "m3",
+      "memberName": "RA Raihan",
+      "shift": "both",
+      "status": "scheduled",
+      "notes": ""
+    },
+    {
+      "id": "cd-2026-10-16",
+      "date": "2026-10-16",
+      "memberId": "m4",
+      "memberName": "Tanvir Patwary",
+      "shift": "both",
+      "status": "scheduled",
+      "notes": ""
+    },
+    {
+      "id": "cd-2026-10-17",
+      "date": "2026-10-17",
+      "memberId": "m5",
+      "memberName": "Tarek hossen",
+      "shift": "both",
+      "status": "scheduled",
+      "notes": ""
+    },
+    {
+      "id": "cd-2026-10-18",
+      "date": "2026-10-18",
+      "memberId": "m_9837",
+      "memberName": "Saif",
+      "shift": "both",
+      "status": "scheduled",
+      "notes": ""
+    },
+    {
+      "id": "cd-2026-10-19",
+      "date": "2026-10-19",
+      "memberId": "m1",
+      "memberName": "Jahidul Islam",
+      "shift": "both",
+      "status": "scheduled",
+      "notes": ""
+    },
+    {
+      "id": "cd-2026-10-20",
+      "date": "2026-10-20",
+      "memberId": "m2",
+      "memberName": "Fiaaz Ajmaeen",
+      "shift": "both",
+      "status": "scheduled",
+      "notes": ""
+    },
+    {
+      "id": "cd-2026-10-21",
+      "date": "2026-10-21",
+      "memberId": "m3",
+      "memberName": "RA Raihan",
+      "shift": "both",
+      "status": "scheduled",
+      "notes": ""
+    },
+    {
+      "id": "cd-2026-10-22",
+      "date": "2026-10-22",
+      "memberId": "m4",
+      "memberName": "Tanvir Patwary",
+      "shift": "both",
+      "status": "scheduled",
+      "notes": ""
+    },
+    {
+      "id": "cd-2026-10-23",
+      "date": "2026-10-23",
+      "memberId": "m5",
+      "memberName": "Tarek hossen",
+      "shift": "both",
+      "status": "scheduled",
+      "notes": ""
+    },
+    {
+      "id": "cd-2026-10-24",
+      "date": "2026-10-24",
+      "memberId": "m_9837",
+      "memberName": "Saif",
+      "shift": "both",
+      "status": "scheduled",
+      "notes": ""
+    },
+    {
+      "id": "cd-2026-10-25",
+      "date": "2026-10-25",
+      "memberId": "m1",
+      "memberName": "Jahidul Islam",
+      "shift": "both",
+      "status": "scheduled",
+      "notes": ""
+    },
+    {
+      "id": "cd-2026-10-26",
+      "date": "2026-10-26",
+      "memberId": "m2",
+      "memberName": "Fiaaz Ajmaeen",
+      "shift": "both",
+      "status": "scheduled",
+      "notes": ""
+    },
+    {
+      "id": "cd-2026-10-27",
+      "date": "2026-10-27",
+      "memberId": "m3",
+      "memberName": "RA Raihan",
+      "shift": "both",
+      "status": "scheduled",
+      "notes": ""
+    },
+    {
+      "id": "cd-2026-10-28",
+      "date": "2026-10-28",
+      "memberId": "m4",
+      "memberName": "Tanvir Patwary",
+      "shift": "both",
+      "status": "scheduled",
+      "notes": ""
+    },
+    {
+      "id": "cd-2026-10-29",
+      "date": "2026-10-29",
+      "memberId": "m5",
+      "memberName": "Tarek hossen",
+      "shift": "both",
+      "status": "scheduled",
+      "notes": ""
+    },
+    {
+      "id": "cd-2026-10-30",
+      "date": "2026-10-30",
+      "memberId": "m_9837",
+      "memberName": "Saif",
+      "shift": "both",
+      "status": "scheduled",
+      "notes": ""
+    },
+    {
+      "id": "cd-2026-10-31",
+      "date": "2026-10-31",
+      "memberId": "m1",
+      "memberName": "Jahidul Islam",
+      "shift": "both",
+      "status": "scheduled",
+      "notes": ""
     }
   ],
   "bazarDuties": [
@@ -4207,6 +4799,285 @@
       "status": "scheduled",
       "budget": 1500,
       "notes": ""
+    },
+    {
+      "id": "bd-2026-10-01",
+      "date": "2026-10-01",
+      "memberId": "m4",
+      "memberName": "Tanvir Patwary",
+      "status": "completed",
+      "budget": 1500,
+      "notes": "তাজা মাছ ও সবজি বাজার"
+    },
+    {
+      "id": "bd-2026-10-02",
+      "date": "2026-10-02",
+      "memberId": "m5",
+      "memberName": "Tarek hossen",
+      "status": "completed",
+      "budget": 1500,
+      "notes": "তাজা মাছ ও সবজি বাজার"
+    },
+    {
+      "id": "bd-2026-10-03",
+      "date": "2026-10-03",
+      "memberId": "m_9837",
+      "memberName": "Saif",
+      "status": "scheduled",
+      "budget": 1500,
+      "notes": "তাজা মাছ ও সবজি বাজার"
+    },
+    {
+      "id": "bd-2026-10-04",
+      "date": "2026-10-04",
+      "memberId": "m1",
+      "memberName": "Jahidul Islam",
+      "status": "scheduled",
+      "budget": 1500,
+      "notes": "তাজা মাছ ও সবজি বাজার"
+    },
+    {
+      "id": "bd-2026-10-05",
+      "date": "2026-10-05",
+      "memberId": "m2",
+      "memberName": "Fiaaz Ajmaeen",
+      "status": "scheduled",
+      "budget": 1500,
+      "notes": "তাজা মাছ ও সবজি বাজার"
+    },
+    {
+      "id": "bd-2026-10-06",
+      "date": "2026-10-06",
+      "memberId": "m3",
+      "memberName": "RA Raihan",
+      "status": "scheduled",
+      "budget": 1500,
+      "notes": "তাজা মাছ ও সবজি বাজার"
+    },
+    {
+      "id": "bd-2026-10-07",
+      "date": "2026-10-07",
+      "memberId": "m4",
+      "memberName": "Tanvir Patwary",
+      "status": "scheduled",
+      "budget": 1500,
+      "notes": "তাজা মাছ ও সবজি বাজার"
+    },
+    {
+      "id": "bd-2026-10-08",
+      "date": "2026-10-08",
+      "memberId": "m5",
+      "memberName": "Tarek hossen",
+      "status": "scheduled",
+      "budget": 1500,
+      "notes": "তাজা মাছ ও সবজি বাজার"
+    },
+    {
+      "id": "bd-2026-10-09",
+      "date": "2026-10-09",
+      "memberId": "m_9837",
+      "memberName": "Saif",
+      "status": "scheduled",
+      "budget": 1500,
+      "notes": "তাজা মাছ ও সবজি বাজার"
+    },
+    {
+      "id": "bd-2026-10-10",
+      "date": "2026-10-10",
+      "memberId": "m1",
+      "memberName": "Jahidul Islam",
+      "status": "scheduled",
+      "budget": 1500,
+      "notes": "তাজা মাছ ও সবজি বাজার"
+    },
+    {
+      "id": "bd-2026-10-11",
+      "date": "2026-10-11",
+      "memberId": "m2",
+      "memberName": "Fiaaz Ajmaeen",
+      "status": "scheduled",
+      "budget": 1500,
+      "notes": "তাজা মাছ ও সবজি বাজার"
+    },
+    {
+      "id": "bd-2026-10-12",
+      "date": "2026-10-12",
+      "memberId": "m3",
+      "memberName": "RA Raihan",
+      "status": "scheduled",
+      "budget": 1500,
+      "notes": "তাজা মাছ ও সবজি বাজার"
+    },
+    {
+      "id": "bd-2026-10-13",
+      "date": "2026-10-13",
+      "memberId": "m4",
+      "memberName": "Tanvir Patwary",
+      "status": "scheduled",
+      "budget": 1500,
+      "notes": "তাজা মাছ ও সবজি বাজার"
+    },
+    {
+      "id": "bd-2026-10-14",
+      "date": "2026-10-14",
+      "memberId": "m5",
+      "memberName": "Tarek hossen",
+      "status": "scheduled",
+      "budget": 1500,
+      "notes": "তাজা মাছ ও সবজি বাজার"
+    },
+    {
+      "id": "bd-2026-10-15",
+      "date": "2026-10-15",
+      "memberId": "m_9837",
+      "memberName": "Saif",
+      "status": "scheduled",
+      "budget": 1500,
+      "notes": "তাজা মাছ ও সবজি বাজার"
+    },
+    {
+      "id": "bd-2026-10-16",
+      "date": "2026-10-16",
+      "memberId": "m1",
+      "memberName": "Jahidul Islam",
+      "status": "scheduled",
+      "budget": 1500,
+      "notes": "তাজা মাছ ও সবজি বাজার"
+    },
+    {
+      "id": "bd-2026-10-17",
+      "date": "2026-10-17",
+      "memberId": "m2",
+      "memberName": "Fiaaz Ajmaeen",
+      "status": "scheduled",
+      "budget": 1500,
+      "notes": "তাজা মাছ ও সবজি বাজার"
+    },
+    {
+      "id": "bd-2026-10-18",
+      "date": "2026-10-18",
+      "memberId": "m3",
+      "memberName": "RA Raihan",
+      "status": "scheduled",
+      "budget": 1500,
+      "notes": "তাজা মাছ ও সবজি বাজার"
+    },
+    {
+      "id": "bd-2026-10-19",
+      "date": "2026-10-19",
+      "memberId": "m4",
+      "memberName": "Tanvir Patwary",
+      "status": "scheduled",
+      "budget": 1500,
+      "notes": "তাজা মাছ ও সবজি বাজার"
+    },
+    {
+      "id": "bd-2026-10-20",
+      "date": "2026-10-20",
+      "memberId": "m5",
+      "memberName": "Tarek hossen",
+      "status": "scheduled",
+      "budget": 1500,
+      "notes": "তাজা মাছ ও সবজি বাজার"
+    },
+    {
+      "id": "bd-2026-10-21",
+      "date": "2026-10-21",
+      "memberId": "m_9837",
+      "memberName": "Saif",
+      "status": "scheduled",
+      "budget": 1500,
+      "notes": "তাজা মাছ ও সবজি বাজার"
+    },
+    {
+      "id": "bd-2026-10-22",
+      "date": "2026-10-22",
+      "memberId": "m1",
+      "memberName": "Jahidul Islam",
+      "status": "scheduled",
+      "budget": 1500,
+      "notes": "তাজা মাছ ও সবজি বাজার"
+    },
+    {
+      "id": "bd-2026-10-23",
+      "date": "2026-10-23",
+      "memberId": "m2",
+      "memberName": "Fiaaz Ajmaeen",
+      "status": "scheduled",
+      "budget": 1500,
+      "notes": "তাজা মাছ ও সবজি বাজার"
+    },
+    {
+      "id": "bd-2026-10-24",
+      "date": "2026-10-24",
+      "memberId": "m3",
+      "memberName": "RA Raihan",
+      "status": "scheduled",
+      "budget": 1500,
+      "notes": "তাজা মাছ ও সবজি বাজার"
+    },
+    {
+      "id": "bd-2026-10-25",
+      "date": "2026-10-25",
+      "memberId": "m4",
+      "memberName": "Tanvir Patwary",
+      "status": "scheduled",
+      "budget": 1500,
+      "notes": "তাজা মাছ ও সবজি বাজার"
+    },
+    {
+      "id": "bd-2026-10-26",
+      "date": "2026-10-26",
+      "memberId": "m5",
+      "memberName": "Tarek hossen",
+      "status": "scheduled",
+      "budget": 1500,
+      "notes": "তাজা মাছ ও সবজি বাজার"
+    },
+    {
+      "id": "bd-2026-10-27",
+      "date": "2026-10-27",
+      "memberId": "m_9837",
+      "memberName": "Saif",
+      "status": "scheduled",
+      "budget": 1500,
+      "notes": "তাজা মাছ ও সবজি বাজার"
+    },
+    {
+      "id": "bd-2026-10-28",
+      "date": "2026-10-28",
+      "memberId": "m1",
+      "memberName": "Jahidul Islam",
+      "status": "scheduled",
+      "budget": 1500,
+      "notes": "তাজা মাছ ও সবজি বাজার"
+    },
+    {
+      "id": "bd-2026-10-29",
+      "date": "2026-10-29",
+      "memberId": "m2",
+      "memberName": "Fiaaz Ajmaeen",
+      "status": "scheduled",
+      "budget": 1500,
+      "notes": "তাজা মাছ ও সবজি বাজার"
+    },
+    {
+      "id": "bd-2026-10-30",
+      "date": "2026-10-30",
+      "memberId": "m3",
+      "memberName": "RA Raihan",
+      "status": "scheduled",
+      "budget": 1500,
+      "notes": "তাজা মাছ ও সবজি বাজার"
+    },
+    {
+      "id": "bd-2026-10-31",
+      "date": "2026-10-31",
+      "memberId": "m4",
+      "memberName": "Tanvir Patwary",
+      "status": "scheduled",
+      "budget": 1500,
+      "notes": "তাজা মাছ ও সবজি বাজার"
     }
   ],
   "bazarRecords": [
@@ -4414,7 +5285,7 @@
       "status": "open",
       "totalMembers": 6,
       "activeMembers": 6,
-      "totalMeals": 1,
+      "totalMeals": 0,
       "totalBazarExpense": 0,
       "totalMealRelatedExpense": 0,
       "mealRate": 0,
@@ -4422,24 +5293,24 @@
       "totalIndividualExpenses": 0,
       "totalMessExpense": 0,
       "totalCollected": 0,
-      "totalDue": 11770,
-      "totalAdvance": 1640,
+      "totalDue": 0,
+      "totalAdvance": 0,
       "statements": {
         "m1": {
           "memberId": "m1",
           "memberName": "Jahidul Islam",
           "roomNo": "7D",
-          "totalMeals": 1,
+          "totalMeals": 0,
           "mealRate": 0,
           "mealCost": 0,
           "sharedCostsShare": 0,
           "individualCosts": 0,
           "currentMonthCost": 0,
-          "previousBalance": -646,
+          "previousBalance": 0,
           "totalCost": 0,
           "totalPaid": 0,
           "currentMonthPaid": 0,
-          "netBalance": -646,
+          "netBalance": 0,
           "breakdown": {
             "rentShare": 0,
             "gasShare": 0,
@@ -4460,11 +5331,11 @@
           "sharedCostsShare": 0,
           "individualCosts": 0,
           "currentMonthCost": 0,
-          "previousBalance": -833,
+          "previousBalance": 0,
           "totalCost": 0,
           "totalPaid": 0,
           "currentMonthPaid": 0,
-          "netBalance": -833,
+          "netBalance": 0,
           "breakdown": {
             "rentShare": 0,
             "gasShare": 0,
@@ -4485,11 +5356,11 @@
           "sharedCostsShare": 0,
           "individualCosts": 0,
           "currentMonthCost": 0,
-          "previousBalance": -161,
+          "previousBalance": 0,
           "totalCost": 0,
           "totalPaid": 0,
           "currentMonthPaid": 0,
-          "netBalance": -161,
+          "netBalance": 0,
           "breakdown": {
             "rentShare": 0,
             "gasShare": 0,
@@ -4510,11 +5381,11 @@
           "sharedCostsShare": 0,
           "individualCosts": 0,
           "currentMonthCost": 0,
-          "previousBalance": 4152,
+          "previousBalance": 0,
           "totalCost": 0,
           "totalPaid": 0,
           "currentMonthPaid": 0,
-          "netBalance": 4152,
+          "netBalance": 0,
           "breakdown": {
             "rentShare": 0,
             "gasShare": 0,
@@ -4535,11 +5406,11 @@
           "sharedCostsShare": 0,
           "individualCosts": 0,
           "currentMonthCost": 0,
-          "previousBalance": 4058,
+          "previousBalance": 0,
           "totalCost": 0,
           "totalPaid": 0,
           "currentMonthPaid": 0,
-          "netBalance": 4058,
+          "netBalance": 0,
           "breakdown": {
             "rentShare": 0,
             "gasShare": 0,
@@ -4560,11 +5431,11 @@
           "sharedCostsShare": 0,
           "individualCosts": 0,
           "currentMonthCost": 0,
-          "previousBalance": 3560,
+          "previousBalance": 0,
           "totalCost": 0,
           "totalPaid": 0,
           "currentMonthPaid": 0,
-          "netBalance": 3560,
+          "netBalance": 0,
           "breakdown": {
             "rentShare": 0,
             "gasShare": 0,
@@ -4576,7 +5447,7 @@
           }
         }
       },
-      "formulaNote": "মিল রেট = মোট মিল খরচ (৳0) ÷ মোট মিল (1 টি) = ৳0.00। ফিক্সড খরচাদি 6 জন সক্রিয় সদস্যের মাঝে সমবণ্টন।"
+      "formulaNote": "এখনও কোন মিল যুক্ত হয়নি। মোট মিল খরচ: ৳0। নতুন মাসের মিল চালু হলে স্বয়ংক্রিয় মিল রেট তৈরি হবে।"
     },
     {
       "id": "acc_2026-09",
@@ -4848,6 +5719,20 @@
   ],
   "auditLogs": [
     {
+      "id": "audit-1791002256390-ypo9",
+      "timestamp": "2026-10-03T04:37:36.390Z",
+      "userId": "m1",
+      "userName": "Jahidul Islam",
+      "action": "ADMIN_OVERRIDE_MEAL",
+      "recordType": "MealSelection",
+      "recordId": "mms-2026-10-03-m1-lunch",
+      "module": "meals",
+      "details": "Jahidul Islam এর 2026-10-03 তারিখের দুপুরের খাবার (lunch) মিল OFF থেকে OFF করা হয়েছে [লক ওভাররাইড]",
+      "previousValue": "পূর্বের স্ট্যাটাস: OFF",
+      "newValue": "নতুন স্ট্যাটাস: OFF",
+      "ipAddress": "103.229.85.192"
+    },
+    {
       "id": "audit-1790842894565-hl9r",
       "timestamp": "2026-10-01T08:21:34.565Z",
       "userId": "m1",
@@ -5074,6 +5959,30 @@
   ],
   "smsLogs": [
     {
+      "id": "sms-1791002256393",
+      "timestamp": "2026-10-03T04:37:36.393Z",
+      "recipientId": "m1",
+      "recipientName": "Jahidul Islam",
+      "phone": "01516528497",
+      "type": "meal_status",
+      "message": "আপনার 2026-10-03 তারিখের দুপুরের খাবার মিল সফলভাবে OFF করা হয়েছে।",
+      "status": "sent",
+      "provider": "Alpha SMS Gateway",
+      "refId": "MEAL-256393"
+    },
+    {
+      "id": "sms-1791002252855",
+      "timestamp": "2026-10-03T04:37:32.855Z",
+      "recipientId": "m1",
+      "recipientName": "Jahidul Islam",
+      "phone": "01516528497",
+      "type": "meal_status",
+      "message": "আপনার 2026-10-03 তারিখের রাতের খাবার মিল সফলভাবে OFF করা হয়েছে।",
+      "status": "sent",
+      "provider": "Alpha SMS Gateway",
+      "refId": "MEAL-252855"
+    },
+    {
       "id": "sms-1790842894569",
       "timestamp": "2026-10-01T08:21:34.569Z",
       "recipientId": "m1",
@@ -5283,7 +6192,35 @@
       "enableSmsNotification": false,
       "sendSmsOnStatusChange": true
     },
-    "memberLimit": 7
+    "memberLimit": 7,
+    "paymentInfo": {
+      "bkash": {
+        "enabled": true,
+        "number": "01516528497",
+        "accountName": "Jahidul Islam",
+        "type": "Personal",
+        "instructions": "Send Money করে TrxID ও প্রেরক বিকাশ নম্বর দিয়ে নিচে সাবমিট করুন।"
+      },
+      "bank": {
+        "enabled": true,
+        "bankName": "Dutch-Bangla Bank Limited (DBBL)",
+        "branchName": "Dhanmondi Branch, Dhaka",
+        "accountName": "Jahidul Islam",
+        "accountNumber": "123.151.0028497",
+        "routingNumber": "090261234",
+        "accountType": "Savings",
+        "instructions": "ব্যাংক ডিপোজিট বা ট্রান্সফার করে স্লিপ/রেফারেন্স দিয়ে সাবমিট করুন।"
+      },
+      "cash": {
+        "enabled": true,
+        "receiverName": "Jahidul Islam",
+        "receiverPhone": "01516528497",
+        "instructions": "মেস এডমিন জাহিদুল ইসলামের কাছে সরাসরি নগদ টাকা জমা দিয়ে রিসিট বা নিশ্চিতকরণ সংগ্রহ করুন।"
+      }
+    },
+    "accountingConfig": {
+      "carryForwardPreviousBalance": false
+    }
   },
   "currentMonthCalculation": {
     "id": "acc_2026-10",
@@ -5293,7 +6230,7 @@
     "status": "open",
     "totalMembers": 6,
     "activeMembers": 6,
-    "totalMeals": 1,
+    "totalMeals": 0,
     "totalBazarExpense": 0,
     "totalMealRelatedExpense": 0,
     "mealRate": 0,
@@ -5301,24 +6238,24 @@
     "totalIndividualExpenses": 0,
     "totalMessExpense": 0,
     "totalCollected": 0,
-    "totalDue": 11770,
-    "totalAdvance": 1640,
+    "totalDue": 0,
+    "totalAdvance": 0,
     "statements": {
       "m1": {
         "memberId": "m1",
         "memberName": "Jahidul Islam",
         "roomNo": "7D",
-        "totalMeals": 1,
+        "totalMeals": 0,
         "mealRate": 0,
         "mealCost": 0,
         "sharedCostsShare": 0,
         "individualCosts": 0,
         "currentMonthCost": 0,
-        "previousBalance": -646,
+        "previousBalance": 0,
         "totalCost": 0,
         "totalPaid": 0,
         "currentMonthPaid": 0,
-        "netBalance": -646,
+        "netBalance": 0,
         "breakdown": {
           "rentShare": 0,
           "gasShare": 0,
@@ -5339,11 +6276,11 @@
         "sharedCostsShare": 0,
         "individualCosts": 0,
         "currentMonthCost": 0,
-        "previousBalance": -833,
+        "previousBalance": 0,
         "totalCost": 0,
         "totalPaid": 0,
         "currentMonthPaid": 0,
-        "netBalance": -833,
+        "netBalance": 0,
         "breakdown": {
           "rentShare": 0,
           "gasShare": 0,
@@ -5364,11 +6301,11 @@
         "sharedCostsShare": 0,
         "individualCosts": 0,
         "currentMonthCost": 0,
-        "previousBalance": -161,
+        "previousBalance": 0,
         "totalCost": 0,
         "totalPaid": 0,
         "currentMonthPaid": 0,
-        "netBalance": -161,
+        "netBalance": 0,
         "breakdown": {
           "rentShare": 0,
           "gasShare": 0,
@@ -5389,11 +6326,11 @@
         "sharedCostsShare": 0,
         "individualCosts": 0,
         "currentMonthCost": 0,
-        "previousBalance": 4152,
+        "previousBalance": 0,
         "totalCost": 0,
         "totalPaid": 0,
         "currentMonthPaid": 0,
-        "netBalance": 4152,
+        "netBalance": 0,
         "breakdown": {
           "rentShare": 0,
           "gasShare": 0,
@@ -5414,11 +6351,11 @@
         "sharedCostsShare": 0,
         "individualCosts": 0,
         "currentMonthCost": 0,
-        "previousBalance": 4058,
+        "previousBalance": 0,
         "totalCost": 0,
         "totalPaid": 0,
         "currentMonthPaid": 0,
-        "netBalance": 4058,
+        "netBalance": 0,
         "breakdown": {
           "rentShare": 0,
           "gasShare": 0,
@@ -5439,11 +6376,11 @@
         "sharedCostsShare": 0,
         "individualCosts": 0,
         "currentMonthCost": 0,
-        "previousBalance": 3560,
+        "previousBalance": 0,
         "totalCost": 0,
         "totalPaid": 0,
         "currentMonthPaid": 0,
-        "netBalance": 3560,
+        "netBalance": 0,
         "breakdown": {
           "rentShare": 0,
           "gasShare": 0,
@@ -5455,6 +6392,6 @@
         }
       }
     },
-    "formulaNote": "মিল রেট = মোট মিল খরচ (৳0) ÷ মোট মিল (1 টি) = ৳0.00। ফিক্সড খরচাদি 6 জন সক্রিয় সদস্যের মাঝে সমবণ্টন।"
+    "formulaNote": "এখনও কোন মিল যুক্ত হয়নি। মোট মিল খরচ: ৳0। নতুন মাসের মিল চালু হলে স্বয়ংক্রিয় মিল রেট তৈরি হবে।"
   }
 }

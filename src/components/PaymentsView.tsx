@@ -21,7 +21,7 @@ import {
   Receipt,
   FileText,
 } from 'lucide-react';
-import { PaymentRecord, Member, PaymentMethod } from '../types.js';
+import { PaymentRecord, Member, PaymentMethod, MessPaymentInfo } from '../types.js';
 import { Language, translations } from '../utils/translations.js';
 import { ConfirmDeleteModal } from './ConfirmDeleteModal.js';
 import { ClosedMonthAlert } from './ClosedMonthAlert.js';
@@ -33,6 +33,7 @@ interface PaymentsViewProps {
   members: Member[];
   currentMember: Member;
   language: Language;
+  paymentInfo?: MessPaymentInfo;
   isMonthClosed?: boolean;
   onSavePayment: (payment: Partial<PaymentRecord>) => Promise<void>;
   onDeletePayment?: (paymentId: string) => Promise<void>;
@@ -43,6 +44,7 @@ export const PaymentsView: React.FC<PaymentsViewProps> = ({
   members,
   currentMember,
   language,
+  paymentInfo,
   isMonthClosed = false,
   onSavePayment,
   onDeletePayment,
@@ -229,12 +231,13 @@ export const PaymentsView: React.FC<PaymentsViewProps> = ({
         </button>
       </div>
 
-      {/* VIEW TAB 1: PAYMENT METHOD SECTION (bKash & Bank Account) */}
+      {/* VIEW TAB 1: PAYMENT METHOD SECTION (bKash, Cash & Bank Account) */}
       {activeTab === 'method' && (
         <PaymentMethodSection
           members={members}
           currentMember={currentMember}
           language={language}
+          paymentInfo={paymentInfo}
           isMonthClosed={isMonthClosed}
           onPaymentSubmitted={async (p) => {
             await onSavePayment(p);
@@ -327,10 +330,15 @@ export const PaymentsView: React.FC<PaymentsViewProps> = ({
                                 </span>
                               )}
                             </span>
+                          ) : p.paymentMethod === 'cash' ? (
+                            <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-amber-50 text-amber-800 font-bold border border-amber-200 text-xs">
+                              <Banknote className="h-3.5 w-3.5 text-amber-600" />
+                              <span>Cash (নগদ)</span>
+                            </span>
                           ) : p.paymentMethod === 'bank' ? (
                             <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-blue-50 text-blue-700 font-bold border border-blue-200 text-xs">
                               <Building2 className="h-3.5 w-3.5 text-blue-600" />
-                              <span>Bank Account</span>
+                              <span>Bank Transfer</span>
                             </span>
                           ) : (
                             <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-slate-100 text-slate-800 font-medium text-xs">
@@ -345,12 +353,17 @@ export const PaymentsView: React.FC<PaymentsViewProps> = ({
                           </div>
                           {p.bkashNumber && (
                             <div className="text-[10px] text-pink-600 font-mono">
-                              নম্বর: {p.bkashNumber} {p.accountHolderName ? `(${p.accountHolderName})` : ''}
+                              বিকাশ: {p.bkashNumber} {p.accountHolderName ? `(${p.accountHolderName})` : ''}
                             </div>
                           )}
                           {p.bankName && (
                             <div className="text-[10px] text-blue-600">
                               ব্যাংক: {p.bankName} {p.branchName ? `(${p.branchName})` : ''}
+                            </div>
+                          )}
+                          {p.cashReceivedBy && (
+                            <div className="text-[10px] text-amber-700">
+                              গ্রহীতা: {p.cashReceivedBy}
                             </div>
                           )}
                           {p.notes && <div className="text-[10px] text-slate-400 truncate max-w-xs">{p.notes}</div>}
@@ -378,10 +391,29 @@ export const PaymentsView: React.FC<PaymentsViewProps> = ({
                         </td>
                         <td className="py-3.5 px-4 text-slate-600">{p.receivedBy}</td>
                         <td className="py-3.5 px-4">
-                          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-bold bg-emerald-100 text-emerald-800">
-                            <CheckCircle2 className="h-3 w-3" />
-                            <span>যাচাইকৃত</span>
-                          </span>
+                          {p.status === 'verified' ? (
+                            <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-bold bg-emerald-100 text-emerald-800">
+                              <CheckCircle2 className="h-3 w-3" />
+                              <span>অনুমোদিত</span>
+                            </span>
+                          ) : (
+                            <div className="flex items-center gap-1.5">
+                              <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-bold bg-amber-100 text-amber-800">
+                                <Clock className="h-3 w-3" />
+                                <span>অপেক্ষমান</span>
+                              </span>
+                              {canManage && (
+                                <button
+                                  type="button"
+                                  onClick={() => onSavePayment({ ...p, status: 'verified' })}
+                                  className="px-2 py-0.5 rounded bg-emerald-600 hover:bg-emerald-700 text-white text-[10px] font-bold cursor-pointer transition-colors shadow-2xs"
+                                  title="অনুমোদন করুন"
+                                >
+                                  অনুমোদন
+                                </button>
+                              )}
+                            </div>
+                          )}
                         </td>
                         <td className="py-3.5 px-4 text-right font-extrabold text-emerald-600 text-sm whitespace-nowrap">
                           +৳{p.amount.toLocaleString()}

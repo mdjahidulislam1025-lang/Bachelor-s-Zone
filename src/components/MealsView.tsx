@@ -37,8 +37,11 @@ import { ConfirmDeleteModal } from './ConfirmDeleteModal.js';
 import { ClosedMonthAlert } from './ClosedMonthAlert.js';
 import {
   getTodayDhakaDate,
+  getTomorrowDhakaDate,
+  getYesterdayDhakaDate,
   formatBengaliFullDate,
   getMonthNameBengali,
+  toBengaliNumber,
 } from '../utils/monthlyPeriodUtils.js';
 
 interface MealsViewProps {
@@ -73,6 +76,9 @@ export const MealsView: React.FC<MealsViewProps> = ({
   const t = translations[language];
   const todayDate = useMemo(() => getTodayDhakaDate(), []);
   const [selectedDate, setSelectedDate] = useState<string>(todayDate);
+  const selectedMonth = useMemo(() => selectedDate.slice(0, 7), [selectedDate]);
+  const tomorrowDate = useMemo(() => getTomorrowDhakaDate(todayDate), [todayDate]);
+  const yesterdayDate = useMemo(() => getYesterdayDhakaDate(todayDate), [todayDate]);
   const [searchTerm, setSearchTerm] = useState('');
   const [saveSuccessMessage, setSaveSuccessMessage] = useState<string | null>(null);
 
@@ -186,6 +192,39 @@ export const MealsView: React.FC<MealsViewProps> = ({
     });
   };
 
+  // Quick action: Reset all lunch & dinner to 0 (Fresh manual entry)
+  const handleResetDraftToZero = () => {
+    if (!canEdit) return;
+    setDraftRecords(prev => {
+      const updated: Record<string, MealRecord> = {};
+      activeMembers.forEach(m => {
+        updated[m.id] = {
+          memberId: m.id,
+          breakfast: 0,
+          lunch: 0,
+          dinner: 0,
+          total: 0,
+        };
+      });
+      return updated;
+    });
+  };
+
+  // Day step navigation
+  const handlePrevDay = () => {
+    const [y, m, d] = selectedDate.split('-').map(Number);
+    const prev = new Date(y, m - 1, d - 1);
+    const prevStr = `${prev.getFullYear()}-${String(prev.getMonth() + 1).padStart(2, '0')}-${String(prev.getDate()).padStart(2, '0')}`;
+    setSelectedDate(prevStr);
+  };
+
+  const handleNextDay = () => {
+    const [y, m, d] = selectedDate.split('-').map(Number);
+    const next = new Date(y, m - 1, d + 1);
+    const nextStr = `${next.getFullYear()}-${String(next.getMonth() + 1).padStart(2, '0')}-${String(next.getDate()).padStart(2, '0')}`;
+    setSelectedDate(nextStr);
+  };
+
   // Daily totals calculation (Lunch + Dinner)
   let dailyLunch = 0;
   let dailyDinner = 0;
@@ -195,16 +234,66 @@ export const MealsView: React.FC<MealsViewProps> = ({
   });
   const dailyTotal = dailyLunch + dailyDinner;
 
-  // Monthly totals across all dates for each member
+  // Monthly totals across all dates for each member EXCLUSIVELY for the selected month (e.g. October 2026)
   const memberMonthlyMeals: Record<string, number> = {};
   activeMembers.forEach(m => {
     memberMonthlyMeals[m.id] = 0;
   });
-  dailyMeals.forEach(day => {
-    Object.entries(day.records).forEach(([mId, rec]) => {
-      memberMonthlyMeals[mId] = (memberMonthlyMeals[mId] || 0) + (rec.total || 0);
+  dailyMeals
+    .filter(day => day.date && day.date.startsWith(selectedMonth))
+    .forEach(day => {
+      Object.entries(day.records || {}).forEach(([mId, rec]) => {
+        memberMonthlyMeals[mId] = (memberMonthlyMeals[mId] || 0) + (rec?.total || 0);
+      });
     });
-  });
+
+  // Total meals across all members for the selected month
+  const monthTotalMeals = useMemo(() => {
+    let sum = 0;
+    dailyMeals
+      .filter(d => d.date && d.date.startsWith(selectedMonth))
+      .forEach(d => {
+        sum += d.totalMeals || 0;
+      });
+    return sum;
+  }, [dailyMeals, selectedMonth]);
+
+  // Calendar day strip for current month
+  const BENGALI_SHORT_DAYS = ['রবি', 'সোম', 'মঙ্গল', 'বুধ', 'বৃহঃ', 'শুক্র', 'শনি'];
+  const monthDaysList = useMemo(() => {
+    const [yStr, mStr] = selectedMonth.split('-');
+    const y = parseInt(yStr, 10);
+    const m = parseInt(mStr, 10);
+    if (isNaN(y) || isNaN(m)) return [];
+    const count = new Date(y, m, 0).getDate();
+    const days: Array<{
+      dateStr: string;
+      dayNumber: number;
+      dayName: string;
+      hasRecord: boolean;
+      mealCount: number;
+      isToday: boolean;
+      isSelected: boolean;
+    }> = [];
+
+    for (let d = 1; d <= count; d++) {
+      const dStr = `${selectedMonth}-${String(d).padStart(2, '0')}`;
+      const dt = new Date(y, m - 1, d);
+      const dayOfWeek = dt.getDay();
+      const existingEntry = dailyMeals.find(dm => dm.date === dStr);
+
+      days.push({
+        dateStr: dStr,
+        dayNumber: d,
+        dayName: BENGALI_SHORT_DAYS[dayOfWeek] || '',
+        hasRecord: !!existingEntry,
+        mealCount: existingEntry?.totalMeals || 0,
+        isToday: dStr === todayDate,
+        isSelected: dStr === selectedDate,
+      });
+    }
+    return days;
+  }, [selectedMonth, dailyMeals, todayDate, selectedDate]);
 
   const handleSave = async () => {
     if (!canEdit) return;
@@ -257,7 +346,7 @@ export const MealsView: React.FC<MealsViewProps> = ({
       )}
 
       {/* Header & Date Controls */}
-      <div className="bg-white rounded-2xl p-4 sm:p-5 border border-slate-200 shadow-xs">
+      <div className="bg-white rounded-2xl p-4 sm:p-5 border border-slate-200 shadow-xs space-y-4">
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div>
             <div className="flex items-center gap-2">
@@ -265,9 +354,14 @@ export const MealsView: React.FC<MealsViewProps> = ({
                 <UtensilsCrossed className="h-5 w-5" />
               </div>
               <div>
-                <h2 className="text-lg font-bold text-slate-900">
-                  দৈনিক মিল এন্ট্রি ও পরিচালনা (Daily Meal Tracking)
-                </h2>
+                <div className="flex flex-wrap items-center gap-2">
+                  <h2 className="text-lg font-bold text-slate-900">
+                    দৈনিক মিল এন্ট্রি ও পরিচালনা (Daily Meal Tracking)
+                  </h2>
+                  <span className="px-2.5 py-0.5 rounded-full bg-emerald-100 text-emerald-800 text-[11px] font-bold border border-emerald-200">
+                    চলতি মাস: {getMonthNameBengali(selectedMonth)}
+                  </span>
+                </div>
                 <p className="text-xs text-slate-500">
                   তারিখ অনুযায়ী সদস্যদের দুপুর ও রাতের মিল হিসাব সংরক্ষণ করুন
                 </p>
@@ -277,12 +371,30 @@ export const MealsView: React.FC<MealsViewProps> = ({
 
           {/* Date Picker & Actions */}
           <div className="flex flex-wrap items-center gap-2">
+            <button
+              type="button"
+              onClick={handlePrevDay}
+              className="p-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 transition-colors cursor-pointer"
+              title="পূর্বের দিন"
+            >
+              <ChevronLeft className="h-4 w-4" />
+            </button>
+
             <input
               type="date"
               value={selectedDate}
               onChange={e => setSelectedDate(e.target.value)}
               className="px-3 py-2 text-xs font-bold text-slate-800 bg-slate-50 border border-slate-300 rounded-xl focus:ring-2 focus:ring-emerald-500 outline-none cursor-pointer"
             />
+
+            <button
+              type="button"
+              onClick={handleNextDay}
+              className="p-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 transition-colors cursor-pointer"
+              title="পরের দিন"
+            >
+              <ChevronRight className="h-4 w-4" />
+            </button>
 
             {/* Quick Today Button */}
             <button
@@ -295,6 +407,18 @@ export const MealsView: React.FC<MealsViewProps> = ({
               }`}
             >
               আজ (Today)
+            </button>
+
+            <button
+              type="button"
+              onClick={() => setSelectedDate(tomorrowDate)}
+              className={`px-3 py-2 text-xs font-bold rounded-xl border transition-all cursor-pointer ${
+                selectedDate === tomorrowDate
+                  ? 'bg-emerald-600 text-white border-emerald-600 shadow-2xs'
+                  : 'bg-slate-100 hover:bg-slate-200 text-slate-700 border-slate-200'
+              }`}
+            >
+              আগামীকাল
             </button>
 
             <span className="text-[11px] font-bold text-emerald-800 bg-emerald-50 border border-emerald-200 px-3 py-2 rounded-xl hidden sm:inline-block">
@@ -327,8 +451,8 @@ export const MealsView: React.FC<MealsViewProps> = ({
           </div>
         </div>
 
-        {/* Live Daily Stats Ticker */}
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mt-4 pt-4 border-t border-slate-100">
+        {/* Live Daily & Monthly Stats Ticker */}
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-3 border-t border-slate-100">
           <div className="p-2.5 rounded-xl bg-slate-50 border border-slate-200">
             <span className="text-[11px] text-slate-500 font-medium">দুপুরের খাবার</span>
             <div className="text-lg font-extrabold text-slate-800">{dailyLunch} টি</div>
@@ -338,8 +462,55 @@ export const MealsView: React.FC<MealsViewProps> = ({
             <div className="text-lg font-extrabold text-slate-800">{dailyDinner} টি</div>
           </div>
           <div className="p-2.5 rounded-xl bg-emerald-50 border border-emerald-200">
-            <span className="text-[11px] text-emerald-700 font-medium">আজকের মোট মিল</span>
+            <span className="text-[11px] text-emerald-700 font-medium">নির্বাচিত দিনের মিল</span>
             <div className="text-lg font-extrabold text-emerald-700">{dailyTotal} টি</div>
+          </div>
+          <div className="p-2.5 rounded-xl bg-blue-50 border border-blue-200">
+            <span className="text-[11px] text-blue-700 font-medium">মাসের মোট সংরক্ষিত মিল</span>
+            <div className="text-lg font-extrabold text-blue-800">{monthTotalMeals} টি</div>
+          </div>
+        </div>
+
+        {/* Horizontal Calendar Strip for Selected Month */}
+        <div className="pt-2 border-t border-slate-100">
+          <div className="flex items-center justify-between mb-2">
+            <span className="text-[11px] font-bold text-slate-600">
+              📅 {getMonthNameBengali(selectedMonth)} এর দিনসমূহ (তারিখ নির্বাচন করতে চাপুন):
+            </span>
+            <span className="text-[11px] text-emerald-700 font-semibold">
+              ● সংরক্ষিত রেকর্ড থাকলে সবুজ ডট দেখাবে
+            </span>
+          </div>
+
+          <div className="flex items-center gap-1.5 overflow-x-auto pb-2 scrollbar-thin">
+            {monthDaysList.map(item => (
+              <button
+                key={item.dateStr}
+                type="button"
+                onClick={() => setSelectedDate(item.dateStr)}
+                className={`flex flex-col items-center justify-center min-w-[50px] py-1.5 px-1 rounded-xl border transition-all shrink-0 cursor-pointer ${
+                  item.isSelected
+                    ? 'bg-emerald-600 text-white border-emerald-600 shadow-xs scale-105'
+                    : item.isToday
+                    ? 'bg-emerald-50 text-emerald-900 border-emerald-400 ring-2 ring-emerald-400/30'
+                    : item.hasRecord
+                    ? 'bg-slate-50 hover:bg-slate-100 text-slate-800 border-emerald-300'
+                    : 'bg-slate-50 hover:bg-slate-100 text-slate-600 border-slate-200'
+                }`}
+              >
+                <span className={`text-[10px] font-medium ${item.isSelected ? 'text-emerald-100' : 'text-slate-400'}`}>
+                  {item.dayName}
+                </span>
+                <span className="text-sm font-black my-0.5">
+                  {toBengaliNumber(item.dayNumber)}
+                </span>
+                <span className={`text-[9px] font-bold flex items-center gap-0.5 ${
+                  item.isSelected ? 'text-emerald-200' : item.hasRecord ? 'text-emerald-600' : 'text-slate-400'
+                }`}>
+                  {item.hasRecord ? `✓ ${item.mealCount}` : '০'}
+                </span>
+              </button>
+            ))}
           </div>
         </div>
 
@@ -422,12 +593,21 @@ export const MealsView: React.FC<MealsViewProps> = ({
         </div>
 
         {canEdit && (
-          <div className="flex items-center gap-2 w-full sm:w-auto">
+          <div className="flex flex-wrap items-center gap-2 w-full sm:w-auto">
             <button
+              type="button"
               onClick={handleSetStandardAll}
-              className="w-full sm:w-auto px-3 py-1.5 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 text-xs font-semibold text-slate-700 transition-colors cursor-pointer"
+              className="px-3 py-1.5 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 text-xs font-semibold text-slate-700 transition-colors cursor-pointer"
             >
-              সবার দুপুর+রাত (১+১) মিল সেট করুন
+              সবার দুপুর+রাত (১+১) সেট করুন
+            </button>
+            <button
+              type="button"
+              onClick={handleResetDraftToZero}
+              className="px-3 py-1.5 rounded-lg border border-rose-200 bg-rose-50 hover:bg-rose-100 text-xs font-semibold text-rose-700 transition-colors cursor-pointer"
+              title="নতুন এন্ট্রি দিতে সবার মিল ০ করে দিন"
+            >
+              সব মিল ০ করুন (নতুন এন্ট্রি)
             </button>
           </div>
         )}

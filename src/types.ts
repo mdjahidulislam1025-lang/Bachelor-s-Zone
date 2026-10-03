@@ -188,6 +188,32 @@ export interface ExpenseRecord {
 
 export type PaymentMethod = 'cash' | 'bKash' | 'Nagad' | 'bank' | 'other';
 
+export interface MessPaymentInfo {
+  bkash: {
+    enabled: boolean;
+    number: string;
+    accountName: string;
+    type: 'Personal' | 'Merchant' | 'Other';
+    instructions?: string;
+  };
+  bank: {
+    enabled: boolean;
+    bankName: string;
+    branchName: string;
+    accountName: string;
+    accountNumber: string;
+    routingNumber?: string;
+    accountType?: string;
+    instructions?: string;
+  };
+  cash: {
+    enabled: boolean;
+    receiverName: string;
+    receiverPhone?: string;
+    instructions: string;
+  };
+}
+
 export interface PaymentRecord {
   id: string;
   memberId: string;
@@ -204,7 +230,7 @@ export interface PaymentRecord {
 
   // bKash specific details
   bkashNumber?: string;
-  bkashAccountType?: 'Personal' | 'Agent';
+  bkashAccountType?: 'Personal' | 'Agent' | 'Merchant' | 'Other';
   accountHolderName?: string;
 
   // Bank Account specific details
@@ -213,6 +239,14 @@ export interface PaymentRecord {
   accountName?: string;
   accountNumber?: string;
   routingNumber?: string;
+  accountType?: string;
+  senderBankName?: string;
+  senderAccountName?: string;
+  senderAccountNumber?: string;
+
+  // Cash specific details
+  cashReceivedBy?: string;
+  cashNotes?: string;
 
   // Common attachment
   screenshotUrl?: string;
@@ -391,6 +425,7 @@ export interface MessSettings {
     monthEndSmsTemplate?: string;
     mealRateFormula?: 'bazar_only' | 'bazar_plus_meal_expenses';
   };
+  paymentInfo?: MessPaymentInfo;
 }
 
 export interface AdminProfile {

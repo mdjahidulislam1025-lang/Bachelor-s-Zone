@@ -17,7 +17,7 @@ import {
   closeMonthAccount,
   reopenMonthAccount,
 } from './server/monthlyAccounting.js';
-import { getCurrentDhakaPeriod } from './src/utils/monthlyPeriodUtils.js';
+import { getCurrentDhakaPeriod, getTodayDhakaDate } from './src/utils/monthlyPeriodUtils.js';
 import { getInitialMessData } from './server/demoData.js';
 import { answerMessQuery } from './server/ai.js';
 import { SmsLog, MemberRole, AdminProfile, AuthSession } from './src/types.js';
@@ -840,7 +840,7 @@ async function startServer() {
       }
 
       // Sync monthly calculations in case active count changed
-      recalculateMonthlyAccount('2026-09');
+      recalculateMonthlyAccount(getCurrentDhakaPeriod().periodId);
       saveDatabase(db);
       res.json({ success: true, data: db.members });
     } catch (err: any) {
@@ -977,7 +977,7 @@ async function startServer() {
       );
 
       notify('সদস্য অপসারণ', `সদস্য ${target.name} কে মেস তালিকা থেকে অপসারিত করা হয়েছে (আর্থিক ইতিহাস সংরক্ষিত)।`, 'warning', 'members');
-      recalculateMonthlyAccount('2026-09');
+      recalculateMonthlyAccount(getCurrentDhakaPeriod().periodId);
       saveDatabase(db);
       res.json({ success: true, message: `${target.name} কে অপসারণ করা হয়েছে এবং ঐতিহাসিক সকল রেকর্ড সংরক্ষিত রাখা হয়েছে।`, member: target, members: db.members });
     } catch (err: any) {
@@ -1015,7 +1015,7 @@ async function startServer() {
       );
 
       notify('সদস্য পুনরায় সক্রিয়', `সদস্য ${target.name} পুনরায় মেসে সক্রিয় হয়েছেন।`, 'info', 'members');
-      recalculateMonthlyAccount('2026-09');
+      recalculateMonthlyAccount(getCurrentDhakaPeriod().periodId);
       saveDatabase(db);
       res.json({ success: true, message: `${target.name} কে সফলভাবে পুনরায় সক্রিয় করা হয়েছে।`, member: target, members: db.members });
     } catch (err: any) {
@@ -1071,7 +1071,7 @@ async function startServer() {
       );
 
       notify('সদস্য অপসারণ', `সদস্য ${target.name} মেস তালিকা থেকে অপসারিত হয়েছে (রেকর্ড সংরক্ষিত)।`, 'warning', 'members');
-      recalculateMonthlyAccount('2026-09');
+      recalculateMonthlyAccount(getCurrentDhakaPeriod().periodId);
       saveDatabase(db);
       res.json({ success: true, message: 'সদস্য অপসারিত হয়েছে এবং ঐতিহাসিক রেকর্ড সংরক্ষিত রয়েছে', data: db.members });
     } catch (err: any) {
@@ -1620,7 +1620,7 @@ async function startServer() {
       if (!user) return;
 
       const db = getDatabase();
-      const { date = '2026-09-18' } = req.body;
+      const { date = getTodayDhakaDate() } = req.body;
       const activeMembers = db.members.filter(m => m.status === 'active');
 
       const reminderTitle = 'মিল কনফার্মেশন রিমাইন্ডার';
@@ -2435,7 +2435,8 @@ async function startServer() {
   app.post('/api/month/validate', (req, res) => {
     try {
       const { month } = req.body;
-      const validation = validateMonthRecords(month || '2026-09');
+      const targetPeriod = month || getCurrentDhakaPeriod().periodId;
+      const validation = validateMonthRecords(targetPeriod);
       res.json({ success: true, validation });
     } catch (err: any) {
       res.status(500).json({ success: false, error: err.message });
@@ -2476,7 +2477,7 @@ async function startServer() {
 
       const db = getDatabase();
       const { month } = req.body;
-      const targetMonth = month || '2026-09';
+      const targetMonth = month || getCurrentDhakaPeriod().periodId;
 
       const result = reopenMonthAccount(db, targetMonth, user);
       if (!result.success) {
@@ -2667,6 +2668,59 @@ async function startServer() {
 
       const answer = await answerMessQuery(query, userMemberId, userRole || 'member');
       res.json({ success: true, answer });
+    } catch (err: any) {
+      res.status(500).json({ success: false, error: err.message });
+    }
+  });
+
+  // 26b. Reset Current Month Accounting Values to 0 (Admin only)
+  app.post('/api/accounting/reset-current-month', (req, res) => {
+    try {
+      const user = checkAdminAuth(req, res);
+      if (!user) return;
+
+      const db = getDatabase();
+      const currentPeriod = getCurrentDhakaPeriod().periodId;
+
+      // Reset current active month transactions
+      db.dailyMeals = (db.dailyMeals || []).filter(d => !d.date.startsWith(currentPeriod));
+      db.bazarRecords = (db.bazarRecords || []).filter(b => !b.date.startsWith(currentPeriod));
+      db.expenses = (db.expenses || []).filter(e => !e.date.startsWith(currentPeriod));
+      db.payments = (db.payments || []).filter(p => !p.date.startsWith(currentPeriod) && p.periodId !== currentPeriod);
+
+      // Clean current month selections
+      db.memberMealSelections = (db.memberMealSelections || []).filter(s => !s.date.startsWith(currentPeriod));
+
+      if (!db.settings) db.settings = {} as any;
+      db.settings.accountingConfig = {
+        ...db.settings.accountingConfig,
+        carryForwardPreviousBalance: false,
+        autoOpenNewMonth: true,
+        sendNewMonthSms: false,
+      };
+
+      // Recalculate
+      const recalculated = recalculateMonthlyAccount(currentPeriod);
+      saveDatabase(db);
+
+      logAudit(
+        user.name,
+        'RESET',
+        'monthly',
+        `চলতি মাস (${currentPeriod}) এর সকল হিসাব শূন্য (০) তে রিসেট করা হয়েছে।`,
+        undefined,
+        '0',
+        user.id,
+        'MonthlyAccount',
+        currentPeriod,
+        user.ipAddress
+      );
+
+      res.json({
+        success: true,
+        message: 'চলতি মাসের হিসাব সফলভাবে শূন্য (০) তে রিসেট করা হয়েছে।',
+        data: recalculated,
+      });
     } catch (err: any) {
       res.status(500).json({ success: false, error: err.message });
     }

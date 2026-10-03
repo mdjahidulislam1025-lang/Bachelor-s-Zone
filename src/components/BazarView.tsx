@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import {
   ShoppingBag,
   Plus,
@@ -18,7 +18,7 @@ import { Member, BazarDuty, BazarRecord, MarketItem, BazarLineItem } from '../ty
 import { Language, translations } from '../utils/translations.js';
 import { ConfirmDeleteModal } from './ConfirmDeleteModal.js';
 import { ClosedMonthAlert } from './ClosedMonthAlert.js';
-import { getTodayDhakaDate, getTomorrowDhakaDate } from '../utils/monthlyPeriodUtils.js';
+import { getTodayDhakaDate, getTomorrowDhakaDate, getMonthNameBengali } from '../utils/monthlyPeriodUtils.js';
 
 interface BazarViewProps {
   members: Member[];
@@ -100,9 +100,12 @@ export const BazarView: React.FC<BazarViewProps> = ({
 
   const totalBazarSpent = bazarRecords.reduce((sum, b) => sum + b.totalAmount, 0);
 
+  const currentPeriod = useMemo(() => getTodayDhakaDate().slice(0, 7), []);
+  const [scheduleMonthFilter, setScheduleMonthFilter] = useState<string>(currentPeriod);
+
   const openAddBazarModal = () => {
     setEditingBazarRecord(null);
-    setBazarDate(new Date().toISOString().split('T')[0]);
+    setBazarDate(getTodayDhakaDate());
     setBazarPersonId(currentMember.id);
     setBazarNotes('');
     setBazarItems([
@@ -450,20 +453,53 @@ export const BazarView: React.FC<BazarViewProps> = ({
       {/* Sub-tab 2: Bazar Schedule / Duty */}
       {activeSubTab === 'schedule' && (
         <div className="bg-white rounded-2xl border border-slate-200 shadow-xs overflow-hidden">
-          <div className="p-4 border-b border-slate-100 flex items-center justify-between">
+          <div className="p-4 border-b border-slate-100 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
             <div>
               <h3 className="text-sm font-bold text-slate-900">বাজারের দায়িত্ব তালিকা</h3>
               <p className="text-xs text-slate-400">কোন সদস্য কোন দিন বাজারে যাবেন</p>
             </div>
-            {canManageSchedule && (
-              <button
-                onClick={openAddDutyModal}
-                className="flex items-center gap-1 px-3 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold cursor-pointer"
-              >
-                <Plus className="h-3.5 w-3.5" />
-                <span>শিডিউল যোগ করুন</span>
-              </button>
-            )}
+
+            <div className="flex flex-wrap items-center gap-2">
+              <div className="flex items-center gap-1 bg-slate-100 p-1 rounded-xl text-xs font-bold">
+                <button
+                  type="button"
+                  onClick={() => setScheduleMonthFilter(currentPeriod)}
+                  className={`px-2.5 py-1 rounded-lg transition-all cursor-pointer ${
+                    scheduleMonthFilter === currentPeriod ? 'bg-emerald-600 text-white shadow-2xs' : 'text-slate-600 hover:text-slate-900'
+                  }`}
+                >
+                  চলতি মাস ({getMonthNameBengali(currentPeriod).split('(')[0].trim()})
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setScheduleMonthFilter('2026-09')}
+                  className={`px-2.5 py-1 rounded-lg transition-all cursor-pointer ${
+                    scheduleMonthFilter === '2026-09' ? 'bg-emerald-600 text-white shadow-2xs' : 'text-slate-600 hover:text-slate-900'
+                  }`}
+                >
+                  সেপ্টেম্বর ২০২৬
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setScheduleMonthFilter('all')}
+                  className={`px-2.5 py-1 rounded-lg transition-all cursor-pointer ${
+                    scheduleMonthFilter === 'all' ? 'bg-emerald-600 text-white shadow-2xs' : 'text-slate-600 hover:text-slate-900'
+                  }`}
+                >
+                  সব
+                </button>
+              </div>
+
+              {canManageSchedule && (
+                <button
+                  onClick={openAddDutyModal}
+                  className="flex items-center gap-1 px-3 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold cursor-pointer"
+                >
+                  <Plus className="h-3.5 w-3.5" />
+                  <span>শিডিউল যোগ করুন</span>
+                </button>
+              )}
+            </div>
           </div>
           <div className="overflow-x-auto">
             <table className="w-full text-left border-collapse text-xs">
@@ -478,14 +514,17 @@ export const BazarView: React.FC<BazarViewProps> = ({
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100 text-slate-700">
-                {bazarDuties.length === 0 ? (
+                {bazarDuties.filter(d => scheduleMonthFilter === 'all' || (d.date && d.date.startsWith(scheduleMonthFilter))).length === 0 ? (
                   <tr>
                     <td colSpan={canManageSchedule ? 6 : 5} className="py-8 text-center text-slate-400 text-xs">
                       কোনো শিডিউল পাওয়া যায়নি
                     </td>
                   </tr>
                 ) : (
-                  bazarDuties.map(d => (
+                  bazarDuties
+                    .filter(d => scheduleMonthFilter === 'all' || (d.date && d.date.startsWith(scheduleMonthFilter)))
+                    .sort((a, b) => a.date.localeCompare(b.date))
+                    .map(d => (
                     <tr key={d.id} className="hover:bg-slate-50 transition-colors">
                       <td className="py-3 px-4 font-bold text-slate-900">{d.date}</td>
                       <td className="py-3 px-4 font-bold text-slate-800">{d.memberName}</td>

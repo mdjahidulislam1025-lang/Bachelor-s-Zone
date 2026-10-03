@@ -855,6 +855,83 @@ export function App() {
     );
   };
 
+  const handleResetCurrentMonthAccounting = async (): Promise<void> => {
+    await executeMutation(
+      () =>
+        fetch('/api/accounting/reset-current-month', {
+          method: 'POST',
+          headers: getAuthHeaders(),
+        }),
+      prev => {
+        const curr = getCurrentDhakaPeriod().periodId;
+        const activeMembers = prev.members.filter(m => m.status === 'active');
+        const emptyStatements: Record<string, any> = {};
+        activeMembers.forEach(m => {
+          emptyStatements[m.id] = {
+            memberId: m.id,
+            memberName: m.name,
+            roomNo: m.roomNo,
+            totalMeals: 0,
+            mealRate: 0,
+            mealCost: 0,
+            sharedCostsShare: 0,
+            individualCosts: 0,
+            currentMonthCost: 0,
+            previousBalance: 0,
+            totalCost: 0,
+            totalPaid: 0,
+            currentMonthPaid: 0,
+            netBalance: 0,
+            breakdown: {
+              rentShare: 0,
+              gasShare: 0,
+              electricityShare: 0,
+              maidSalaryShare: 0,
+              internetShare: 0,
+              cleaningShare: 0,
+              otherShared: 0,
+            },
+          };
+        });
+        const zeroedAccount: any = {
+          id: `acc_${curr}`,
+          month: curr,
+          accounting_period_id: curr,
+          monthName: 'চলতি মাস (Current Month)',
+          status: 'open',
+          totalMembers: activeMembers.length,
+          activeMembers: activeMembers.length,
+          totalMeals: 0,
+          totalBazarExpense: 0,
+          totalMealRelatedExpense: 0,
+          mealRate: 0,
+          totalSharedExpenses: 0,
+          totalIndividualExpenses: 0,
+          totalMessExpense: 0,
+          totalCollected: 0,
+          totalDue: 0,
+          totalAdvance: 0,
+          statements: emptyStatements,
+          formulaNote: 'মিল রেট = মোট মিল খরচ (৳0) ÷ মোট মিল (0 টি) = ৳0.00',
+        };
+        const updatedAccounts = [
+          ...prev.monthlyAccounts.filter(a => a.month !== curr),
+          zeroedAccount,
+        ];
+        return {
+          ...prev,
+          dailyMeals: prev.dailyMeals.filter(d => !d.date.startsWith(curr)),
+          bazarRecords: prev.bazarRecords.filter(b => !b.date.startsWith(curr)),
+          expenses: prev.expenses.filter(e => !e.date.startsWith(curr)),
+          payments: prev.payments.filter(p => !p.date.startsWith(curr) && p.periodId !== curr),
+          currentMonthCalculation: zeroedAccount,
+          monthlyAccounts: updatedAccounts,
+        };
+      },
+      'চলতি মাসের হিসাব সফলভাবে শূন্য (০) তে রিসেট করা হয়েছে'
+    );
+  };
+
   const handleSendNewMonthAnnouncement = async (monthName: string): Promise<void> => {
     await executeMutation(
       () =>
@@ -1104,6 +1181,7 @@ export function App() {
               bazarRecords={dbState.bazarRecords}
               expenses={dbState.expenses}
               payments={dbState.payments}
+              paymentInfo={dbState.settings?.paymentInfo}
               currentMonthCalc={currentMonthCalc}
               currentMember={currentMember}
               language={language}
@@ -1222,6 +1300,7 @@ export function App() {
               members={dbState.members}
               currentMember={currentMember}
               language={language}
+              paymentInfo={dbState.settings?.paymentInfo}
               isMonthClosed={isMonthClosed}
               onSavePayment={handleSavePayment}
               onDeletePayment={handleDeletePayment}
@@ -1238,6 +1317,7 @@ export function App() {
               onCloseMonth={handleCloseMonth}
               onReopenMonth={handleReopenMonth}
               onRecalculateMonth={handleRecalculateMonth}
+              onResetCurrentMonth={handleResetCurrentMonthAccounting}
               onOpenStatementVoucher={stmt => setStatementVoucher(stmt)}
               onTriggerMemberSms={stmt => {
                 const balanceText =

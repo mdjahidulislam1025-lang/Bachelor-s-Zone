@@ -158,7 +158,7 @@ export function ensureMonthSchedules(db: MessDatabaseState, periodId: string, to
         date: dStr,
         memberId: cook.id,
         memberName: cook.name,
-        shift: 'both',
+        mealType: 'all_day',
         status: dStr < todayStr ? 'completed' : 'scheduled',
         notes: dStr === todayStr ? 'আজকের রাঁধুনির দায়িত্ব' : '',
       });
@@ -205,8 +205,8 @@ export function ensureMonthSchedules(db: MessDatabaseState, periodId: string, to
         date: dStr,
         memberId: bazarMember.id,
         memberName: bazarMember.name,
-        status: dStr < todayStr ? 'completed' : 'scheduled',
-        budget: 1500,
+        status: dStr < todayStr ? 'completed' : 'pending',
+        expectedBudget: 1500,
         notes: 'তাজা মাছ ও সবজি বাজার',
       });
     }
@@ -239,8 +239,9 @@ export function ensureMonthSchedules(db: MessDatabaseState, periodId: string, to
       totalLunch,
       totalDinner,
       totalMeals: totalLunch + totalDinner,
-      status: 'confirmed',
       notes: 'নতুন মাসের আজকের মিল হিসাব চালু',
+      updatedBy: 'System',
+      updatedAt: new Date().toISOString(),
     });
     modified = true;
   }

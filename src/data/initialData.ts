@@ -435,6 +435,31 @@ export function getInitialMessData(): MessDatabaseState {
       enableSmsNotification: false,
       sendSmsOnStatusChange: true,
     },
+    paymentInfo: {
+      bkash: {
+        enabled: true,
+        number: '01516528497',
+        accountName: 'Jahidul Islam',
+        type: 'Personal' as const,
+        instructions: 'Send Money করে TrxID ও প্রেরক বিকাশ নম্বর দিয়ে নিচে সাবমিট করুন।',
+      },
+      bank: {
+        enabled: true,
+        bankName: 'Dutch-Bangla Bank Limited (DBBL)',
+        branchName: 'Dhanmondi Branch, Dhaka',
+        accountName: 'Jahidul Islam',
+        accountNumber: '123.151.0028497',
+        routingNumber: '090261234',
+        accountType: 'Savings',
+        instructions: 'ব্যাংক ট্রান্সফার বা ডিপোজিট স্লিপ প্রদান করে রেফারেন্স নম্বর সহ সাবমিট করুন।',
+      },
+      cash: {
+        enabled: true,
+        receiverName: 'Jahidul Islam',
+        receiverPhone: '01516528497',
+        instructions: 'মেস এডমিন জাহিদুল ইসলামের কাছে সরাসরি নগদ টাকা জমা দিয়ে রিসিট বা নিশ্চিতকরণ সংগ্রহ করুন।',
+      },
+    },
     memberLimit: 6,
   };
 
