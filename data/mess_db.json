@@ -20,7 +20,7 @@
       "phone": "+8801812345678",
       "email": "fiaaz.ajmaeen@gmail.com",
       "roomNo": "7D",
-      "role": "member",
+      "role": "admin",
       "status": "active",
       "joiningDate": "2026-10-01",
       "notes": "সদস্য",
@@ -46,7 +46,7 @@
       "phone": "+8801614567890",
       "email": "tanvir.patwary@gmail.com",
       "roomNo": "102",
-      "role": "member",
+      "role": "admin",
       "status": "active",
       "joiningDate": "2026-01-01",
       "notes": "সদস্য",
@@ -99,7 +99,7 @@
     "role": "admin",
     "status": "active",
     "createdDate": "2026-01-01",
-    "lastLogin": "2026-10-03T09:17:03.980Z"
+    "lastLogin": "2026-10-04T07:25:18.375Z"
   },
   "memberCredentials": {
     "m1": {
@@ -116,21 +116,27 @@
     },
     "m3": {
       "memberId": "m3",
-      "phone": "01913456789",
-      "passwordHash": "h_b8c08fb3",
-      "isActive": true
+      "phone": "+8801913456789",
+      "passwordHash": "scrypt:c919d4afea81b56bd413d71b54ebef5d:9f24f9a4707420e98aed688b9552ddbecadc970df97b9848578403230a2941ba059e15310a2d9e3018e478d29250f6ffbb475888001f2db61d8d98aaa859f523",
+      "isActive": true,
+      "mustChangePassword": false,
+      "requiresPasswordChange": false
     },
     "m4": {
       "memberId": "m4",
-      "phone": "01614567890",
-      "passwordHash": "h_b8c08fb3",
-      "isActive": true
+      "phone": "+8801614567890",
+      "passwordHash": "scrypt:8eca931f8cad3cdb30642b1a01055297:d07e6a273d115ba7f06f565bcd21dcd6f273b42a12294e40c6ef0f4bec1c6f449e2ac9209033b29caa2ffc1182508bf58170668c456393b76affd134221f34e7",
+      "isActive": true,
+      "mustChangePassword": true,
+      "requiresPasswordChange": true
     },
     "m5": {
       "memberId": "m5",
-      "phone": "01715678901",
-      "passwordHash": "h_b8c08fb3",
-      "isActive": true
+      "phone": "+8801715678901",
+      "passwordHash": "scrypt:e7ae85577fc4a3d6dfee89b535e25844:a3fa1d020e0d01ebcc14061de95e83523c4804e226abf1a2ef5065260f6556403b5d6026653aa203907777ba97fca00c895779384fcd9804b72bab54ec01f52a",
+      "isActive": true,
+      "mustChangePassword": true,
+      "requiresPasswordChange": true
     },
     "m_1791019023890": {
       "memberId": "m_1791019023890",
@@ -5323,6 +5329,21 @@
   ],
   "payments": [
     {
+      "date": "2026-10-04",
+      "memberId": "m3",
+      "memberName": "RA Raihan",
+      "amount": 1500,
+      "paymentMethod": "bKash",
+      "transactionRef": "TESTTX12345",
+      "notes": "অক্টোবর অগ্রিম জমা",
+      "id": "pay-1791098005571",
+      "status": "verified",
+      "verifiedBy": "Jahidul Islam",
+      "verifiedAt": "2026-10-04T07:13:25.609Z",
+      "createdAt": "2026-10-04T07:13:25.571Z",
+      "receivedBy": "অপেক্ষমান (Pending Verification)"
+    },
+    {
       "id": "pay-1",
       "memberId": "m1",
       "memberName": "Jahidul Islam",
@@ -5378,9 +5399,9 @@
       "totalSharedExpenses": 0,
       "totalIndividualExpenses": 0,
       "totalMessExpense": 0,
-      "totalCollected": 0,
+      "totalCollected": 1500,
       "totalDue": 0,
-      "totalAdvance": 0,
+      "totalAdvance": 1500,
       "statements": {
         "m1": {
           "memberId": "m1",
@@ -5444,9 +5465,9 @@
           "currentMonthCost": 0,
           "previousBalance": 0,
           "totalCost": 0,
-          "totalPaid": 0,
-          "currentMonthPaid": 0,
-          "netBalance": 0,
+          "totalPaid": 1500,
+          "currentMonthPaid": 1500,
+          "netBalance": -1500,
           "breakdown": {
             "rentShare": 0,
             "gasShare": 0,
@@ -5829,6 +5850,300 @@
     }
   ],
   "auditLogs": [
+    {
+      "id": "audit-1791098718538-g61p",
+      "timestamp": "2026-10-04T07:25:18.538Z",
+      "userId": "admin_m1",
+      "userName": "Jahidul Islam",
+      "action": "PASSWORD_RESET",
+      "recordType": "Member",
+      "recordId": "m4",
+      "module": "members",
+      "details": "সদস্য Tanvir Patwary (+8801614567890) এর পাসওয়ার্ড সফলভাবে রিসেট করা হয়েছে এবং পূর্বের সকল সেশন বাতিল করা হয়েছে।",
+      "previousValue": "রোল: admin, রিসেটকারী: Jahidul Islam (Primary Admin)",
+      "ipAddress": "127.0.0.1"
+    },
+    {
+      "id": "audit-1791098718481-msea",
+      "timestamp": "2026-10-04T07:25:18.481Z",
+      "userId": "m2",
+      "userName": "Fiaaz Ajmaeen",
+      "action": "PASSWORD_RESET",
+      "recordType": "Member",
+      "recordId": "m5",
+      "module": "members",
+      "details": "সদস্য Tarek hossen (+8801715678901) এর পাসওয়ার্ড সফলভাবে রিসেট করা হয়েছে এবং পূর্বের সকল সেশন বাতিল করা হয়েছে।",
+      "previousValue": "রোল: member, রিসেটকারী: Fiaaz Ajmaeen (Admin)",
+      "ipAddress": "127.0.0.1"
+    },
+    {
+      "id": "audit-1791098718420-2m9r",
+      "timestamp": "2026-10-04T07:25:18.420Z",
+      "userId": "m1",
+      "userName": "Fiaaz Ajmaeen",
+      "action": "সদস্য লগইন",
+      "recordType": "members",
+      "recordId": "",
+      "module": "members",
+      "details": "Fiaaz Ajmaeen অ্যাপে প্রবেশ করেছেন"
+    },
+    {
+      "id": "audit-1791098718407-o5ct",
+      "timestamp": "2026-10-04T07:25:18.407Z",
+      "userId": "admin_m1",
+      "userName": "Jahidul Islam",
+      "action": "ROLE_CHANGED",
+      "recordType": "Member",
+      "recordId": "m4",
+      "module": "members",
+      "details": "সদস্য Tanvir Patwary এর রোল পরিবর্তন করে \"এডমিন (Admin)\" করা হয়েছে।",
+      "previousValue": "পূর্বের রোল: member",
+      "newValue": "নতুন রোল: admin",
+      "ipAddress": "127.0.0.1"
+    },
+    {
+      "id": "audit-1791098718392-zw2y",
+      "timestamp": "2026-10-04T07:25:18.392Z",
+      "userId": "admin_m1",
+      "userName": "Jahidul Islam",
+      "action": "ROLE_CHANGED",
+      "recordType": "Member",
+      "recordId": "m2",
+      "module": "members",
+      "details": "সদস্য Fiaaz Ajmaeen এর রোল পরিবর্তন করে \"এডমিন (Admin)\" করা হয়েছে।",
+      "previousValue": "পূর্বের রোল: member",
+      "newValue": "নতুন রোল: admin",
+      "ipAddress": "127.0.0.1"
+    },
+    {
+      "id": "audit-1791098718379-lxgc",
+      "timestamp": "2026-10-04T07:25:18.379Z",
+      "userId": "m1",
+      "userName": "Jahidul Islam",
+      "action": "প্রধান এডমিন লগইন",
+      "recordType": "settings",
+      "recordId": "",
+      "module": "settings",
+      "details": "Jahidul Islam প্রধান এডমিন অ্যাকাউন্টে প্রবেশ করেছেন"
+    },
+    {
+      "id": "audit-1791098708297-n1e2",
+      "timestamp": "2026-10-04T07:25:08.297Z",
+      "userId": "admin_m1",
+      "userName": "Jahidul Islam",
+      "action": "PASSWORD_RESET",
+      "recordType": "Member",
+      "recordId": "m4",
+      "module": "members",
+      "details": "সদস্য Tanvir Patwary (+8801614567890) এর পাসওয়ার্ড সফলভাবে রিসেট করা হয়েছে এবং পূর্বের সকল সেশন বাতিল করা হয়েছে।",
+      "previousValue": "রোল: member, রিসেটকারী: Jahidul Islam (Primary Admin)",
+      "ipAddress": "127.0.0.1"
+    },
+    {
+      "id": "audit-1791098708218-s28s",
+      "timestamp": "2026-10-04T07:25:08.218Z",
+      "userId": "m1",
+      "userName": "Fiaaz Ajmaeen",
+      "action": "সদস্য লগইন",
+      "recordType": "members",
+      "recordId": "",
+      "module": "members",
+      "details": "Fiaaz Ajmaeen অ্যাপে প্রবেশ করেছেন"
+    },
+    {
+      "id": "audit-1791098708193-s4vt",
+      "timestamp": "2026-10-04T07:25:08.193Z",
+      "userId": "m1",
+      "userName": "Jahidul Islam",
+      "action": "প্রধান এডমিন লগইন",
+      "recordType": "settings",
+      "recordId": "",
+      "module": "settings",
+      "details": "Jahidul Islam প্রধান এডমিন অ্যাকাউন্টে প্রবেশ করেছেন"
+    },
+    {
+      "id": "audit-1791098688010-zr6g",
+      "timestamp": "2026-10-04T07:24:48.010Z",
+      "userId": "m1",
+      "userName": "RA Raihan",
+      "action": "সদস্য লগইন",
+      "recordType": "members",
+      "recordId": "",
+      "module": "members",
+      "details": "RA Raihan অ্যাপে প্রবেশ করেছেন"
+    },
+    {
+      "id": "audit-1791098687950-7vpn",
+      "timestamp": "2026-10-04T07:24:47.950Z",
+      "userId": "m1",
+      "userName": "RA Raihan",
+      "action": "পাসওয়ার্ড পরিবর্তন",
+      "recordType": "members",
+      "recordId": "",
+      "module": "members",
+      "details": "RA Raihan পাসওয়ার্ড পরিবর্তন করেছেন"
+    },
+    {
+      "id": "audit-1791098687833-xcaa",
+      "timestamp": "2026-10-04T07:24:47.833Z",
+      "userId": "m1",
+      "userName": "RA Raihan",
+      "action": "সদস্য লগইন",
+      "recordType": "members",
+      "recordId": "",
+      "module": "members",
+      "details": "RA Raihan অ্যাপে প্রবেশ করেছেন"
+    },
+    {
+      "id": "audit-1791098687741-272q",
+      "timestamp": "2026-10-04T07:24:47.741Z",
+      "userId": "admin_m1",
+      "userName": "Jahidul Islam",
+      "action": "PASSWORD_RESET",
+      "recordType": "Member",
+      "recordId": "m3",
+      "module": "members",
+      "details": "সদস্য RA Raihan (+8801913456789) এর পাসওয়ার্ড সফলভাবে রিসেট করা হয়েছে এবং পূর্বের সকল সেশন বাতিল করা হয়েছে।",
+      "previousValue": "রোল: member, রিসেটকারী: Jahidul Islam (Primary Admin)",
+      "ipAddress": "127.0.0.1"
+    },
+    {
+      "id": "audit-1791098687642-fo6c",
+      "timestamp": "2026-10-04T07:24:47.642Z",
+      "userId": "m1",
+      "userName": "Jahidul Islam",
+      "action": "প্রধান এডমিন লগইন",
+      "recordType": "settings",
+      "recordId": "",
+      "module": "settings",
+      "details": "Jahidul Islam প্রধান এডমিন অ্যাকাউন্টে প্রবেশ করেছেন"
+    },
+    {
+      "id": "audit-1791098687623-9q6j",
+      "timestamp": "2026-10-04T07:24:47.623Z",
+      "userId": "m1",
+      "userName": "RA Raihan",
+      "action": "সদস্য লগইন",
+      "recordType": "members",
+      "recordId": "",
+      "module": "members",
+      "details": "RA Raihan অ্যাপে প্রবেশ করেছেন"
+    },
+    {
+      "id": "audit-1791098005610-0pto",
+      "timestamp": "2026-10-04T07:13:25.610Z",
+      "userId": "admin_m1",
+      "userName": "Jahidul Islam",
+      "action": "VERIFY",
+      "recordType": "Payment",
+      "recordId": "pay-1791098005571",
+      "module": "payments",
+      "details": "RA Raihan এর ৳1,500 জমার আবেদন অনুমোদন/ভেরিফাই করা হয়েছে (bKash)",
+      "previousValue": "স্ট্যাটাস: pending -> verified",
+      "newValue": "৳1500 (bKash)",
+      "ipAddress": "127.0.0.1"
+    },
+    {
+      "id": "audit-1791098005600-djlc",
+      "timestamp": "2026-10-04T07:13:25.600Z",
+      "userId": "m1",
+      "userName": "Jahidul Islam",
+      "action": "প্রধান এডমিন লগইন",
+      "recordType": "settings",
+      "recordId": "",
+      "module": "settings",
+      "details": "Jahidul Islam প্রধান এডমিন অ্যাকাউন্টে প্রবেশ করেছেন"
+    },
+    {
+      "id": "audit-1791098005572-tkxr",
+      "timestamp": "2026-10-04T07:13:25.572Z",
+      "userId": "m3",
+      "userName": "RA Raihan",
+      "action": "ADD",
+      "recordType": "Payment",
+      "recordId": "pay-1791098005571",
+      "module": "payments",
+      "details": "RA Raihan এর কাছ থেকে ৳1,500 টাকা জমা গৃহীত হয়েছে (bKash)",
+      "newValue": "৳1500 (bKash)",
+      "ipAddress": "127.0.0.1"
+    },
+    {
+      "id": "audit-1791098005559-ppvy",
+      "timestamp": "2026-10-04T07:13:25.559Z",
+      "userId": "m1",
+      "userName": "RA Raihan",
+      "action": "সদস্য লগইন",
+      "recordType": "members",
+      "recordId": "",
+      "module": "members",
+      "details": "RA Raihan অ্যাপে প্রবেশ করেছেন"
+    },
+    {
+      "id": "audit-1791097999830-g00u",
+      "timestamp": "2026-10-04T07:13:19.830Z",
+      "userId": "m1",
+      "userName": "RA Raihan",
+      "action": "সদস্য লগইন",
+      "recordType": "members",
+      "recordId": "",
+      "module": "members",
+      "details": "RA Raihan অ্যাপে প্রবেশ করেছেন"
+    },
+    {
+      "id": "audit-1791097999823-skxq",
+      "timestamp": "2026-10-04T07:13:19.823Z",
+      "userId": "m1",
+      "userName": "RA Raihan",
+      "action": "সদস্য লগইন",
+      "recordType": "members",
+      "recordId": "",
+      "module": "members",
+      "details": "RA Raihan অ্যাপে প্রবেশ করেছেন"
+    },
+    {
+      "id": "audit-1791097999779-bl7k",
+      "timestamp": "2026-10-04T07:13:19.779Z",
+      "userId": "m1",
+      "userName": "RA Raihan",
+      "action": "সদস্য লগইন",
+      "recordType": "members",
+      "recordId": "",
+      "module": "members",
+      "details": "RA Raihan অ্যাপে প্রবেশ করেছেন"
+    },
+    {
+      "id": "audit-1791097999757-dn35",
+      "timestamp": "2026-10-04T07:13:19.757Z",
+      "userId": "m1",
+      "userName": "Jahidul Islam",
+      "action": "প্রধান এডমিন লগইন",
+      "recordType": "settings",
+      "recordId": "",
+      "module": "settings",
+      "details": "Jahidul Islam প্রধান এডমিন অ্যাকাউন্টে প্রবেশ করেছেন"
+    },
+    {
+      "id": "audit-1791097973553-jvdg",
+      "timestamp": "2026-10-04T07:12:53.553Z",
+      "userId": "m1",
+      "userName": "RA Raihan",
+      "action": "সদস্য লগইন",
+      "recordType": "members",
+      "recordId": "",
+      "module": "members",
+      "details": "RA Raihan অ্যাপে প্রবেশ করেছেন"
+    },
+    {
+      "id": "audit-1791097970075-tszz",
+      "timestamp": "2026-10-04T07:12:50.075Z",
+      "userId": "m1",
+      "userName": "RA Raihan",
+      "action": "সদস্য লগইন",
+      "recordType": "members",
+      "recordId": "",
+      "module": "members",
+      "details": "RA Raihan অ্যাপে প্রবেশ করেছেন"
+    },
     {
       "id": "audit-1791055233656-i422",
       "timestamp": "2026-10-03T19:20:33.656Z",
@@ -6363,6 +6678,33 @@
   ],
   "notifications": [
     {
+      "id": "notif-1791098718410-zstg",
+      "timestamp": "2026-10-04T07:25:18.410Z",
+      "title": "রোল পরিবর্তন",
+      "message": "Tanvir Patwary এর রোল পরিবর্তন করে এডমিন করা হয়েছে।",
+      "type": "info",
+      "read": false,
+      "linkTab": "members"
+    },
+    {
+      "id": "notif-1791098718396-hpcx",
+      "timestamp": "2026-10-04T07:25:18.396Z",
+      "title": "রোল পরিবর্তন",
+      "message": "Fiaaz Ajmaeen এর রোল পরিবর্তন করে এডমিন করা হয়েছে।",
+      "type": "info",
+      "read": false,
+      "linkTab": "members"
+    },
+    {
+      "id": "notif-1791098005577-cr53",
+      "timestamp": "2026-10-04T07:13:25.577Z",
+      "title": "মেস জমা রসিদ",
+      "message": "RA Raihan কর্তৃক ৳1,500 জমা রেকর্ড করা হয়েছে।",
+      "type": "success",
+      "read": false,
+      "linkTab": "payments"
+    },
+    {
       "id": "notif-1790834030158-j2up",
       "timestamp": "2026-10-01T05:53:50.158Z",
       "title": "মাসিক হিসাব সম্পন্ন ও লক",
@@ -6519,9 +6861,9 @@
     "totalSharedExpenses": 0,
     "totalIndividualExpenses": 0,
     "totalMessExpense": 0,
-    "totalCollected": 0,
+    "totalCollected": 1500,
     "totalDue": 0,
-    "totalAdvance": 0,
+    "totalAdvance": 1500,
     "statements": {
       "m1": {
         "memberId": "m1",
@@ -6585,9 +6927,9 @@
         "currentMonthCost": 0,
         "previousBalance": 0,
         "totalCost": 0,
-        "totalPaid": 0,
-        "currentMonthPaid": 0,
-        "netBalance": 0,
+        "totalPaid": 1500,
+        "currentMonthPaid": 1500,
+        "netBalance": -1500,
         "breakdown": {
           "rentShare": 0,
           "gasShare": 0,

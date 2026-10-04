@@ -1,4 +1,5 @@
 import express from 'express';
+import cookieParser from 'cookie-parser';
 import path from 'path';
 import crypto from 'crypto';
 import { createServer as createViteServer } from 'vite';
@@ -38,6 +39,14 @@ import {
   PRIMARY_ADMIN_EMAIL,
   normalizeRole,
   activeSessions,
+  revokeUserSessions,
+  createSessionToken,
+  verifySessionToken,
+  setSessionCookie,
+  clearSessionCookie,
+  getAuthenticatedUser,
+  SystemRole,
+  SessionPayload,
 } from './server/auth.js';
 import { normalizeBangladeshPhone, isValidBangladeshPhone } from './src/utils/phoneUtils.js';
 
@@ -53,75 +62,53 @@ const loginAttempts = new Map<string, { count: number; lastTime: number }>();
 const registrationAttempts = new Map<string, { count: number; lastTime: number }>();
 
 function getRequestUser(req: express.Request): RequestUserInfo {
-  const db = getDatabase();
-  const authHeader = (req.headers['authorization'] as string) || (req.headers['x-auth-token'] as string) || '';
-  const token = authHeader.startsWith('Bearer ') ? authHeader.substring(7).trim() : authHeader.trim();
-
-  const headerUserId = (req.headers['x-user-id'] as string) || '';
-  const bodyUserId =
-    req.body?.actingUserId ||
-    req.body?.userId ||
-    req.body?.userMemberId ||
-    req.body?.actingMemberId ||
-    '';
-  const actingUserStr =
-    (req.body?.actingUser as string) ||
-    (req.headers['x-user-name'] as string) ||
-    '';
-
   const ipAddress =
     (req.headers['x-forwarded-for'] as string)?.split(',')[0]?.trim() ||
     req.socket.remoteAddress ||
     '127.0.0.1';
 
-  // 1. Session token validation
-  if (token && activeSessions.has(token)) {
-    const session = activeSessions.get(token)!;
+  // Strict: Extract authenticated session ONLY from cryptographically verified token or cookie
+  const authSession = getAuthenticatedUser(req);
+  if (!authSession) {
     return {
-      id: session.userId,
-      name: session.name,
-      role: session.role,
+      id: 'unauthenticated',
+      name: 'Unauthenticated User',
+      role: 'MEMBER',
+      status: 'inactive',
+      ipAddress,
+    };
+  }
+
+  const db = getDatabase();
+
+  // Authoritative check: Is user the permanent Primary Admin?
+  if (isPrimaryAdmin(authSession)) {
+    return {
+      id: authSession.userId,
+      name: authSession.name,
+      role: 'PRIMARY_ADMIN',
       status: 'active',
       ipAddress,
     };
   }
 
-  // 2. Direct Admin Profile check
-  const targetId = headerUserId || bodyUserId;
-  if (targetId && db.adminProfile && (targetId === db.adminProfile.id || targetId === 'admin_m1')) {
-    return {
-      id: db.adminProfile.id,
-      name: db.adminProfile.name,
-      role: 'admin',
-      status: db.adminProfile.status || 'active',
-      ipAddress,
-    };
-  }
-
-  // 3. Member ID check
-  let member = targetId ? db.members.find(m => m.id === targetId) : null;
-  if (!member && actingUserStr) {
-    member =
-      db.members.find(
-        m => actingUserStr.includes(m.name) || actingUserStr.includes(m.id)
-      ) || null;
-  }
-
+  // Cross-reference with database member record
+  const member = db.members.find(m => m.id === authSession.userId);
   if (member) {
+    const role: SystemRole = member.role === 'admin' ? 'ADMIN' : (member.role === 'treasurer' ? 'ADMIN' : 'MEMBER');
     return {
       id: member.id,
       name: member.name,
-      role: member.role,
+      role: role as any,
       status: member.status,
       ipAddress,
     };
   }
 
-  // Fallback default: If not authenticated, assign unprivileged member role
   return {
-    id: targetId || 'unauthenticated',
-    name: actingUserStr || 'Mess Member',
-    role: 'member', // Never trust client-supplied role header for admin privilege
+    id: authSession.userId,
+    name: authSession.name,
+    role: (authSession.role as any) || 'MEMBER',
     status: 'active',
     ipAddress,
   };
@@ -139,17 +126,25 @@ function checkAdminAuth(
   const user = getRequestUser(req);
   const db = getDatabase();
 
-  // 1. Inactive member protection
-  if (user.status !== 'active') {
-    res.status(403).json({
+  // 1. Missing authentication -> HTTP 401 Unauthorized
+  if (!user || user.id === 'unauthenticated') {
+    res.status(401).json({
       success: false,
-      error:
-        'অনুমোদন ব্যর্থ: শুধুমাত্র সক্রিয় মেস এডমিন এই পরিবর্তন করতে পারবেন (403 Forbidden - Inactive member).',
+      error: 'অনুগ্রহ করে প্রথমে লগইন করুন (401 Unauthorized - Authentication required).',
     });
     return null;
   }
 
-  // 2. Closed Month Protection
+  // 2. Inactive member protection -> HTTP 403 Forbidden
+  if (user.status !== 'active') {
+    res.status(403).json({
+      success: false,
+      error: 'অনুমোদন ব্যর্থ: আপনার মেস একাউন্টটি বর্তমানে সক্রিয় নয় (403 Forbidden - Inactive member).',
+    });
+    return null;
+  }
+
+  // 3. Closed Month Protection
   if (options?.recordDate && isMonthClosed(options.recordDate)) {
     res.status(400).json({
       success: false,
@@ -158,12 +153,13 @@ function checkAdminAuth(
     return null;
   }
 
-  // 3. Admin has full rights
-  if (user.role === 'admin') {
+  // 4. Primary Admin and Admin have full administrative rights
+  const roleNorm = normalizeRole(user.role);
+  if (roleNorm === 'PRIMARY_ADMIN' || roleNorm === 'ADMIN') {
     return user;
   }
 
-  // 4. Configurable Treasurer role check (if admin has granted permission in settings)
+  // 5. Configurable Treasurer role check (if admin has granted permission in settings)
   if (user.role === 'treasurer' && options?.allowTreasurerFor) {
     const perm = db.settings.treasurerPermissions;
     let allowed = false;
@@ -176,13 +172,36 @@ function checkAdminAuth(
     }
   }
 
-  // 5. Normal member or unauthorized: Return strict 403 Forbidden
+  // 6. Normal member or unauthorized -> HTTP 403 Forbidden
   res.status(403).json({
     success: false,
-    error:
-      'অনুমোদন প্রত্যাখ্যাত: শুধুমাত্র মেস এডমিন (Admin) এই রেকর্ড তৈরি, সম্পাদনা বা মুছে ফেলতে পারবেন। (403 Forbidden - Admin-only permission required).',
+    error: 'অনুমোদন প্রত্যাখ্যাত: শুধুমাত্র মেস এডমিন (Admin) এই রেকর্ড তৈরি, সম্পাদনা বা মুছে ফেলতে পারবেন। (403 Forbidden - Admin permission required).',
   });
   return null;
+}
+
+function checkPrimaryAdminAuth(req: express.Request, res: express.Response): RequestUserInfo | null {
+  const user = getRequestUser(req);
+  if (!user || user.id === 'unauthenticated') {
+    res.status(401).json({
+      success: false,
+      error: 'অনুগ্রহ করে প্রথমে লগইন করুন (401 Unauthorized - Authentication required).',
+    });
+    return null;
+  }
+
+  const isSuper = isPrimaryAdmin({ id: user.id, name: user.name, role: user.role });
+  const roleNorm = normalizeRole(user.role);
+
+  if (!isSuper && roleNorm !== 'PRIMARY_ADMIN') {
+    res.status(403).json({
+      success: false,
+      error: 'নিরাপত্তা নিষেধাজ্ঞা: শুধুমাত্র স্থায়ী প্রধান এডমিন জাহিদুল ইসলাম (Jahidul Islam) এই কার্য সম্পাদন করতে পারেন (403 Forbidden - Permanent Primary Admin only).',
+    });
+    return null;
+  }
+
+  return user;
 }
 
 function checkMemberMealAuth(
@@ -232,7 +251,9 @@ async function startServer() {
   const app = express();
   const PORT = 3000;
 
+  app.use(cookieParser());
   app.use(express.json({ limit: '10mb' }));
+  app.use(express.urlencoded({ extended: true }));
 
   app.get('/api/health', (req, res) => {
     res.json({ status: 'ok' });
@@ -348,7 +369,17 @@ async function startServer() {
 
         // Login success
         loginAttempts.delete(ip);
-        const token = 'tok_admin_' + Math.random().toString(36).substring(2) + Date.now().toString(36);
+        const sessionPayload: SessionPayload = {
+          sessionId: 'sess_admin_' + Date.now() + '_' + Math.random().toString(36).substring(2),
+          userId: admin.id,
+          role: 'PRIMARY_ADMIN',
+          name: admin.name || 'Jahidul Islam',
+          phone: admin.phone || '01516528497',
+          email: admin.email || 'mdjahidulislam1025@gmail.com',
+          createdAt: Date.now(),
+          expiresAt: Date.now() + 7 * 24 * 60 * 60 * 1000,
+        };
+        const token = createSessionToken(sessionPayload);
         const session: AuthSession = {
           token,
           userId: admin.id,
@@ -361,6 +392,7 @@ async function startServer() {
         };
 
         activeSessions.set(token, session);
+        setSessionCookie(res, token, process.env.NODE_ENV === 'production');
         admin.lastLogin = new Date().toISOString();
         saveDatabase(db);
 
@@ -412,19 +444,32 @@ async function startServer() {
         }
 
         loginAttempts.delete(ip);
-        const token = 'tok_mem_' + Math.random().toString(36).substring(2) + Date.now().toString(36);
+        const assignedRole: SystemRole = matchingMember.role === 'admin' ? 'ADMIN' : (matchingMember.role === 'treasurer' ? 'ADMIN' : 'MEMBER');
+        const sessionPayload: SessionPayload = {
+          sessionId: 'sess_mem_' + Date.now() + '_' + Math.random().toString(36).substring(2),
+          userId: matchingMember.id,
+          role: assignedRole,
+          name: matchingMember.name,
+          phone: matchingMember.phone,
+          email: matchingMember.email,
+          createdAt: Date.now(),
+          expiresAt: Date.now() + 7 * 24 * 60 * 60 * 1000,
+        };
+        const token = createSessionToken(sessionPayload);
         const session: AuthSession = {
           token,
           userId: matchingMember.id,
-          role: matchingMember.role,
+          role: assignedRole as any,
           name: matchingMember.name,
           phone: matchingMember.phone,
           email: matchingMember.email,
           avatarColor: matchingMember.avatarColor,
           loginTime: new Date().toISOString(),
+          requiresPasswordChange: Boolean(creds?.requiresPasswordChange || creds?.mustChangePassword),
         };
 
         activeSessions.set(token, session);
+        setSessionCookie(res, token, process.env.NODE_ENV === 'production');
         logAudit(matchingMember.name, 'সদস্য লগইন', 'members', `${matchingMember.name} অ্যাপে প্রবেশ করেছেন`);
 
         return res.json({
@@ -684,13 +729,10 @@ async function startServer() {
   // Get Registrations List (Admin Only)
   app.get('/api/admin/registrations', (req, res) => {
     try {
-      const db = getDatabase();
-      const reqUser = getRequestUser(req);
-      const isSuper = isPrimaryAdmin({ id: reqUser.id, name: reqUser.name, role: reqUser.role });
-      if (!isSuper && reqUser.role !== 'admin' && reqUser.role !== 'PRIMARY_ADMIN') {
-        return res.status(403).json({ success: false, error: 'শুধুমাত্র এডমিন রেজিস্ট্রেশন তালিকা দেখতে পারেন (403 Forbidden)' });
-      }
+      const user = checkAdminAuth(req, res);
+      if (!user) return;
 
+      const db = getDatabase();
       const list = (db.registrations || []).map(r => {
         const copy: any = { ...r };
         delete copy.passwordHash;
@@ -713,17 +755,10 @@ async function startServer() {
   // Approve Registration (Permanent Primary Admin Jahidul Islam Only)
   app.post('/api/admin/registrations/:id/approve', (req, res) => {
     try {
-      const db = getDatabase();
-      const reqUser = getRequestUser(req);
-      const isSuper = isPrimaryAdmin({ id: reqUser.id, name: reqUser.name, role: reqUser.role });
+      const user = checkPrimaryAdminAuth(req, res);
+      if (!user) return;
 
-      // Strict enforcement: Only Permanent Primary Admin (Jahidul Islam) can approve registrations and assign roles!
-      if (!isSuper) {
-        return res.status(403).json({
-          success: false,
-          error: 'শুধুমাত্র স্থায়ী প্রধান এডমিন (Jahidul Islam) রেজিস্ট্রেশন আবেদন অনুমোদন ও রোল প্রদান করতে পারেন (403 Forbidden)',
-        });
-      }
+      const db = getDatabase();
 
       const { id } = req.params;
       const { role = 'MEMBER', roomNo } = req.body;
@@ -801,17 +836,10 @@ async function startServer() {
   // Reject Registration (Permanent Primary Admin Jahidul Islam Only)
   app.post('/api/admin/registrations/:id/reject', (req, res) => {
     try {
+      const user = checkPrimaryAdminAuth(req, res);
+      if (!user) return;
+
       const db = getDatabase();
-      const reqUser = getRequestUser(req);
-      const isSuper = isPrimaryAdmin({ id: reqUser.id, name: reqUser.name, role: reqUser.role });
-
-      if (!isSuper) {
-        return res.status(403).json({
-          success: false,
-          error: 'শুধুমাত্র স্থায়ী প্রধান এডমিন (Jahidul Islam) রেজিস্ট্রেশন বাতিল করতে পারেন (403 Forbidden)',
-        });
-      }
-
       const { id } = req.params;
       const { reason } = req.body;
 
@@ -923,12 +951,43 @@ async function startServer() {
   app.get('/api/auth/me', (req, res) => {
     try {
       const user = getRequestUser(req);
+      if (!user || user.id === 'unauthenticated') {
+        return res.status(401).json({ success: false, authenticated: false, error: 'লগইন আবশ্যক (401 Unauthorized)' });
+      }
+
       const db = getDatabase();
+      const role = normalizeRole(user.role);
+      const isSuper = isPrimaryAdmin({ id: user.id, name: user.name, role: user.role });
+      const finalRole: SystemRole = isSuper ? 'PRIMARY_ADMIN' : role;
+
       res.json({
         success: true,
-        user,
-        adminProfile: user.role === 'admin' ? db.adminProfile : undefined,
+        authenticated: true,
+        user: {
+          userId: user.id,
+          name: user.name,
+          role: finalRole,
+          status: user.status,
+        },
+        adminProfile: (finalRole === 'PRIMARY_ADMIN' || finalRole === 'ADMIN') ? db.adminProfile : undefined,
       });
+    } catch (err: any) {
+      res.status(500).json({ success: false, error: err.message });
+    }
+  });
+
+  // Logout
+  app.post('/api/auth/logout', (req, res) => {
+    try {
+      const authHeader = (req.headers['authorization'] as string) || (req.headers['x-auth-token'] as string);
+      const cookieToken = req.cookies?.bz_session;
+      const token = authHeader?.replace(/^Bearer\s+/i, '').trim() || cookieToken?.trim();
+
+      if (token) {
+        activeSessions.delete(token);
+      }
+      clearSessionCookie(res);
+      res.json({ success: true, message: 'সফলভাবে লগআউট সম্পন্ন হয়েছে' });
     } catch (err: any) {
       res.status(500).json({ success: false, error: err.message });
     }
@@ -1011,30 +1070,36 @@ async function startServer() {
       }
 
       const currentHash = simpleHashSync(currentPassword);
-      const newHash = simpleHashSync(newPassword);
+      const secureNewHash = hashPasswordSecure(newPassword);
 
       if (user.role === 'admin' || user.id === 'admin_m1') {
         const admin = db.adminProfile;
-        const valid = admin?.passwordHash ? admin.passwordHash === currentHash : currentPassword === 'admin123';
+        const valid = admin?.passwordHash
+          ? (verifyPasswordSecure(currentPassword, admin.passwordHash) || admin.passwordHash === currentHash)
+          : currentPassword === 'admin123';
         if (!valid) {
           return res.status(400).json({ success: false, error: 'বর্তমান পাসওয়ার্ডটি সঠিক নয়' });
         }
-        if (admin) admin.passwordHash = newHash;
+        if (admin) admin.passwordHash = secureNewHash;
         saveDatabase(db);
         logAudit(user.name, 'পাসওয়ার্ড পরিবর্তন', 'settings', 'এডমিন পাসওয়ার্ড সফলভাবে পরিবর্তিত হয়েছে');
         return res.json({ success: true, message: 'পাসওয়ার্ড সফলভাবে পরিবর্তন করা হয়েছে' });
       } else {
         const creds = db.memberCredentials?.[user.id];
-        const valid = creds?.passwordHash ? creds.passwordHash === currentHash : currentPassword === 'member123';
+        const valid = creds?.passwordHash
+          ? (verifyPasswordSecure(currentPassword, creds.passwordHash) || creds.passwordHash === currentHash)
+          : currentPassword === 'member123';
         if (!valid) {
           return res.status(400).json({ success: false, error: 'বর্তমান পাসওয়ার্ডটি সঠিক নয়' });
         }
         if (!db.memberCredentials) db.memberCredentials = {};
         db.memberCredentials[user.id] = {
           memberId: user.id,
-          phone: user.name,
-          passwordHash: newHash,
+          phone: creds?.phone || user.name,
+          passwordHash: secureNewHash,
           isActive: true,
+          mustChangePassword: false,
+          requiresPasswordChange: false,
         };
         saveDatabase(db);
         logAudit(user.name, 'পাসওয়ার্ড পরিবর্তন', 'members', `${user.name} পাসওয়ার্ড পরিবর্তন করেছেন`);
@@ -1359,16 +1424,8 @@ async function startServer() {
   // Change Member Role (Only Jahidul Islam can perform this!)
   app.post('/api/members/change-role', (req, res) => {
     try {
-      const user = checkAdminAuth(req, res);
+      const user = checkPrimaryAdminAuth(req, res);
       if (!user) return;
-
-      // Only Jahidul Islam can assign or change roles
-      if (!isPermanentAdmin(user)) {
-        return res.status(403).json({
-          success: false,
-          error: 'অনুমোদন প্রত্যাখ্যাত: শুধুমাত্র মেসের স্থায়ী প্রধান এডমিন জাহিদুল ইসলাম (Jahidul Islam) অন্য সদস্যদের রোল নির্ধারণ বা পরিবর্তন করতে পারেন। (403 Forbidden - Only Jahidul Islam can assign or change roles).',
-        });
-      }
 
       const db = getDatabase();
       const { memberId, newRole } = req.body;
@@ -1383,10 +1440,10 @@ async function startServer() {
       }
 
       // Critical Rule: Jahidul Islam role cannot be changed
-      if (isPermanentAdmin(target) && newRole !== 'admin') {
+      if (isPrimaryAdmin(target)) {
         return res.status(403).json({
           success: false,
-          error: 'নিরাপত্তা নিষেধাজ্ঞা: জাহিদুল ইসলাম (Jahidul Islam) Bachelor Zone এর স্থায়ী প্রধান এডমিন। তার এডমিন পদ পরিবর্তন করা সম্পূর্ণ নিষিদ্ধ।',
+          error: 'নিরাপত্তা নিষেধাজ্ঞা: জাহিদুল ইসলাম (Jahidul Islam) Bachelor Zone এর স্থায়ী প্রধান এডমিন। তার এডমিন পদ পরিবর্তন করা সম্পূর্ণ নিষিদ্ধ (403 Forbidden).',
         });
       }
 
@@ -1409,6 +1466,128 @@ async function startServer() {
       notify('রোল পরিবর্তন', `${target.name} এর রোল পরিবর্তন করে ${newRole === 'admin' ? 'এডমিন' : 'সদস্য'} করা হয়েছে।`, 'info', 'members');
       saveDatabase(db);
       res.json({ success: true, message: `${target.name} এর রোল সফলভাবে পরিবর্তন করা হয়েছে।`, member: target, members: db.members });
+    } catch (err: any) {
+      res.status(500).json({ success: false, error: err.message });
+    }
+  });
+
+  // Admin Reset Member Password (Strict Permissions)
+  // 1. PRIMARY_ADMIN & ADMIN can reset passwords for regular MEMBER accounts
+  // 2. Only PRIMARY_ADMIN (Jahidul Islam) can reset other ADMIN accounts
+  // 3. Nobody can reset the PRIMARY_ADMIN account
+  app.post('/api/admin/members/:id/reset-password', (req, res) => {
+    try {
+      const db = getDatabase();
+      const { id } = req.params;
+      const { customPassword } = req.body || {};
+
+      const actorSession = getAuthenticatedUser(req);
+      if (!actorSession) {
+        return res.status(401).json({
+          success: false,
+          error: 'অনুগ্রহ করে প্রথমে লগইন করুন (401 Unauthorized - Authentication required).',
+        });
+      }
+
+      const isCallerPrimary = isPrimaryAdmin({
+        id: actorSession.userId,
+        name: actorSession.name,
+        phone: actorSession.phone,
+        email: actorSession.email,
+        role: actorSession.role,
+      });
+
+      const isCallerAdmin = isCallerPrimary || actorSession.role === 'ADMIN' || actorSession.role === 'admin';
+
+      if (!isCallerAdmin) {
+        return res.status(403).json({
+          success: false,
+          error: 'নিরাপত্তা নিষেধাজ্ঞা: শুধুমাত্র অনুমোদিত এডমিন (Admin) পাসওয়ার্ড রিসেট করতে পারেন (403 Forbidden).',
+        });
+      }
+
+      const target = db.members.find(m => m.id === id);
+      if (!target) {
+        return res.status(404).json({ success: false, error: 'সদস্য খুঁজে পাওয়া যায়নি।' });
+      }
+
+      // 1. Primary Admin Protection (Jahidul Islam)
+      const isTargetPrimary = isPrimaryAdmin({
+        id: target.id,
+        name: target.name,
+        phone: target.phone,
+        email: target.email,
+        role: target.role,
+      }) || target.id === 'm1' || target.id === 'admin_m1' || target.phone === PRIMARY_ADMIN_PHONE || target.phone === '01711234567';
+
+      if (isTargetPrimary) {
+        return res.status(403).json({
+          success: false,
+          error: 'নিরাপত্তা নিষেধাজ্ঞা: স্থায়ী প্রধান এডমিন (Jahidul Islam) এর পাসওয়ার্ড কোনো এডমিন বা মেম্বার রিসেট বা পরিবর্তন করতে পারবে না (403 Forbidden).',
+        });
+      }
+
+      // 2. Admin Target Protection: Only Primary Admin can reset passwords of other Admins
+      if (target.role === 'admin' && !isCallerPrimary) {
+        return res.status(403).json({
+          success: false,
+          error: 'নিরাপত্তা নিষেধাজ্ঞা: শুধুমাত্র স্থায়ী প্রধান এডমিন (Jahidul Islam) অন্যান্য এডমিনদের পাসওয়ার্ড রিসেট করতে পারেন (403 Forbidden).',
+        });
+      }
+
+      // 3. Password Generation
+      let tempPassword = '';
+      if (customPassword && typeof customPassword === 'string' && customPassword.trim().length >= 6) {
+        tempPassword = customPassword.trim();
+      } else {
+        const randomChars = crypto.randomBytes(3).toString('hex').toUpperCase();
+        const randomDigits = Math.floor(1000 + Math.random() * 9000);
+        tempPassword = `BZ-${randomChars}${randomDigits}`;
+      }
+
+      // 4. Salted Scrypt Hash
+      const passwordHash = hashPasswordSecure(tempPassword);
+
+      if (!db.memberCredentials) db.memberCredentials = {};
+      db.memberCredentials[target.id] = {
+        memberId: target.id,
+        phone: target.phone,
+        passwordHash,
+        isActive: true,
+        mustChangePassword: true,
+        requiresPasswordChange: true,
+      };
+
+      // 5. Revoke affected member's existing sessions immediately!
+      revokeUserSessions(target.id);
+
+      // 6. Audit log (NEVER log password or password hash)
+      const ip = (req.headers['x-forwarded-for'] as string)?.split(',')[0]?.trim() || req.socket.remoteAddress || '127.0.0.1';
+      const actorName = actorSession.name || (isCallerPrimary ? 'Jahidul Islam' : 'Admin');
+      const actorId = actorSession.userId || (isCallerPrimary ? 'admin_m1' : 'admin');
+      logAudit(
+        actorName,
+        'PASSWORD_RESET',
+        'members',
+        `সদস্য ${target.name} (${target.phone}) এর পাসওয়ার্ড সফলভাবে রিসেট করা হয়েছে এবং পূর্বের সকল সেশন বাতিল করা হয়েছে।`,
+        `রোল: ${target.role}, রিসেটকারী: ${actorName} (${isCallerPrimary ? 'Primary Admin' : 'Admin'})`,
+        undefined,
+        actorId,
+        'Member',
+        target.id,
+        ip
+      );
+
+      saveDatabase(db);
+
+      res.json({
+        success: true,
+        message: `${target.name} এর পাসওয়ার্ড সফলভাবে রিসেট করা হয়েছে এবং পূর্ববর্তী সকল সেশন বাতিল করা হয়েছে।`,
+        temporaryPassword: tempPassword,
+        memberId: target.id,
+        memberName: target.name,
+        requiresPasswordChange: true,
+      });
     } catch (err: any) {
       res.status(500).json({ success: false, error: err.message });
     }
@@ -1562,7 +1741,7 @@ async function startServer() {
     if (!member) return null;
 
     const currentPeriod = getCurrentDhakaPeriod().periodId; // e.g. "2026-10"
-    const currentCalculation = calculateMonthlyAccount(db, currentPeriod);
+    const currentCalculation = calculateMonthlyAccount(currentPeriod);
     const prevPeriod = getPreviousMonthPeriod(currentPeriod);
     const prevCalculation = db.monthlyAccounts.find(a => a.month === prevPeriod);
 
@@ -1621,7 +1800,7 @@ async function startServer() {
         receivedBy: p.receivedBy || undefined,
         cashReceivedBy: p.cashReceivedBy || undefined,
         cashNotes: p.cashNotes || undefined,
-        receiptUrl: p.receiptUrl || undefined,
+        receiptUrl: (p as any).receiptUrl || p.screenshotUrl || undefined,
         createdAt: p.createdAt || p.date,
       }))
       .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());

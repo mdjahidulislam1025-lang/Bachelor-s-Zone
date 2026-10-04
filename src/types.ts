@@ -194,7 +194,7 @@ export interface ExpenseRecord {
   createdAt: string;
 }
 
-export type PaymentMethod = 'cash' | 'bKash' | 'Nagad' | 'bank' | 'other';
+export type PaymentMethod = 'cash' | 'bKash' | 'Nagad' | 'bank' | 'other' | 'Cash' | 'Bank';
 
 export interface MessPaymentInfo {
   bkash: {
@@ -278,7 +278,7 @@ export interface MemberMonthlyStatement {
   totalPaid: number;
   currentMonthPaid?: number;
   netBalance: number; // positive = Due, negative = Advance/Refund
-  breakdown: {
+  breakdown?: {
     rentShare: number;
     gasShare: number;
     electricityShare: number;
@@ -464,6 +464,7 @@ export interface AuthSession {
   email?: string;
   avatarColor?: string;
   loginTime: string;
+  requiresPasswordChange?: boolean;
 }
 
 export interface MemberCredentials {
@@ -472,6 +473,7 @@ export interface MemberCredentials {
   passwordHash?: string;
   isActive: boolean;
   mustChangePassword?: boolean;
+  requiresPasswordChange?: boolean;
 }
 
 export type RegistrationStatus = 'PENDING_APPROVAL' | 'APPROVED' | 'REJECTED';

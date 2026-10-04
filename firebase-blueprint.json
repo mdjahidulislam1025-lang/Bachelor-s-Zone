@@ -1,0 +1,188 @@
+{
+  "entities": {
+    "User": {
+      "title": "User Profile",
+      "description": "Registered mess member or admin profile",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "maxLength": 128 },
+        "name": { "type": "string", "maxLength": 100 },
+        "nickname": { "type": "string", "maxLength": 50 },
+        "phone": { "type": "string", "maxLength": 20 },
+        "email": { "type": "string", "maxLength": 120 },
+        "roomNo": { "type": "string", "maxLength": 20 },
+        "role": { "type": "string", "enum": ["admin", "member", "treasurer"] },
+        "status": { "type": "string", "enum": ["active", "inactive", "left"] },
+        "joiningDate": { "type": "string", "maxLength": 20 },
+        "avatarColor": { "type": "string", "maxLength": 50 }
+      },
+      "required": ["id", "name", "phone", "role", "status"]
+    },
+    "Payment": {
+      "title": "Payment Record",
+      "description": "Deposit and payment record made by mess members",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "maxLength": 128 },
+        "date": { "type": "string", "maxLength": 20 },
+        "memberId": { "type": "string", "maxLength": 128 },
+        "memberName": { "type": "string", "maxLength": 100 },
+        "amount": { "type": "number" },
+        "paymentMethod": { "type": "string", "enum": ["bKash", "Nagad", "cash", "bank"] },
+        "transactionRef": { "type": "string", "maxLength": 100 },
+        "notes": { "type": "string", "maxLength": 500 },
+        "status": { "type": "string", "enum": ["verified", "pending", "rejected"] },
+        "receivedBy": { "type": "string", "maxLength": 100 },
+        "verifiedBy": { "type": "string", "maxLength": 100 },
+        "verifiedAt": { "type": "string", "maxLength": 50 },
+        "rejectionReason": { "type": "string", "maxLength": 500 }
+      },
+      "required": ["id", "date", "memberId", "amount", "paymentMethod", "status"]
+    },
+    "MealRecord": {
+      "title": "Meal Record",
+      "description": "Daily meal record for mess members",
+      "type": "object",
+      "properties": {
+        "date": { "type": "string", "maxLength": 20 },
+        "totalLunch": { "type": "number" },
+        "totalDinner": { "type": "number" },
+        "totalDayMeals": { "type": "number" }
+      },
+      "required": ["date"]
+    },
+    "Expense": {
+      "title": "Mess Expense",
+      "description": "Shared or individual mess utility and operational expense",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "maxLength": 128 },
+        "date": { "type": "string", "maxLength": 20 },
+        "category": { "type": "string", "maxLength": 50 },
+        "amount": { "type": "number" },
+        "description": { "type": "string", "maxLength": 255 },
+        "payer": { "type": "string", "maxLength": 100 }
+      },
+      "required": ["id", "date", "category", "amount"]
+    },
+    "MarketRecord": {
+      "title": "Bazar Record",
+      "description": "Daily grocery and market shopping purchases",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "maxLength": 128 },
+        "date": { "type": "string", "maxLength": 20 },
+        "bazarPersonId": { "type": "string", "maxLength": 128 },
+        "bazarPersonName": { "type": "string", "maxLength": 100 },
+        "totalAmount": { "type": "number" }
+      },
+      "required": ["id", "date", "bazarPersonId", "totalAmount"]
+    },
+    "DailyMenu": {
+      "title": "Daily Menu",
+      "description": "Meal menu planned for lunch and dinner",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "maxLength": 128 },
+        "date": { "type": "string", "maxLength": 20 },
+        "lunch": { "type": "string", "maxLength": 255 },
+        "dinner": { "type": "string", "maxLength": 255 }
+      },
+      "required": ["id", "date", "lunch", "dinner"]
+    },
+    "CookingDuty": {
+      "title": "Cooking Duty",
+      "description": "Cook or member assigned for mess preparation",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "maxLength": 128 },
+        "date": { "type": "string", "maxLength": 20 },
+        "mealType": { "type": "string", "enum": ["all_day", "breakfast", "lunch", "dinner"] },
+        "memberId": { "type": "string", "maxLength": 128 },
+        "memberName": { "type": "string", "maxLength": 100 },
+        "status": { "type": "string", "enum": ["scheduled", "completed", "swapped"] }
+      },
+      "required": ["id", "date", "mealType", "memberId", "status"]
+    },
+    "MonthlyAccount": {
+      "title": "Monthly Account",
+      "description": "Monthly finalized accounting statement and balances",
+      "type": "object",
+      "properties": {
+        "month": { "type": "string", "maxLength": 10 },
+        "status": { "type": "string", "enum": ["open", "closed"] },
+        "totalBazarCost": { "type": "number" },
+        "totalMeals": { "type": "number" },
+        "mealRate": { "type": "number" }
+      },
+      "required": ["month", "status"]
+    },
+    "AuditLog": {
+      "title": "Audit Log",
+      "description": "Security and administrative audit trail",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "maxLength": 128 },
+        "timestamp": { "type": "string", "maxLength": 50 },
+        "actor": { "type": "string", "maxLength": 100 },
+        "action": { "type": "string", "maxLength": 50 },
+        "module": { "type": "string", "maxLength": 50 },
+        "details": { "type": "string", "maxLength": 1000 }
+      },
+      "required": ["id", "timestamp", "actor", "action", "module"]
+    },
+    "MessSettings": {
+      "title": "Mess Settings",
+      "description": "Global mess configuration and thresholds",
+      "type": "object",
+      "properties": {
+        "messName": { "type": "string", "maxLength": 100 },
+        "mealCutoffTime": { "type": "string", "maxLength": 10 },
+        "memberLimit": { "type": "number" }
+      },
+      "required": ["messName"]
+    }
+  },
+  "firestore": {
+    "/users/{userId}": {
+      "schema": "User",
+      "description": "Member and Admin profiles"
+    },
+    "/payments/{paymentId}": {
+      "schema": "Payment",
+      "description": "Member deposits and payment records"
+    },
+    "/mealRecords/{date}": {
+      "schema": "MealRecord",
+      "description": "Daily recorded meals per date"
+    },
+    "/expenses/{expenseId}": {
+      "schema": "Expense",
+      "description": "Mess utilities and overhead costs"
+    },
+    "/marketRecords/{marketId}": {
+      "schema": "MarketRecord",
+      "description": "Bazar and grocery purchases"
+    },
+    "/dailyMenus/{date}": {
+      "schema": "DailyMenu",
+      "description": "Daily food menu item schedules"
+    },
+    "/cookingDuties/{dutyId}": {
+      "schema": "CookingDuty",
+      "description": "Cooking rotation duty assignments"
+    },
+    "/monthlyAccounts/{month}": {
+      "schema": "MonthlyAccount",
+      "description": "Month-wise finalized accounting data"
+    },
+    "/auditLogs/{logId}": {
+      "schema": "AuditLog",
+      "description": "Immutable audit entries"
+    },
+    "/messSettings/{settingId}": {
+      "schema": "MessSettings",
+      "description": "Mess configuration and parameters"
+    }
+  }
+}

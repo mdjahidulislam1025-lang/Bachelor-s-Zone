@@ -5,6 +5,7 @@ import {
   AlertTriangle,
   Info,
   X,
+  KeyRound,
 } from 'lucide-react';
 import { Navbar } from './components/Navbar.js';
 import { Sidebar } from './components/Sidebar.js';
@@ -1174,6 +1175,31 @@ export function App() {
 
         {/* Dynamic Main View Area */}
         <main className="flex-1 p-4 sm:p-6 max-w-5xl mx-auto w-full">
+          {/* Temporary Password Change Requirement Banner */}
+          {session?.requiresPasswordChange && (
+            <div className="mb-5 p-4 rounded-2xl bg-amber-500/10 border-2 border-amber-500 text-amber-950 flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-md animate-in fade-in">
+              <div className="flex items-center gap-3">
+                <div className="p-2.5 rounded-xl bg-amber-500 text-white shrink-0">
+                  <KeyRound className="h-5 w-5" />
+                </div>
+                <div>
+                  <div className="text-xs font-bold uppercase tracking-wider text-amber-900">
+                    নিরাপত্তা নোটিশ: অস্থায়ী পাসওয়ার্ড পরিবর্তন বাধ্যতামূলক
+                  </div>
+                  <p className="text-xs text-amber-800 mt-0.5 leading-relaxed">
+                    আপনার অ্যাকাউন্টে একটি অস্থায়ী পাসওয়ার্ড সক্রিয় রয়েছে। অ্যাকাউন্টের নিরাপত্তা নিশ্চিত করতে অনুগ্রহ করে অবিলম্বে আপনার ব্যক্তিগত নতুন পাসওয়ার্ড নির্ধারণ করুন।
+                  </p>
+                </div>
+              </div>
+              <button
+                onClick={() => setActiveTab('my-profile')}
+                className="px-4 py-2 bg-amber-600 hover:bg-amber-700 text-white text-xs font-bold rounded-xl shrink-0 cursor-pointer shadow-xs transition-colors"
+              >
+                পাসওয়ার্ড পরিবর্তন করুন
+              </button>
+            </div>
+          )}
+
           {activeTab === 'dashboard' && (
             <DashboardView
               members={dbState.members}

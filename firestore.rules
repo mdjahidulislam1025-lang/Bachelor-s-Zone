@@ -1,0 +1,130 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Global Safety Net: Default-deny all unlisted paths
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    // Helper functions
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isOwner(userId) {
+      return isSignedIn() && request.auth.uid == userId;
+    }
+
+    function isPrimaryAdmin() {
+      return isSignedIn() && (
+        request.auth.token.email == 'mdjahidulislam1025@gmail.com' ||
+        (request.auth.token.phone_number != null && (
+          request.auth.token.phone_number == '+8801516528497' ||
+          request.auth.token.phone_number == '+8801711234567'
+        ))
+      );
+    }
+
+    function isAdmin() {
+      return isPrimaryAdmin() || (
+        isSignedIn() &&
+        exists(/databases/$(database)/documents/users/$(request.auth.uid)) &&
+        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin'
+      );
+    }
+
+    function isValidId(id) {
+      return id is string && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
+    }
+
+    // 1. Users / Member Profiles
+    match /users/{userId} {
+      // Members can read public profiles and their own records; Admins can read all
+      allow get: if isSignedIn() && (isOwner(userId) || isAdmin());
+      allow list: if isSignedIn();
+
+      // Creation allowed on registration without self-assigned Admin role
+      allow create: if isSignedIn() && (
+        isOwner(userId) && request.resource.data.role == 'member'
+      ) || isAdmin();
+
+      // Updates: Members can update contact info, but CANNOT alter role or status
+      allow update: if isSignedIn() && (
+        (isOwner(userId) && !request.resource.data.diff(resource.data).affectedKeys().hasAny(['role', 'status'])) ||
+        (isPrimaryAdmin()) ||
+        (isAdmin() && resource.data.role == 'member')
+      );
+
+      // Deletion: Only Primary Admin can remove accounts
+      allow delete: if isPrimaryAdmin();
+    }
+
+    // 2. Payments (Strict Privacy)
+    match /payments/{paymentId} {
+      // Member can only read their own payments; Admins can read all
+      allow get: if isSignedIn() && (resource.data.memberId == request.auth.uid || isAdmin());
+      allow list: if isSignedIn() && (resource.data.memberId == request.auth.uid || isAdmin());
+
+      // Members can submit payments with 'pending' status
+      allow create: if isSignedIn() && (
+        (request.resource.data.memberId == request.auth.uid && request.resource.data.status == 'pending') ||
+        isAdmin()
+      );
+
+      // Status updates (verify / reject) permitted only to Admins
+      allow update: if isAdmin();
+      allow delete: if isAdmin();
+    }
+
+    // 3. Meal Records
+    match /mealRecords/{date} {
+      allow read: if isSignedIn();
+      allow write: if isAdmin();
+    }
+
+    // 4. Expenses
+    match /expenses/{expenseId} {
+      allow read: if isSignedIn();
+      allow write: if isAdmin();
+    }
+
+    // 5. Market / Bazar Records
+    match /marketRecords/{marketId} {
+      allow read: if isSignedIn();
+      allow write: if isSignedIn(); // Bazar person or admin can record
+    }
+
+    // 6. Daily Menus
+    match /dailyMenus/{date} {
+      allow read: if isSignedIn();
+      allow write: if isAdmin();
+    }
+
+    // 7. Cooking Duties
+    match /cookingDuties/{dutyId} {
+      allow read: if isSignedIn();
+      allow write: if isAdmin();
+    }
+
+    // 8. Monthly Accounts (Closed month protection)
+    match /monthlyAccounts/{month} {
+      allow read: if isSignedIn();
+      allow write: if isAdmin();
+    }
+
+    // 9. Audit Logs (Immutable, append-only by Admins)
+    match /auditLogs/{logId} {
+      allow read: if isAdmin();
+      allow create: if isAdmin();
+      allow update, delete: if false; // Audit logs can NEVER be updated or deleted
+    }
+
+    // 10. Mess Settings
+    match /messSettings/{settingId} {
+      allow read: if isSignedIn();
+      allow write: if isAdmin();
+    }
+  }
+}

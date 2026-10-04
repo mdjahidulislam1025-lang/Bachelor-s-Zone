@@ -673,9 +673,9 @@ export const MyProfileView: React.FC<MyProfileViewProps> = ({
                     <td className="py-3 px-3 font-black text-slate-900 text-sm">৳{p.amount.toLocaleString()}</td>
                     <td className="py-3 px-3">
                       <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-md font-bold text-[11px] bg-slate-100 text-slate-800 border border-slate-200">
-                        {p.paymentMethod === 'bKash' && <Smartphone className="w-3 h-3 text-pink-600" />}
-                        {p.paymentMethod === 'Cash' && <Banknote className="w-3 h-3 text-emerald-600" />}
-                        {p.paymentMethod === 'Bank' && <Building className="w-3 h-3 text-blue-600" />}
+                        {(p.paymentMethod === 'bKash' || p.paymentMethod === 'Nagad') && <Smartphone className="w-3 h-3 text-pink-600" />}
+                        {(p.paymentMethod === 'cash' || (p.paymentMethod as string) === 'Cash') && <Banknote className="w-3 h-3 text-emerald-600" />}
+                        {(p.paymentMethod === 'bank' || (p.paymentMethod as string) === 'Bank') && <Building className="w-3 h-3 text-blue-600" />}
                         <span>{p.paymentMethod}</span>
                       </span>
                     </td>
@@ -778,6 +778,15 @@ export const MyProfileView: React.FC<MyProfileViewProps> = ({
                     totalCost: activeStatement.totalCost,
                     totalPaid: activeStatement.totalPaid,
                     netBalance: activeStatement.netBalance,
+                    breakdown: {
+                      rentShare: 0,
+                      gasShare: 0,
+                      electricityShare: 0,
+                      maidSalaryShare: 0,
+                      internetShare: 0,
+                      cleaningShare: 0,
+                      otherShared: activeStatement.sharedCostsShare,
+                    },
                   })
                 }
                 className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-200 text-xs font-bold transition-colors cursor-pointer"

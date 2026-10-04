@@ -146,42 +146,42 @@ export const StatementVoucherModal: React.FC<StatementVoucherModalProps> = ({
                   <td className="py-2 px-3 text-slate-600">বাসা ভাড়া শেয়ার (Rent)</td>
                   <td className="py-2 px-3 text-center text-slate-400">সুষম অংশীদারিত্ব</td>
                   <td className="py-2 px-3 text-right">
-                    ৳{statement.breakdown.rentShare.toLocaleString()}
+                    ৳{(statement.breakdown?.rentShare || 0).toLocaleString()}
                   </td>
                 </tr>
                 <tr>
                   <td className="py-2 px-3 text-slate-600">বিদ্যুৎ বিল শেয়ার (Electricity)</td>
                   <td className="py-2 px-3 text-center text-slate-400">সুষম অংশীদারিত্ব</td>
                   <td className="py-2 px-3 text-right">
-                    ৳{statement.breakdown.electricityShare.toLocaleString()}
+                    ৳{(statement.breakdown?.electricityShare || 0).toLocaleString()}
                   </td>
                 </tr>
                 <tr>
                   <td className="py-2 px-3 text-slate-600">গ্যাস বিল শেয়ার (Gas)</td>
                   <td className="py-2 px-3 text-center text-slate-400">সুষম অংশীদারিত্ব</td>
                   <td className="py-2 px-3 text-right">
-                    ৳{statement.breakdown.gasShare.toLocaleString()}
+                    ৳{(statement.breakdown?.gasShare || 0).toLocaleString()}
                   </td>
                 </tr>
                 <tr>
                   <td className="py-2 px-3 text-slate-600">বুয়ার বেতন শেয়ার (Maid Salary)</td>
                   <td className="py-2 px-3 text-center text-slate-400">সুষম অংশীদারিত্ব</td>
                   <td className="py-2 px-3 text-right">
-                    ৳{statement.breakdown.maidSalaryShare.toLocaleString()}
+                    ৳{(statement.breakdown?.maidSalaryShare || 0).toLocaleString()}
                   </td>
                 </tr>
                 <tr>
                   <td className="py-2 px-3 text-slate-600">ওয়াইফাই / ইন্টারনেট শেয়ার (WiFi)</td>
                   <td className="py-2 px-3 text-center text-slate-400">সুষম অংশীদারিত্ব</td>
                   <td className="py-2 px-3 text-right">
-                    ৳{statement.breakdown.internetShare.toLocaleString()}
+                    ৳{(statement.breakdown?.internetShare || 0).toLocaleString()}
                   </td>
                 </tr>
                 <tr>
                   <td className="py-2 px-3 text-slate-600">ক্লিনিং ও ময়লা বিল শেয়ার</td>
                   <td className="py-2 px-3 text-center text-slate-400">সুষম অংশীদারিত্ব</td>
                   <td className="py-2 px-3 text-right">
-                    ৳{statement.breakdown.cleaningShare.toLocaleString()}
+                    ৳{(statement.breakdown?.cleaningShare || 0).toLocaleString()}
                   </td>
                 </tr>
                 <tr className="bg-slate-50 font-bold text-slate-900 border-t border-slate-200">

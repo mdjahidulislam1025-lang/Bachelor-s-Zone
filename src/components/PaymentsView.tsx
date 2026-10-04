@@ -66,6 +66,11 @@ export const PaymentsView: React.FC<PaymentsViewProps> = ({
   const [deleteTarget, setDeleteTarget] = useState<PaymentRecord | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
 
+  // Reject modal state
+  const [rejectTarget, setRejectTarget] = useState<PaymentRecord | null>(null);
+  const [rejectReason, setRejectReason] = useState('পেমেন্ট তথ্যে অসঙ্গতি');
+  const [isRejecting, setIsRejecting] = useState(false);
+
   // Form state for editing
   const [date, setDate] = useState(() => getTodayDhakaDate());
   const [memberId, setMemberId] = useState(activeMembers[0]?.id || 'm1');
@@ -423,16 +428,8 @@ export const PaymentsView: React.FC<PaymentsViewProps> = ({
                                   <button
                                     type="button"
                                     onClick={() => {
-                                      const reason = window.prompt('জমা বাতিলের কারণ লিখুন:', 'পেমেন্ট তথ্যে অসঙ্গতি');
-                                      if (reason !== null) {
-                                        onSavePayment({
-                                          ...p,
-                                          status: 'rejected',
-                                          rejectionReason: reason || 'এডমিন কর্তৃক বাতিল',
-                                          verifiedBy: currentMember.name,
-                                          verifiedAt: new Date().toISOString(),
-                                        });
-                                      }
+                                      setRejectTarget(p);
+                                      setRejectReason('পেমেন্ট তথ্যে অসঙ্গতি');
                                     }}
                                     className="px-2 py-0.5 rounded bg-rose-600 hover:bg-rose-700 text-white text-[10px] font-bold cursor-pointer transition-colors shadow-2xs"
                                     title="বাতিল করুন"
@@ -736,6 +733,76 @@ export const PaymentsView: React.FC<PaymentsViewProps> = ({
                 </button>
               </div>
             </form>
+          </div>
+        </div>
+      )}
+
+      {/* REJECT PAYMENT MODAL */}
+      {rejectTarget && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-xs animate-in fade-in">
+          <div className="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl border border-rose-100 space-y-4">
+            <div className="flex items-center gap-3 text-rose-600">
+              <div className="p-2.5 bg-rose-100 rounded-xl">
+                <XCircle className="w-6 h-6" />
+              </div>
+              <div>
+                <h3 className="text-base font-bold text-slate-900">জমার আবেদন বাতিলকরণ</h3>
+                <p className="text-xs text-slate-500">
+                  {rejectTarget.memberName} এর ৳{rejectTarget.amount.toLocaleString()} ({rejectTarget.paymentMethod})
+                </p>
+              </div>
+            </div>
+
+            <div className="p-3 bg-slate-50 rounded-xl text-xs space-y-1 text-slate-600">
+              <div>তারিখ: <strong>{rejectTarget.date}</strong></div>
+              <div>ট্রানজেকশন আইডি: <strong className="font-mono">{rejectTarget.transactionRef || 'N/A'}</strong></div>
+            </div>
+
+            <div>
+              <label className="block text-xs font-bold text-slate-700 mb-1">
+                বাতিলের কারণ (সদস্যের প্রোফাইলে প্রদর্শিত হবে) <span className="text-rose-500">*</span>
+              </label>
+              <textarea
+                rows={3}
+                value={rejectReason}
+                onChange={e => setRejectReason(e.target.value)}
+                placeholder="যেমন: ট্রানজেকশন আইডি মেলেনি / একাউন্টে টাকা পৌঁছায়নি"
+                className="w-full p-2.5 text-xs border border-slate-300 rounded-xl outline-none focus:ring-2 focus:ring-rose-500"
+              />
+            </div>
+
+            <div className="flex items-center justify-end gap-2 pt-2 border-t border-slate-100">
+              <button
+                type="button"
+                disabled={isRejecting}
+                onClick={() => setRejectTarget(null)}
+                className="px-4 py-2 text-xs font-semibold text-slate-600 hover:bg-slate-100 rounded-xl transition-colors cursor-pointer"
+              >
+                ফিরে যান
+              </button>
+              <button
+                type="button"
+                disabled={isRejecting || !rejectReason.trim()}
+                onClick={async () => {
+                  try {
+                    setIsRejecting(true);
+                    await onSavePayment({
+                      ...rejectTarget,
+                      status: 'rejected',
+                      rejectionReason: rejectReason.trim(),
+                      verifiedBy: currentMember.name,
+                      verifiedAt: new Date().toISOString(),
+                    });
+                    setRejectTarget(null);
+                  } finally {
+                    setIsRejecting(false);
+                  }
+                }}
+                className="px-4 py-2 bg-rose-600 hover:bg-rose-700 text-white text-xs font-bold rounded-xl shadow-xs transition-colors cursor-pointer disabled:opacity-50"
+              >
+                {isRejecting ? 'বাতিল করা হচ্ছে...' : 'বাতিল নিশ্চিত করুন'}
+              </button>
+            </div>
           </div>
         </div>
       )}
